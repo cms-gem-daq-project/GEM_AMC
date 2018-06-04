@@ -21,12 +21,19 @@ use UNISIM.VComponents.all;
 
 entity clk_phase_check_v7 is
     generic (
-        FREQ_MHZ     : real := 40.000 -- please give a round number e.g. even if the TTC clock is not exactly 40MHz, you should still specify 40.000 here 
+        ROUND_FREQ_MHZ      : real := 40.000; -- please give a round number e.g. even if the TTC clock is not exactly 40MHz, you should still specify 40.000 here
+        EXACT_FREQ_HZ       : std_logic_vector(31 downto 0) := x"02638e98"; -- exact frequency in Herz, this is only used in counting seconds since last phase jump
+        PHASE_JUMP_THRESH   : unsigned(11 downto 0) := x"06c" -- phase difference threshold between subsequent measurements to be considered a phase jump
     );
     port (
-        reset       : in  std_logic;
-        clk1        : in  std_logic;
-        clk2        : in  std_logic
+        reset_i             : in  std_logic;
+        clk1_i              : in  std_logic;
+        clk2_i              : in  std_logic;
+        phase_o             : out std_logic_vector(11 downto 0); -- phase difference between the rising edges of the two clocks (each count is about 18.6012ps)
+        phase_jump_o        : out std_logic;                     -- this signal goes high if a significant phase difference is observed compared to the previous measurement (see PHASE_JUMP_THRESH)
+        phase_jump_cnt_o    : out std_logic_vector(15 downto 0); -- number of times a phase jump has been detected
+        phase_jump_size_o   : out std_logic_vector(11 downto 0); -- the magnitude of the phase jump (difference between the subsequent measurements that triggered the last phase jump detection)
+        phase_jump_time_o   : out std_logic_vector(15 downto 0)  -- number of seconds since last phase jump
     );
 
 end clk_phase_check_v7;
@@ -39,13 +46,15 @@ architecture Behavioral of clk_phase_check_v7 is
             clk : IN STD_LOGIC;
             probe0 : IN STD_LOGIC; 
             probe1 : IN STD_LOGIC;
-            probe2 : IN STD_LOGIC_VECTOR(1 DOWNTO 0)
+            probe2 : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
+            probe3 : IN STD_LOGIC
         );
     end component;
 
     ---------------- SIGNALS -----------------
     constant VCO_FREQ           : real := 960.000;
     constant SAMPLE_TIMEOUT     : unsigned(3 downto 0) := x"a"; -- sample 10 clock cycles for each phase
+    
     type t_state is (WAIT_SAMPLE, SHIFT_PHASE, WAIT_SHIFT_DONE);
         
     signal clkfb                : std_logic;
@@ -59,10 +68,31 @@ architecture Behavioral of clk_phase_check_v7 is
 
     signal state                : t_state := WAIT_SAMPLE;
     signal sample_timer         : unsigned(3 downto 0) := (others => '0');
+    
+    -- phase measurement signals
+    type t_clk_state is (HIGH, LOW, UNDETERMINED);
 
+    signal sample_ok            : std_logic;
+    signal sample_ok_sync       : std_logic := '0';
+    signal sample_ok_sync_prev  : std_logic := '0';
+    signal first_ever_sample    : std_logic := '1';
+    signal clk1_state           : t_clk_state := LOW;
+    signal clk2_state           : t_clk_state := LOW;
+    signal phase_cnt            : unsigned(11 downto 0) := (others => '0');
+    signal phase                : unsigned(11 downto 0) := (others => '0');
+    signal phase_jump           : std_logic;
+    signal phase_jump_cnt       : unsigned(15 downto 0) := (others => '0');
+    signal phase_jump_size      : unsigned(11 downto 0) := (others => '0');
+    signal phase_jump_time      : std_logic_vector(15 downto 0) := (others => '0');
+    
 begin
 
-    mmcm_ps_clk <= clk1;
+    mmcm_ps_clk <= clk1_i;
+    phase_o <= std_logic_vector(phase);
+    phase_jump_o <= phase_jump;
+    phase_jump_cnt_o <= std_logic_vector(phase_jump_cnt);
+    phase_jump_size_o <= std_logic_vector(phase_jump_size);
+    phase_jump_time_o <= phase_jump_time;
 
     mmcm_adv_inst : MMCME2_ADV
         generic map(
@@ -71,30 +101,30 @@ begin
             COMPENSATION         => "ZHOLD",
             STARTUP_WAIT         => false,
             DIVCLK_DIVIDE        => 1,
-            CLKFBOUT_MULT_F      => VCO_FREQ / FREQ_MHZ,
+            CLKFBOUT_MULT_F      => VCO_FREQ / ROUND_FREQ_MHZ,
             CLKFBOUT_PHASE       => 0.000,
             CLKFBOUT_USE_FINE_PS => true,
-            CLKOUT0_DIVIDE_F     => VCO_FREQ / FREQ_MHZ,
+            CLKOUT0_DIVIDE_F     => VCO_FREQ / ROUND_FREQ_MHZ,
             CLKOUT0_PHASE        => 0.000,
             CLKOUT0_DUTY_CYCLE   => 0.500,
             CLKOUT0_USE_FINE_PS  => false,
-            CLKOUT1_DIVIDE       => integer(VCO_FREQ / FREQ_MHZ),
+            CLKOUT1_DIVIDE       => integer(VCO_FREQ / ROUND_FREQ_MHZ),
             CLKOUT1_PHASE        => 0.000,
             CLKOUT1_DUTY_CYCLE   => 0.500,
             CLKOUT1_USE_FINE_PS  => false,
-            CLKOUT2_DIVIDE       => integer(VCO_FREQ / FREQ_MHZ),
+            CLKOUT2_DIVIDE       => integer(VCO_FREQ / ROUND_FREQ_MHZ),
             CLKOUT2_PHASE        => 0.000,
             CLKOUT2_DUTY_CYCLE   => 0.500,
             CLKOUT2_USE_FINE_PS  => false,
-            CLKOUT3_DIVIDE       => integer(VCO_FREQ / FREQ_MHZ),
+            CLKOUT3_DIVIDE       => integer(VCO_FREQ / ROUND_FREQ_MHZ),
             CLKOUT3_PHASE        => 0.000,
             CLKOUT3_DUTY_CYCLE   => 0.500,
             CLKOUT3_USE_FINE_PS  => false,
-            CLKOUT4_DIVIDE       => integer(VCO_FREQ / FREQ_MHZ),
+            CLKOUT4_DIVIDE       => integer(VCO_FREQ / ROUND_FREQ_MHZ),
             CLKOUT4_PHASE        => 0.000,
             CLKOUT4_DUTY_CYCLE   => 0.500,
             CLKOUT4_USE_FINE_PS  => false,
-            CLKIN1_PERIOD        => 1000.000 / FREQ_MHZ,
+            CLKIN1_PERIOD        => 1000.000 / ROUND_FREQ_MHZ,
             REF_JITTER1          => 0.010)
         port map(
             -- Output clocks
@@ -113,7 +143,7 @@ begin
             CLKOUT6      => open,
             -- Input clock control
             CLKFBIN      => clkfb,
-            CLKIN1       => clk1,
+            CLKIN1       => clk1_i,
             CLKIN2       => '0',
             -- Tied to always select the primary input clock
             CLKINSEL     => '1',
@@ -136,7 +166,7 @@ begin
             CLKINSTOPPED => open,
             CLKFBSTOPPED => open,
             PWRDWN       => '0',
-            RST          => reset
+            RST          => reset_i
         );
 
     i_bufg_clk_40 : BUFG
@@ -145,13 +175,14 @@ begin
             I => sampling_clk
         );
         
-    process(clk1)
+    process(clk1_i)
     begin
-        if (rising_edge(clk1)) then
-            if ((reset = '1') or (mmcm_locked = '0')) then
+        if (rising_edge(clk1_i)) then
+            if ((reset_i = '1') or (mmcm_locked = '0')) then
                 state <= WAIT_SAMPLE;
                 mmcm_ps_en <= '0';
                 sample_timer <= (others => '0');
+                sample_ok <= '0';
             else
                 case state is
                     when WAIT_SAMPLE =>
@@ -159,19 +190,27 @@ begin
                         if (sample_timer = SAMPLE_TIMEOUT) then
                             state <= SHIFT_PHASE;
                             sample_timer <= (others => '0');
+                            sample_ok <= '0';
                         else
                             state <= WAIT_SAMPLE;
                             sample_timer <= sample_timer + 1;
+                            if (sample_timer < SAMPLE_TIMEOUT - 5) then
+                                sample_ok <= '1';
+                            else
+                                sample_ok <= '0';
+                            end if;
                         end if;
                         
                     when SHIFT_PHASE =>
                         mmcm_ps_en <= '1';
                         state <= WAIT_SHIFT_DONE;
                         sample_timer <= (others => '0');
+                        sample_ok <= '0';
                         
                     when WAIT_SHIFT_DONE =>
                         mmcm_ps_en <= '0';
                         sample_timer <= (others => '0');
+                        sample_ok <= '0';
                         if (mmcm_ps_done = '1') then
                             state <= WAIT_SAMPLE;
                         else
@@ -181,6 +220,7 @@ begin
                     when others =>
                         state <= WAIT_SAMPLE;
                         sample_timer <= (others => '0');
+                        sample_ok <= '0';
                         mmcm_ps_en <= '0';
                         
                 end case;
@@ -188,12 +228,107 @@ begin
         end if;
     end process;
 
+    i_sample_ok_sync : entity work.synchronizer
+        generic map(
+            N_STAGES => 3
+        )
+        port map(
+            async_i => sample_ok,
+            clk_i   => sampling_clk_bufg,
+            sync_o  => sample_ok_sync
+        );
+    
+    -- phase measurement process
+    -- checks the status of both clocks between the phase shifts, and then
+    -- counts the number of phase shifts done between the last time when
+    -- both clocks consistently sampled low and the time when both clocks start to consistently sample high
+    process(sampling_clk_bufg)
+    begin
+        if (rising_edge(sampling_clk_bufg)) then
+            if (reset_i = '1') then
+                first_ever_sample <= '1';
+                clk1_state <= LOW;
+                clk2_state <= LOW;
+                phase_cnt <= (others => '0');
+                phase <= (others => '0');
+                phase_jump <= '0';
+                phase_jump_cnt <= (others => '0');
+                phase_jump_size <= (others => '0');
+            else
+                sample_ok_sync_prev <= sample_ok_sync;
+                -- first sample
+                if (sample_ok_sync_prev = '0' and sample_ok_sync = '1') then
+                    if (clk1_i = '1') then
+                        clk1_state <= HIGH;
+                    else
+                        clk1_state <= LOW;
+                    end if;
+                    if (clk2_i = '1') then
+                        clk2_state <= HIGH;
+                    else
+                        clk2_state <= LOW;
+                    end if;
+                -- additional samples at the same phase
+                elsif (sample_ok_sync_prev = '1' and sample_ok_sync = '1') then
+                    if ((clk1_i = '1' and clk1_state = LOW) or (clk1_i = '0' and clk1_state = HIGH)) then
+                        clk1_state <= UNDETERMINED;
+                    end if;
+                    if ((clk2_i = '1' and clk2_state = LOW) or (clk2_i = '0' and clk2_state = HIGH)) then
+                        clk2_state <= UNDETERMINED;
+                    end if;
+                -- end of the current phase sampling
+                elsif (sample_ok_sync_prev = '1' and sample_ok_sync = '0') then
+                    -- reset the phase counter when both clocks sample low
+                    if (clk1_state = LOW and clk2_state = LOW) then
+                        phase_cnt <= (others => '0');
+                    -- fix the phase measurement when both clocks sample high
+                    elsif (clk1_state = HIGH and clk2_state = HIGH) then
+                        phase <= phase_cnt;
+                        first_ever_sample <= '0';
+                        
+                        if (first_ever_sample = '0') then
+                            if ((phase_cnt > phase) and ((phase_cnt - phase) > PHASE_JUMP_THRESH)) then
+                                phase_jump <= '1';
+                                phase_jump_cnt <= phase_jump_cnt + 1;
+                                phase_jump_size <= phase_cnt - phase;
+                            elsif ((phase_cnt < phase) and ((phase - phase_cnt) > PHASE_JUMP_THRESH)) then
+                                phase_jump <= '1';
+                                phase_jump_cnt <= phase_jump_cnt + 1;
+                                phase_jump_size <= phase - phase_cnt;
+                            else
+                                phase_jump <= '0';
+                            end if;
+                        end if;
+                        
+                    -- increment the phase counter between both clocks sampling low and both clocks sampling high
+                    -- this should approximate the distance between the rising edges of the two clocks
+                    elsif (phase_cnt /= x"fff") then
+                        phase_cnt <= phase_cnt + 1;
+                    end if;
+                end if;
+            end if;
+        end if;
+    end process;
+
+    i_seconds_counter : entity work.seconds_counter
+        generic map(
+            g_CLK_FREQUENCY  => EXACT_FREQ_HZ,
+            g_ALLOW_ROLLOVER => false,
+            g_COUNTER_WIDTH  => 16
+        )
+        port map(
+            clk_i     => sampling_clk_bufg,
+            reset_i   => reset_i or phase_jump,
+            seconds_o => phase_jump_time
+        );
+
     i_ila : component ila_clk_phase_check
         port map(
             clk    => sampling_clk_bufg,
-            probe0 => clk1,
-            probe1 => clk2,
-            probe2 => std_logic_vector(to_unsigned(t_state'pos(state), 2))
+            probe0 => clk1_i,
+            probe1 => clk2_i,
+            probe2 => std_logic_vector(to_unsigned(t_state'pos(state), 2)),
+            probe3 => phase_jump
         );
 
 end Behavioral;

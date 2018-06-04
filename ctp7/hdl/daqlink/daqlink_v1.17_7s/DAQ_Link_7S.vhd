@@ -125,7 +125,7 @@ function boolean_to_int_u(biu : boolean) return integer is
      return 7;
    end if;
 end function;
-constant version : std_logic_vector(7 downto 0) := x"14";
+constant version : std_logic_vector(7 downto 0) := x"15";
 constant N : integer := 8;
 constant u : integer := boolean_to_int_u(simulation);
 constant Acknowledge : std_logic_vector(7 downto 0) := x"12";
@@ -1133,7 +1133,7 @@ begin
 			end case;
 		else
 			case packet_wc(3 downto 0) is
-				when x"0" => cntrs <= FIFO_ovf & "00" & EventStatus_ra & "000" & EventStatus_wa;
+				when x"0" => cntrs <= FIFO_ovf & "00" & EventStatus_ra & ReSyncState & EventStatus_wa;
 				when x"1" => cntrs <= '0' & DataBuf_wa;
 				when x"2" => cntrs <= '0' & DataBuf_ra;
 				when x"3" => cntrs <= "000000" & L1Ainfo_wa;

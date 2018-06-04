@@ -36,10 +36,11 @@ entity gem_amc is
         reset_pwrup_o           : out  std_logic;
 
         -- TTC
-        ttc_clocks_i            : in t_ttc_clks;
-        ttc_clocks_locked_i     : in  std_logic;
         ttc_data_p_i            : in  std_logic;      -- TTC protocol backplane signals
         ttc_data_n_i            : in  std_logic;
+        ttc_clocks_i            : in  t_ttc_clks;
+        ttc_clocks_status_i     : in  t_ttc_clk_status;
+        ttc_clocks_ctrl_o       : out t_ttc_clk_ctrl;
         
         -- 8b10b DAQ + Control GTX / GTH links (3.2Gbs, 16bit @ 160MHz w/ 8b10b encoding)
         gt_8b10b_rx_clk_arr_i   : in  std_logic_vector(g_NUM_OF_OHs - 1 downto 0);
@@ -256,7 +257,8 @@ begin
         port map(
             reset_i             => reset,
             ttc_clks_i          => ttc_clocks_i,
-            ttc_clks_locked_i   => ttc_clocks_locked_i,
+            ttc_clks_status_i   => ttc_clocks_status_i,
+            ttc_clks_ctrl_o     => ttc_clocks_ctrl_o,
             ttc_data_p_i        => ttc_data_p_i,
             ttc_data_n_i        => ttc_data_n_i,
             ttc_cmds_o          => ttc_cmd,

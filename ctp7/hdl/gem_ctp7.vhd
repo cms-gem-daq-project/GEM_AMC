@@ -105,7 +105,8 @@ architecture gem_ctp7_arch of gem_ctp7 is
 
     -------------------------- TTC ---------------------------------
     signal ttc_clocks           : t_ttc_clks;
-    signal ttc_clocks_locked    : std_logic;
+    signal ttc_clks_status      : t_ttc_clk_status;
+    signal ttc_clks_ctrl        : t_ttc_clk_ctrl;
 
     -------------------------- GTH ---------------------------------
     signal clk_gth_tx_arr       : std_logic_vector(g_NUM_OF_GTH_GTs - 1 downto 0);
@@ -203,8 +204,9 @@ begin
             
             clk_40_ttc_p_i                 => clk_40_ttc_p_i,
             clk_40_ttc_n_i                 => clk_40_ttc_n_i,
+            ttc_clks_ctrl_i                => ttc_clks_ctrl,
             ttc_clks_o                     => ttc_clocks,
-            ttc_clks_locked_o              => ttc_clocks_locked,
+            ttc_clks_status_o              => ttc_clks_status,
             
             clk_gth_tx_arr_o               => clk_gth_tx_arr,
             clk_gth_rx_arr_o               => clk_gth_rx_arr,
@@ -284,7 +286,8 @@ begin
             ttc_data_p_i            => ttc_data_p_i,
             ttc_data_n_i            => ttc_data_n_i,
             ttc_clocks_i            => ttc_clocks,
-            ttc_clocks_locked_i     => ttc_clocks_locked,
+            ttc_clocks_ctrl_o       => ttc_clks_ctrl,
+            ttc_clocks_status_i     => ttc_clks_status,
             
             gt_8b10b_rx_clk_arr_i   => gem_gt_8b10b_rx_clk_arr,
             gt_8b10b_tx_clk_arr_i   => gem_gt_8b10b_tx_clk_arr,

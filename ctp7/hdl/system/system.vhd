@@ -71,8 +71,9 @@ entity system is
     ----------------- TTC ------------------------
     clk_40_ttc_p_i        : in std_logic;
     clk_40_ttc_n_i        : in std_logic;
+    ttc_clks_ctrl_i       : in  t_ttc_clk_ctrl;
     ttc_clks_o            : out t_ttc_clks;
-    ttc_clks_locked_o     : out std_logic;
+    ttc_clks_status_o     : out t_ttc_clk_status;
     
     ----------------- GTH ------------------------
     clk_gth_tx_arr_o            : out std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
@@ -273,8 +274,7 @@ architecture system_arch of system is
   ----------------- TTC ------------------------
   signal ttc_clk_160_clean : std_logic; -- this will be used as the source of all TTC clocks and should come from the jitter-cleaned MGT ref
   signal ttc_clks          : t_ttc_clks;
-  signal ttc_clks_reset    : std_logic;
-  signal ttc_clks_locked   : std_logic;
+  signal ttc_clks_status   : t_ttc_clk_status;
       
   -------------------------- DEBUG ----------------------------------
 --  attribute mark_debug : string;
@@ -328,15 +328,13 @@ begin
           clk_40_ttc_p_i      => clk_40_ttc_p_i,
           clk_40_ttc_n_i      => clk_40_ttc_n_i,
           clk_160_ttc_clean_i => ttc_clk_160_clean,
-          mmcm_rst_i          => '0', --ttc_clks_reset,
-          mmcm_locked_o       => ttc_clks_locked,
+          ctrl_i              => ttc_clks_ctrl_i,
           clocks_o            => ttc_clks,
-          pll_lock_time_o     => open,
-          unlock_cnt_o        => open
+          status_o            => ttc_clks_status
       ); 
   
   ttc_clks_o <= ttc_clks;
-  ttc_clks_locked_o <= ttc_clks_locked;
+  ttc_clks_status_o <= ttc_clks_status;
   
   i_v7_bd : v7_bd
     port map (
@@ -478,8 +476,8 @@ begin
       gth_cpll_status_arr_o   => s_gth_cpll_status_arr,
 
       ttc_clks_i              => ttc_clks,
-      ttc_clks_locked_i       => ttc_clks_locked,
-      ttc_clks_reset_o        => ttc_clks_reset,
+      ttc_clks_locked_i       => ttc_clks_status.sync_done,
+      ttc_clks_reset_o        => open,
 
       refclk_F_0_p_i          => refclk_F_0_p_i,
       refclk_F_0_n_i          => refclk_F_0_n_i,

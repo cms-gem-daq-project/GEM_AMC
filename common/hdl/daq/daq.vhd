@@ -125,6 +125,7 @@ architecture Behavioral of daq is
     -- Reset
     signal reset_global         : std_logic := '1';
     signal reset_daq_async      : std_logic := '1';
+    signal reset_daq_async_dly  : std_logic := '1';
     signal reset_daq            : std_logic := '1';
     signal reset_daqlink        : std_logic := '1'; -- should only be done once at powerup
     signal reset_pwrup          : std_logic := '1';
@@ -252,6 +253,7 @@ architecture Behavioral of daq is
     signal chmb_evtfifos_rd_en  : std_logic_vector(g_NUM_OF_OHs - 1 downto 0) := (others => '0'); -- you should probably just move this flag out of the t_chamber_evtfifo_rd_array struct 
     signal chmb_infifos_rd_en   : std_logic_vector(g_NUM_OF_OHs - 1 downto 0) := (others => '0'); -- you should probably just move this flag out of the t_chamber_evtfifo_rd_array struct 
     signal chmb_tts_states      : t_std4_array(0 to g_NUM_OF_OHs - 1);
+    signal chmb_infifo_underflow: std_logic;
     
     signal err_event_too_big    : std_logic;
     signal err_evtfifo_underflow: std_logic;
@@ -393,6 +395,16 @@ begin
         end if;
     end process;
 
+    i_rst_delay : entity work.synchronizer
+        generic map(
+            N_STAGES => 4
+        )
+        port map(
+            async_i => reset_daq_async,
+            clk_i   => ttc_clks_i.clk_40,
+            sync_o  => reset_daq_async_dly
+        );
+
     i_rst_extend : entity work.pulse_extend
         generic map(
             DELAY_CNT_LENGTH => 3
@@ -401,7 +413,7 @@ begin
             clk_i          => ttc_clks_i.clk_40,
             rst_i          => '0',
             pulse_length_i => "111",
-            pulse_i        => reset_daq_async,
+            pulse_i        => reset_daq_async_dly,
             pulse_o        => reset_daq
         );
 
@@ -731,6 +743,7 @@ begin
                 max_dav_timer <= (others => '0');
                 last_dav_timer <= (others => '0');
                 dav_timeout_flags <= (others => '0');
+                chmb_infifo_underflow <= '0';
             else
             
                 -- state machine for sending data
@@ -926,7 +939,7 @@ begin
                             daq_event_trailer <= '0';
                             daq_event_write_en <= '1';
                             
-                            -- move to the next state
+                            chmb_infifo_underflow <= '0';
                             e_word_count <= e_word_count + 1;
                             
                             -- if we do have any VFAT data in this event then go on to send that, otherwise just jump to the chamber trailer
@@ -962,7 +975,7 @@ begin
                             chmb_infifos_rd_en(e_input_idx) <= '0';
                             daq_state <= x"6";
                         -- we've just asserted chmb_infifos_rd_en(e_input_idx), if the valid is still 0, then just wait (make sure chmb_infifos_rd_en(e_input_idx) is 0)
-                        elsif ((daq_curr_block_word = 2) and (chamber_infifos(e_input_idx).valid = '0')) then
+                        elsif ((daq_curr_block_word = 2) and (chamber_infifos(e_input_idx).valid = '0') and (chamber_infifos(e_input_idx).underflow = '0')) then
                             chmb_infifos_rd_en(e_input_idx) <= '0';
                         -- lets move to the next vfat word
                         else
@@ -977,6 +990,13 @@ begin
                             daq_event_trailer <= '0';
                             daq_event_write_en <= '1';
                             e_word_count <= e_word_count + 1;
+                        elsif (chamber_infifos(e_input_idx).underflow = '1') then
+                            daq_event_data <= x"ffffffffffff0000"; -- a placeholder for an underflow condition (this should be easily detectable by unpacker since BC is above max, and chip id is ffff)
+                            daq_event_header <= '0';
+                            daq_event_trailer <= '0';
+                            daq_event_write_en <= '1';
+                            e_word_count <= e_word_count + 1;
+                            chmb_infifo_underflow <= '1';
                         else
                             daq_event_write_en <= '0';
                         end if;
@@ -998,7 +1018,8 @@ begin
                                               -- GEM chamber status
                                               err_evtfifo_underflow &
                                               "0" &  -- stuck data
-                                              "00" & x"00000000";
+                                              chmb_infifo_underflow & -- this input had an infifo underflow
+                                              "0" & x"00000000";
                             daq_event_header <= '0';
                             daq_event_trailer <= '0';
                             daq_event_write_en <= '1';
@@ -1028,7 +1049,7 @@ begin
                                           x"000000" &   -- Chamber error flag (hmm)
                                           -- GLIB status
                                           daq_almost_full &
-                                          ttc_status_i.mmcm_locked & 
+                                          ttc_status_i.clk_status.mmcm_locked & 
                                           daq_clk_locked_i & 
                                           daq_ready &
                                           ttc_status_i.bc0_status.locked &
@@ -1338,7 +1359,7 @@ begin
     regs_read_arr(0)(REG_DAQ_CONTROL_INPUT_ENABLE_MASK_MSB downto REG_DAQ_CONTROL_INPUT_ENABLE_MASK_LSB) <= input_mask;
     regs_read_arr(1)(REG_DAQ_STATUS_DAQ_LINK_RDY_BIT) <= daq_ready;
     regs_read_arr(1)(REG_DAQ_STATUS_DAQ_CLK_LOCKED_BIT) <= daq_clk_locked_i;
-    regs_read_arr(1)(REG_DAQ_STATUS_TTC_RDY_BIT) <= ttc_status_i.mmcm_locked;
+    regs_read_arr(1)(REG_DAQ_STATUS_TTC_RDY_BIT) <= ttc_status_i.clk_status.mmcm_locked;
     regs_read_arr(1)(REG_DAQ_STATUS_DAQ_LINK_AFULL_BIT) <= daq_almost_full;
     regs_read_arr(1)(REG_DAQ_STATUS_DAQ_OUTPUT_FIFO_HAD_OVERFLOW_BIT) <= err_daqfifo_full;
     regs_read_arr(1)(REG_DAQ_STATUS_TTC_BC0_LOCKED_BIT) <= ttc_status_i.bc0_status.locked;

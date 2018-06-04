@@ -16,7 +16,7 @@
           fw_bus_reset_signal="ipb_reset_i"
           fw_master_bus_signal="ipb_mosi_i"
           fw_slave_bus_signal="ipb_miso_o"
-          fw_reg_addr_msb="5"
+          fw_reg_addr_msb="7"
           fw_reg_addr_lsb="0">
       <node id="CTRL" address="0x0"
             description="TTC control">
@@ -24,21 +24,30 @@
               description="TTC module reset"
               fw_write_pulse_signal="ttc_ctrl.reset_local"/>
         <node id="MMCM_RESET" address="0x1" permission="w"
-              description="TTC MMCM reset"
-              fw_write_pulse_signal="ttc_ctrl.mmcm_reset"/>
+              description="Main MMCM reset. Note that resetting this MMCM normally shouldn't be needed.
+                           It may screw up the fiber links, requiring a GTH reset.
+                           This will also re-initiate the phase alignment procedure.
+                           In case of doubt, always try the phase alignment reset first, before resorting to MMCM reset."
+              fw_write_pulse_signal="ttc_ctrl.clk_ctrl.reset_mmcm"/>
         <node id="CNT_RESET" address="0x2" permission="w"
               description="TTC counter reset"
               fw_write_pulse_signal="ttc_ctrl.cnt_reset"
               sw_ctrl_configure_set="0x1" sw_ctrl_start_set="0x1"/>
-        <node id="MMCM_PHASE_SHIFT" address="0x3" permission="w"
-              description="TTC MMCM phase shift trigger"
-              fw_write_pulse_signal="ttc_ctrl.mmcm_phase_shift"/>
+        <node id="PHASE_ALIGNMENT_RESET" address="0x3" permission="w"
+              description="This will restart the procedure of aligning the main jitter cleaned clock to the backplane TTC ref clock.
+                           It may or may not screw up the fiber links (needs testing), and if it does, a GTH reset should help."
+              fw_write_pulse_signal="ttc_ctrl.clk_ctrl.reset_sync_fsm"/>
         <node id="L1A_ENABLE" address="0x4" mask="0x00000001" permission="rw"
               description="Enable L1As (L1As are blocked if this is 0)"
               fw_signal="ttc_ctrl.l1a_enable" fw_default="0b1"
               sw_ctrl_configure_set="0x0" sw_ctrl_start_set="0x1" sw_ctrl_stop_set="0x0"/>
+        <node id="DISABLE_PHASE_ALIGNMENT" address="0x4" mask="0x80000000" permission="rw"
+              description="Setting this to 1 will disable the phase alignment to backplane ref clock.
+                           This is intended to be used only in setups that don't have an AMC13 and thus no backplane TTC clock, but generate the TTC clock internally in CTP7."
+              fw_signal="ttc_ctrl.clk_ctrl.force_sync_done" fw_default="0b0"/>
       </node>
-      <node id="CONFIG" address="0x5"
+
+      <node id="CONFIG" address="0x10"
             description="TTC configuration -- used for setup TTC command decoding">
         <node id="CMD_BC0" address="0x0" mask="0x000000ff" permission="rw"
               description="BC0 command code"
@@ -77,24 +86,83 @@
               fw_signal="ttc_conf.cmd_test_sync" fw_default="0x20"
               sw_ctrl_configure_confdb_check_set="true"/>
       </node>
-      <node id="STATUS" address="0x8"
+
+      <node id="STATUS" address="0x20"
             description="TTC status">
-        <node id="MMCM_LOCKED" address="0x0" mask="0x00000001" permission="r"
-              description="MMCM locked flag"
-              fw_signal="ttc_status.mmcm_locked"
-              sw_monitor_error_value="0"/>
-        <node id="MMCM_UNLOCK_CNT" address="0x0" mask="0xffff0000" permission="r" description="MMCM unlock counter"
-              fw_signal="mmcm_unlock_cnt"
-              sw_monitor_warn_min_threshold="1"/>
-        <node id="TTC_SINGLE_ERROR_CNT" address="0x1" mask="0x0000ffff" permission="r"
+
+        <node id="CLK" address="0x0"
+              description="Clock status">
+          <node id="MMCM_LOCKED" address="0x0" mask="0x00000001" permission="r"
+                description="Main MMCM lock status (input is jitter cleaned 160MHz clock)"
+                fw_signal="ttc_clks_status_i.mmcm_locked"
+                sw_monitor_error_value="0"/>
+          <node id="SYNC_DONE" address="0x0" mask="0x00000002" permission="r"
+                description="Jitter cleaned clock is locked and phase alignment with backplane TTC ref clock is finished"
+                fw_signal="ttc_clks_status_i.sync_done"
+                sw_monitor_error_value="0"/>
+          <node id="PHASE_LOCKED" address="0x0" mask="0x00000004" permission="r"
+                description="Jitter cleaned 40MHz clock is currently in phase with the backplane 40MHz TTC clock"
+                fw_signal="ttc_clks_status_i.phase_locked"
+                sw_monitor_error_value="0"/>
+          <node id="MMCM_UNLOCK_CNT" address="0x0" mask="0xffff0000" permission="r"
+                description="Number of times the MMCM lock signal has gone low (this counter doesn't roll over)"
+                fw_signal="ttc_clks_status_i.mmcm_unlock_cnt"
+                sw_monitor_warn_min_threshold="1"/>
+          <node id="SYNC_RESTART_CNT" address="0x1" mask="0x0000ffff" permission="r"
+                description="Number of times the sync procedure was restarted due to loosing MMCM lock after sync was done (or was restarted manually)"
+                fw_signal="ttc_clks_status_i.sync_restart_cnt"
+                sw_monitor_warn_min_threshold="1"/>
+          <node id="PHASE_UNLOCK_CNT" address="0x1" mask="0xffff0000" permission="r"
+                description="Number of times the phase monitoring PLL lock signal has gone low (note: loosing phase lock doesn't restart the phase alignment automatically)"
+                fw_signal="ttc_clks_status_i.phase_unlock_cnt"
+                sw_monitor_warn_min_threshold="1"/>
+          <node id="SYNC_DONE_TIME" address="0x2" mask="0x0000ffff" permission="r"
+                description="Number of seconds since last sync was done"
+                fw_signal="ttc_clks_status_i.sync_done_time"/>
+          <node id="PHASE_UNLOCK_TIME" address="0x2" mask="0xffff0000" permission="r"
+                description="Number of seconds since last phase unlock"
+                fw_signal="ttc_clks_status_i.phase_unlock_time"/>
+          <node id="PA_PLL_LOCK_WINDOW" address="0x3" mask="0x0000ffff" permission="r"
+                description="Phase alignment: the width of the phase lock window"
+                fw_signal="ttc_clks_status_i.pll_lock_window"/>
+          <node id="PA_PHASE_SHIFT_CNT" address="0x3" mask="0xffff0000" permission="r"
+                description="Phase alignment: number of phase shifts done by the phase alignment FSM"
+                fw_signal="ttc_clks_status_i.phase_shift_cnt"/>
+          <node id="PA_PLL_LOCK_CLOCKS" address="0x4" mask="0x00ffffff" permission="r"
+                description="Phase alignment: number of clock cycles it took the phase monitoring PLL to lock (debugging register)"
+                fw_signal="ttc_clks_status_i.pll_lock_time"/>
+          <node id="PA_FSM_STATE" address="0x4" mask="0x70000000" permission="r"
+                description="Phase alignment: phase alignment FSM state (debugging register)"
+                fw_signal="ttc_clks_status_i.pa_fsm_state"/>
+          <node id="PM_PHASE" address="0x5" mask="0x00000fff" permission="r"
+                description="Phase monitoring: phase difference between the rising edges of the jitter cleaned 40MHz and backplane TTC 40MHz clocks.
+                             Each count is about 18.6012ps
+                             Note that absolute value is not very important, because these clocks will always have some offset due to routing on the FPGA,
+                             the important thing is that this value doesn't change much."
+                fw_signal="ttc_clks_status_i.phase"/>
+          <node id="PM_PHASE_JUMP_CNT" address="0x5" mask="0xffff0000" permission="r"
+                description="Phase monitoring: number of times a phase jump has been detected.
+                             A phase jump detection is triggered by a large difference between two subsequent phase measurements
+                             (currently the threshold is set at 2ns)"
+                fw_signal="ttc_clks_status_i.phase_jump_cnt"/>
+          <node id="PM_PHASE_JUMP_SIZE" address="0x6" mask="0x00000fff" permission="r"
+                description="Phase monitoring: the magnitude of the phase jump (difference between the subsequent phase measurements that triggered the last phase jump detection)"
+                fw_signal="ttc_clks_status_i.phase_jump_size"/>
+          <node id="PM_PHASE_JUMP_TIME" address="0x6" mask="0xffff0000" permission="r"
+                description="Phase monitoring: number of seconds since last phase jump"
+                fw_signal="ttc_clks_status_i.phase_jump_time"/>
+        </node>
+
+        <node id="TTC_SINGLE_ERROR_CNT" address="0x10" mask="0x0000ffff" permission="r"
               description="TTC stream single bit error count"
               fw_signal="ttc_status.single_err"
               sw_monitor_warn_min_threshold="1"/>
-        <node id="TTC_DOUBLE_ERROR_CNT" address="0x1" mask="0xffff0000" permission="r"
+        <node id="TTC_DOUBLE_ERROR_CNT" address="0x10" mask="0xffff0000" permission="r"
               description="TTC stream double bit error count"
               fw_signal="ttc_status.double_err"
               sw_monitor_error_min_threshold="1"/>
-        <node id="BC0" address="0x2"
+
+        <node id="BC0" address="0x11"
               description="TTC status">
           <node id="LOCKED" address="0x0" mask="0x00000001" permission="r"
                 description="BC0 locked flag"
@@ -116,7 +184,7 @@
         </node>
       </node>
 
-      <node id="CMD_COUNTERS" address="0xd"
+      <node id="CMD_COUNTERS" address="0x40"
             description="TTC command counters">
         <node id="L1A" address="0x0" permission="r"
               description="L1A count"
@@ -150,19 +218,13 @@
               fw_signal="ttc_cmds_cnt_arr(9)"/>
       </node>
 
-      <node id="L1A_ID" address="0x17" mask="0x00ffffff" permission="r"
+      <node id="L1A_ID" address="0x50" mask="0x00ffffff" permission="r"
             description="L1A ID (increments with every L1A and resets with EC0), used by DAQ to tag event numbers"
             fw_signal="l1id_cnt"/>
 
-      <node id="L1A_RATE" address="0x18" permission="r"
+      <node id="L1A_RATE" address="0x51" permission="r"
             description="L1A rate in Hz"
             fw_signal="l1a_rate"/>
-
-      <node id="TTC_SPY_BUFFER" address="0x19" permission="r"
-            description="TTC Spy buffer -- this is filled with TTC commands (from LSB to MSB)
-                         and freezes until the user reads it out, once read out it resets and
-                         fills up again with new TTC commands received from that point on"
-            fw_signal="ttc_spy_buffer" fw_read_pulse_signal="ttc_spy_reset"/>
     </node>
     <!--end TTC module -->
 
@@ -577,7 +639,7 @@
               fw_signal="daq_clk_locked_i"/>
         <node id="TTC_RDY"         address="0x0"  mask="0x00000004" permission="r"
               description="This flag is 1 if TTC clock MMCM is locked"
-              fw_signal="ttc_status_i.mmcm_locked"/>
+              fw_signal="ttc_status_i.clk_status.mmcm_locked"/>
         <node id="DAQ_LINK_AFULL"       address="0x0"  mask="0x00000008" permission="r"
               description="This bit comes directly from DAQLink module, indicating
                            that its internal buffers are almost full. No events will be sent

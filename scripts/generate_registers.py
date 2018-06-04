@@ -648,6 +648,27 @@ def printNodeToUHALFile(node, file, level, baseAddress, baseName, addrOffset, nu
     else:
         file.write('/>\n')
 
+    # add in duplicated RUN_PARAM sub fields
+    if name.find('RUN_PARAMS') > -1:
+        for parm in range(3):
+            for i in range(level):
+                file.write('  ')
+                pass
+            file.write('<node id="%s%d" ' % (name[:-1],parm+1))
+            if node.address is not None:
+                if baseName is None and level == 1:
+                    file.write('address="%s" ' % hex((node.address - baseAddress) + addrOffset))
+                else:
+                    file.write('address="%s" ' % hex(node.address - baseAddress))
+            if node.permission is not None:
+                file.write('permission="%s" ' % node.permission)
+            if node.mask is not None:
+                file.write('mask="0x%06x"' % (0xff<<(parm*8)))
+            if node.mode is not None:
+                file.write('mode="%s"' % node.mode)
+            file.write('/>\n')
+        
+
 # prints out bash script to read registers matching an expression
 def writeRegReadBashScript(modules, filename):
     print('Writing CTP7 reg read bash script')

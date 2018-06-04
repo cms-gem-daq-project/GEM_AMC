@@ -6,10 +6,11 @@
         <node id="MODULE_RESET" address="0x0" permission="w" />
         <node id="MMCM_RESET" address="0x1" permission="w" />
         <node id="CNT_RESET" address="0x2" permission="w" />
-        <node id="MMCM_PHASE_SHIFT" address="0x3" permission="w" />
+        <node id="PHASE_ALIGNMENT_RESET" address="0x3" permission="w" />
         <node id="L1A_ENABLE" address="0x4" permission="rw" mask="0x1"/>
+        <node id="DISABLE_PHASE_ALIGNMENT" address="0x4" permission="rw" mask="0x80000000"/>
       </node>
-      <node id="CONFIG" address="0x5" >
+      <node id="CONFIG" address="0x10" >
         <node id="CMD_BC0" address="0x0" permission="rw" mask="0xff"/>
         <node id="CMD_EC0" address="0x0" permission="rw" mask="0xff00"/>
         <node id="CMD_RESYNC" address="0x0" permission="rw" mask="0xff0000"/>
@@ -20,19 +21,35 @@
         <node id="CMD_STOP" address="0x1" permission="rw" mask="0xff000000"/>
         <node id="CMD_TEST_SYNC" address="0x2" permission="rw" mask="0xff"/>
       </node>
-      <node id="STATUS" address="0x8" >
-        <node id="MMCM_LOCKED" address="0x0" permission="r" mask="0x1"/>
-        <node id="MMCM_UNLOCK_CNT" address="0x0" permission="r" mask="0xffff0000"/>
-        <node id="TTC_SINGLE_ERROR_CNT" address="0x1" permission="r" mask="0xffff"/>
-        <node id="TTC_DOUBLE_ERROR_CNT" address="0x1" permission="r" mask="0xffff0000"/>
-        <node id="BC0" address="0x2" >
+      <node id="STATUS" address="0x20" >
+        <node id="CLK" address="0x0" >
+          <node id="MMCM_LOCKED" address="0x0" permission="r" mask="0x1"/>
+          <node id="SYNC_DONE" address="0x0" permission="r" mask="0x2"/>
+          <node id="PHASE_LOCKED" address="0x0" permission="r" mask="0x4"/>
+          <node id="MMCM_UNLOCK_CNT" address="0x0" permission="r" mask="0xffff0000"/>
+          <node id="SYNC_RESTART_CNT" address="0x1" permission="r" mask="0xffff"/>
+          <node id="PHASE_UNLOCK_CNT" address="0x1" permission="r" mask="0xffff0000"/>
+          <node id="SYNC_DONE_TIME" address="0x2" permission="r" mask="0xffff"/>
+          <node id="PHASE_UNLOCK_TIME" address="0x2" permission="r" mask="0xffff0000"/>
+          <node id="PA_PLL_LOCK_WINDOW" address="0x3" permission="r" mask="0xffff"/>
+          <node id="PA_PHASE_SHIFT_CNT" address="0x3" permission="r" mask="0xffff0000"/>
+          <node id="PA_PLL_LOCK_CLOCKS" address="0x4" permission="r" mask="0xffffff"/>
+          <node id="PA_FSM_STATE" address="0x4" permission="r" mask="0x70000000"/>
+          <node id="PM_PHASE" address="0x5" permission="r" mask="0xfff"/>
+          <node id="PM_PHASE_JUMP_CNT" address="0x5" permission="r" mask="0xffff0000"/>
+          <node id="PM_PHASE_JUMP_SIZE" address="0x6" permission="r" mask="0xfff"/>
+          <node id="PM_PHASE_JUMP_TIME" address="0x6" permission="r" mask="0xffff0000"/>
+        </node>
+        <node id="TTC_SINGLE_ERROR_CNT" address="0x10" permission="r" mask="0xffff"/>
+        <node id="TTC_DOUBLE_ERROR_CNT" address="0x10" permission="r" mask="0xffff0000"/>
+        <node id="BC0" address="0x11" >
           <node id="LOCKED" address="0x0" permission="r" mask="0x1"/>
           <node id="UNLOCK_CNT" address="0x1" permission="r" mask="0xffff"/>
           <node id="OVERFLOW_CNT" address="0x2" permission="r" mask="0xffff"/>
           <node id="UNDERFLOW_CNT" address="0x2" permission="r" mask="0xffff0000"/>
         </node>
       </node>
-      <node id="CMD_COUNTERS" address="0xd" >
+      <node id="CMD_COUNTERS" address="0x40" >
         <node id="L1A" address="0x0" permission="r" />
         <node id="BC0" address="0x1" permission="r" />
         <node id="EC0" address="0x2" permission="r" />
@@ -44,9 +61,8 @@
         <node id="STOP" address="0x8" permission="r" />
         <node id="TEST_SYNC" address="0x9" permission="r" />
       </node>
-      <node id="L1A_ID" address="0x17" permission="r" mask="0xffffff"/>
-      <node id="L1A_RATE" address="0x18" permission="r" />
-      <node id="TTC_SPY_BUFFER" address="0x19" permission="r" />
+      <node id="L1A_ID" address="0x50" permission="r" mask="0xffffff"/>
+      <node id="L1A_RATE" address="0x51" permission="r" />
     </node>
     <node id="TRIGGER" address="0x800000" >
       <node id="CTRL" address="0x0" >
@@ -935,6 +951,9 @@
       <node id="EXT_CONTROL" address="0xe" >
         <node id="RUN_TYPE" address="0x1" permission="rw" mask="0xf000000"/>
         <node id="RUN_PARAMS" address="0x1" permission="rw" mask="0xffffff"/>
+        <node id="RUN_PARAM1" address="0x1" permission="rw" mask="0x0000ff"/>
+        <node id="RUN_PARAM2" address="0x1" permission="rw" mask="0x00ff00"/>
+        <node id="RUN_PARAM3" address="0x1" permission="rw" mask="0xff0000"/>
       </node>
       <node id="OH0" address="0x10" >
         <node id="CONTROL" address="0x0" >

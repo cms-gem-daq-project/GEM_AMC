@@ -29,15 +29,12 @@ entity ttc_clocks is
         PLL_LOCK_WAIT_TIMEOUT     : unsigned(23 downto 0) := x"002710" -- way too long, will measure how low we can go here
     );
     port (
-        clk_40_ttc_p_i          : in  std_logic; -- TTC backplane clock signals
-        clk_40_ttc_n_i          : in  std_logic;
+        clk_40_ttc_p_i          : in  std_logic; -- TTC backplane clock
+        clk_40_ttc_n_i          : in  std_logic; -- TTC backplane clock
         clk_160_ttc_clean_i     : in  std_logic; -- TTC jitter cleaned 160MHz TTC clock (should come from MGT ref)
-        mmcm_rst_i              : in  std_logic;
-        mmcm_locked_o           : out std_logic;
-        clocks_o                : out t_ttc_clks;
-        pll_lock_time_o         : out std_logic_vector(23 downto 0);
-        pll_lock_window_o       : out std_logic_vector(15 downto 0);
-        unlock_cnt_o            : out std_logic_vector(15 downto 0)
+        ctrl_i                  : in  t_ttc_clk_ctrl; -- control signals
+        clocks_o                : out t_ttc_clks; -- clock outputs
+        status_o                : out t_ttc_clk_status -- status outputs
     );
 
 end ttc_clocks;
@@ -117,11 +114,25 @@ END COMPONENT  ;
     signal mmcm_ps_done_timer   : unsigned(7 downto 0)  := (others => '0');
     signal unlock_cnt           : unsigned(15 downto 0) := (others => '0');
     signal mmcm_unlock_cnt      : unsigned(15 downto 0) := (others => '0');
+    signal pll_unlock_cnt       : unsigned(15 downto 0) := (others => '0');
     
     signal mmcm_lock_stable_cnt : integer range 0 to 127 := 0;
     signal pll_lock_stable_cnt  : integer range 0 to 127 := 0;
     constant LOCK_STABLE_TIMEOUT: integer := 12;
     
+    signal sync_good            : std_logic;
+    
+    -- time counters
+    signal sync_done_time       : std_logic_vector(15 downto 0);
+    signal phase_unlock_time    : std_logic_vector(15 downto 0);
+    
+    -- phase monitoring
+    signal phase                : std_logic_vector(11 downto 0); -- phase difference between the rising edges of the two clocks (each count is about 18.6012ps)
+    signal phase_jump           : std_logic;
+    signal phase_jump_cnt       : std_logic_vector(15 downto 0);
+    signal phase_jump_size      : std_logic_vector(11 downto 0);
+    signal phase_jump_time      : std_logic_vector(15 downto 0); -- number of seconds since last phase jump
+        
     -- debug counters
     signal shift_back_fail_cnt  : unsigned(7 downto 0) := (others => '0');
       
@@ -130,7 +141,8 @@ END COMPONENT  ;
 --============================================================================
 begin
 
-    -- mmcm_reset <= mmcm_rst_i; -- it's driven by the vio right now
+    mmcm_reset <= ctrl_i.reset_mmcm;
+    fsm_reset <= ctrl_i.reset_sync_fsm;
 
     -- Input buffering
     --------------------------------------
@@ -257,11 +269,21 @@ begin
     ----------------------------------------------------------
   
     mmcm_ps_clk <= clk_160_ttc_clean_i;
-    mmcm_locked_o <= '1' when pa_state = SYNC_DONE else '0';
-    pll_lock_time_o <= std_logic_vector(pll_lock_wait_timer);
-    pll_lock_window_o <= std_logic_vector(pll_lock_window);
-    unlock_cnt_o <= std_logic_vector(unlock_cnt);
-  
+    
+    sync_good <= '1' when pa_state = SYNC_DONE else '0';
+    status_o.sync_done <= sync_good when ctrl_i.force_sync_done = '0' else mmcm_locked_raw;
+    status_o.mmcm_locked <= mmcm_locked;
+    status_o.phase_locked <= pll_locked;
+    status_o.sync_restart_cnt <= std_logic_vector(unlock_cnt);
+    status_o.mmcm_unlock_cnt <= std_logic_vector(mmcm_unlock_cnt);
+    status_o.phase_unlock_cnt <= std_logic_vector(pll_unlock_cnt);
+    status_o.pll_lock_time <= std_logic_vector(pll_lock_wait_timer);
+    status_o.pll_lock_window <= std_logic_vector(pll_lock_window);
+    status_o.phase_shift_cnt <= std_logic_vector(shift_cnt);
+    status_o.pa_fsm_state <= std_logic_vector(to_unsigned(pa_state_t'pos(pa_state), 3));
+    status_o.sync_done_time <= sync_done_time;
+    status_o.phase_unlock_time <= phase_unlock_time;
+      
     -- using this PLL to check phase alignment between the MMCM 120 output and TTC 120
     i_phase_monitor_pll : PLLE2_BASE
         generic map(
@@ -316,9 +338,17 @@ begin
                 pll_locked <= '0';
             end if;
             
-            if ((mmcm_locked = '1') and (mmcm_locked_raw = '0')) then
+            if (ctrl_i.reset_cnt = '1') then
+                mmcm_unlock_cnt <= (others => '0');
+            elsif ((mmcm_locked = '1') and (mmcm_locked_raw = '0') and (mmcm_unlock_cnt /= x"ffff")) then
                 mmcm_unlock_cnt <= mmcm_unlock_cnt + 1;
             end if; 
+            
+            if (ctrl_i.reset_cnt = '1') then
+                pll_unlock_cnt <= (others => '0');
+            elsif ((pa_state = SYNC_DONE) and (pll_locked = '1') and (pll_locked_raw = '0') and (pll_unlock_cnt /= x"ffff")) then
+                pll_unlock_cnt <= pll_unlock_cnt + 1;
+            end if;
             
             if ((mmcm_locked_raw = '0') or (mmcm_reset = '1')) then
                 mmcm_lock_stable_cnt <= 0;
@@ -334,6 +364,18 @@ begin
             
         end if;
     end process;
+    
+    i_phase_unlock_time : entity work.seconds_counter
+        generic map(
+            g_CLK_FREQUENCY  => x"098e3a60", -- 160.316MHz
+            g_ALLOW_ROLLOVER => false,
+            g_COUNTER_WIDTH  => 16
+        )
+        port map(
+            clk_i     => mmcm_ps_clk,
+            reset_i   => not pll_locked or ctrl_i.reset_cnt,
+            seconds_o => phase_unlock_time
+        );
     
     -- power-on FSM reset
 --    process(mmcm_ps_clk)
@@ -356,7 +398,7 @@ begin
     process(mmcm_ps_clk)
     begin
         if (rising_edge(mmcm_ps_clk)) then
-            if ((mmcm_reset = '1') or (fsm_reset = '1')) then
+            if ((mmcm_reset = '1') or (fsm_reset = '1') or (ctrl_i.force_sync_done = '1')) then
                 pa_state <= IDLE;
                 pll_reset <= '1';
                 mmcm_ps_en <= '0';
@@ -490,6 +532,10 @@ begin
                     when SYNC_DONE =>
                         mmcm_ps_en <= '0';
 
+                        if (ctrl_i.reset_cnt = '1') then
+                            unlock_cnt <= (others => '0');
+                        end if;
+
                         if (mmcm_locked = '0') then
                             pa_state <= IDLE;
                             unlock_cnt <= unlock_cnt + 1;
@@ -510,31 +556,56 @@ begin
         end if;
     end process;
     
+    i_sync_done_time : entity work.seconds_counter
+        generic map(
+            g_CLK_FREQUENCY  => x"098e3a60", -- 160.316MHz
+            g_ALLOW_ROLLOVER => false,
+            g_COUNTER_WIDTH  => 16
+        )
+        port map(
+            clk_i     => mmcm_ps_clk,
+            reset_i   => not sync_good or ctrl_i.reset_cnt,
+            seconds_o => sync_done_time
+        );    
+    
     -------------- DEBUG -------------- 
     
---    i_clk_phase_check : entity work.clk_phase_check_v7
---        generic map(
---            FREQ_MHZ => 40.000
---        )
---        port map(
---            reset => mmcm_rst_i,
---            clk1  => clk_40_ttc_bufg,
---            clk2  => ttc_clocks_bufg.clk_40
---        );
-        
-    i_vio_ttc_clocks : component vio_ttc_clocks
+    status_o.phase <= phase;
+    status_o.phase_jump <= phase_jump;
+    status_o.phase_jump_cnt <= phase_jump_cnt;
+    status_o.phase_jump_size <= phase_jump_size;
+    status_o.phase_jump_time <= phase_jump_time;
+    
+    i_clk_phase_check : entity work.clk_phase_check_v7
+        generic map(
+            ROUND_FREQ_MHZ => 40.000,
+            EXACT_FREQ_HZ => C_TTC_CLK_FREQUENCY_SLV,
+            PHASE_JUMP_THRESH => x"06c"
+        )
         port map(
-            clk        => mmcm_ps_clk,
-            probe_in0  => std_logic_vector(pll_lock_wait_timer),
-            probe_in1  => std_logic_vector(pll_lock_window),
-            probe_in2  => std_logic_vector(shift_back_fail_cnt),
-            probe_in3  => std_logic_vector(shift_cnt),
-            probe_in4  => std_logic_vector(unlock_cnt),
-            probe_in5  => std_logic_vector(mmcm_unlock_cnt),
-            probe_in6  => std_logic_vector(to_unsigned(pa_state_t'pos(pa_state), 3)),
-            probe_out0 => mmcm_reset,
-            probe_out1 => fsm_reset
+            reset_i             => (not sync_good) or ctrl_i.reset_cnt,
+            clk1_i              => clk_40_ttc_bufg,
+            clk2_i              => ttc_clocks_bufg.clk_40,
+            phase_o             => phase,
+            phase_jump_o        => phase_jump,
+            phase_jump_cnt_o    => phase_jump_cnt,
+            phase_jump_size_o   => phase_jump_size,
+            phase_jump_time_o   => phase_jump_time
         );
+        
+--    i_vio_ttc_clocks : component vio_ttc_clocks
+--        port map(
+--            clk        => mmcm_ps_clk,
+--            probe_in0  => std_logic_vector(pll_lock_wait_timer),
+--            probe_in1  => std_logic_vector(pll_lock_window),
+--            probe_in2  => std_logic_vector(shift_back_fail_cnt),
+--            probe_in3  => std_logic_vector(shift_cnt),
+--            probe_in4  => std_logic_vector(unlock_cnt),
+--            probe_in5  => std_logic_vector(mmcm_unlock_cnt),
+--            probe_in6  => std_logic_vector(to_unsigned(pa_state_t'pos(pa_state), 3)),
+--            probe_out0 => mmcm_reset,
+--            probe_out1 => fsm_reset
+--        );
     
 --    i_ila_ttc_clocks : component ila_ttc_clocks
 --        port map(

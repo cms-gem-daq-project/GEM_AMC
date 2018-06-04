@@ -28,6 +28,35 @@ package ttc_pkg is
         clk_80  : std_logic;
         clk_120 : std_logic;
         clk_160 : std_logic;
+        clk_40_backplane : std_logic;
+    end record;
+
+    type t_ttc_clk_status is record
+        sync_done           : std_logic; -- Jitter cleaned clock is locked and phase alignment procedure is finished (use this to start the GTH startup FSM)
+        mmcm_locked         : std_logic; -- MMCM is locked (input is jitter cleaned 160MHz clock)
+        phase_locked        : std_logic; -- Jitter cleaned 40MHz clock is in phase with the backplane 40MHz TTC clock
+        sync_restart_cnt    : std_logic_vector(15 downto 0); -- number of times the sync procedure was restarted due to loosing MMCM lock after sync was done
+        mmcm_unlock_cnt     : std_logic_vector(15 downto 0); -- number of times the MMCM lock signal has gone low
+        phase_unlock_cnt    : std_logic_vector(15 downto 0); -- number of times the phase monitoring PLL lock signal has gone low
+        sync_done_time      : std_logic_vector(15 downto 0); -- number of seconds since last sync was done
+        phase_unlock_time   : std_logic_vector(15 downto 0); -- number of seconds since last phase unlock
+        pll_lock_time       : std_logic_vector(23 downto 0); -- number of clock cycles it took the phase monitoring PLL to lock
+        pll_lock_window     : std_logic_vector(15 downto 0); -- the width of the phase lock window
+        phase_shift_cnt     : std_logic_vector(15 downto 0); -- number of phase shifts done by the phase alignment FSM
+        pa_fsm_state        : std_logic_vector(2 downto 0);  -- phase alignment FSM state
+        -- phase monitor
+        phase               : std_logic_vector(11 downto 0); -- phase difference between the rising edges of the jitter cleaned 40MHz and backplane TTC 40MHz clocks (each count is about 18.6012ps)
+        phase_jump          : std_logic;                     -- this signal goes high if a significant phase difference is observed compared to the previous measurement
+        phase_jump_cnt      : std_logic_vector(15 downto 0); -- number of times a phase jump has been detected
+        phase_jump_size     : std_logic_vector(11 downto 0); -- the magnitude of the phase jump (difference between the subsequent measurements that triggered the last phase jump detection)
+        phase_jump_time     : std_logic_vector(15 downto 0); -- number of seconds since last phase jump
+    end record;
+
+    type t_ttc_clk_ctrl is record
+        reset_cnt       : std_logic; -- reset the counters
+        reset_sync_fsm  : std_logic; -- reset the sync FSM, this will restart the phase alignment procedure
+        reset_mmcm      : std_logic; -- reset the MMCM, this will reset the MMCM and also restart the phase alignment procedure
+        force_sync_done : std_logic; -- force the sync_done signal high -- this may be useful in setups where backplane clock does not exist (no AMC13), and only the jitter cleaned clock is available
     end record;
 
     type t_ttc_cmds is record
@@ -55,9 +84,8 @@ package ttc_pkg is
     end record;
 
     type t_ttc_ctrl is record
+        clk_ctrl         : t_ttc_clk_ctrl;
         reset_local      : std_logic;
-        mmcm_reset       : std_logic;
-        mmcm_phase_shift : std_logic;
         cnt_reset        : std_logic;        
         l1a_enable       : std_logic;
     end record;
@@ -71,7 +99,7 @@ package ttc_pkg is
     end record;
 
     type t_ttc_status is record
-        mmcm_locked : std_logic;
+        clk_status  : t_ttc_clk_status;
         bc0_status  : t_bc0_status;
         single_err  : std_logic_vector(15 downto 0);
         double_err  : std_logic_vector(15 downto 0);
