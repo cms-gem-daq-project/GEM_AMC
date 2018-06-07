@@ -62,7 +62,10 @@ entity gth_single_4p8g is
       gth_misc_status_o : out t_gth_misc_status;
 
       gth_tx_data_i : in  t_gt_8b10b_tx_data;
-      gth_rx_data_o : out t_gt_8b10b_rx_data
+      gth_rx_data_o : out t_gt_8b10b_rx_data;
+      
+      tx_pippm_ctrl_i   : in t_gth_tx_pippm_ctrl
+      
       );
 
 
@@ -739,11 +742,11 @@ begin
       PCSRSVDOUT                 => open,
       TXUSERRDY                  => gth_tx_init_i.txuserrdy,
       ----------------- TX Phase Interpolator PPM Controller Ports ---------------
-      TXPIPPMEN                  => '0',
+      TXPIPPMEN                  => tx_pippm_ctrl_i.enable, --'0',
       TXPIPPMOVRDEN              => '0',
       TXPIPPMPD                  => '0',
       TXPIPPMSEL                 => '0',
-      TXPIPPMSTEPSIZE            => "00000",
+      TXPIPPMSTEPSIZE            => tx_pippm_ctrl_i.direction & tx_pippm_ctrl_i.step_size, -- "00000",
       ---------------------- Transceiver Reset Mode Operation --------------------
       GTRESETSEL                 => '0',
       RESETOVRD                  => '0',

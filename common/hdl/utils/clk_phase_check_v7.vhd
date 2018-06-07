@@ -21,15 +21,19 @@ use UNISIM.VComponents.all;
 
 entity clk_phase_check_v7 is
     generic (
-        ROUND_FREQ_MHZ      : real := 40.000; -- please give a round number e.g. even if the TTC clock is not exactly 40MHz, you should still specify 40.000 here
-        EXACT_FREQ_HZ       : std_logic_vector(31 downto 0) := x"02638e98"; -- exact frequency in Herz, this is only used in counting seconds since last phase jump
-        PHASE_JUMP_THRESH   : unsigned(11 downto 0) := x"06c" -- phase difference threshold between subsequent measurements to be considered a phase jump
+        ROUND_FREQ_MHZ                  : real := 40.000; -- please give a round number e.g. even if the TTC clock is not exactly 40MHz, you should still specify 40.000 here
+        EXACT_FREQ_HZ                   : std_logic_vector(31 downto 0) := x"02638e98"; -- exact frequency in Herz, this is only used in counting seconds since last phase jump
+        PHASE_JUMP_THRESH               : unsigned(11 downto 0) := x"06c"; -- phase difference threshold between subsequent measurements to be considered a phase jump
+        PHASE_MEAN_WINDOW_SIZE_POW_TWO  : integer := 11 -- the size of the window for phase mean calculation in units of power of 2 (e.g. a value of 11 means 2^11 = 2048)
     );
     port (
         reset_i             : in  std_logic;
         clk1_i              : in  std_logic;
         clk2_i              : in  std_logic;
         phase_o             : out std_logic_vector(11 downto 0); -- phase difference between the rising edges of the two clocks (each count is about 18.6012ps)
+        phase_mean_o        : out std_logic_vector(11 downto 0); -- the mean of the phase in the last 2^PHASE_MEAN_WINDOW_SIZE_POW_TWO values
+        phase_min_o         : out std_logic_vector(11 downto 0); -- the minimum measured phase value since last reset
+        phase_max_o         : out std_logic_vector(11 downto 0); -- the maximum measured phase value since last reset
         phase_jump_o        : out std_logic;                     -- this signal goes high if a significant phase difference is observed compared to the previous measurement (see PHASE_JUMP_THRESH)
         phase_jump_cnt_o    : out std_logic_vector(15 downto 0); -- number of times a phase jump has been detected
         phase_jump_size_o   : out std_logic_vector(11 downto 0); -- the magnitude of the phase jump (difference between the subsequent measurements that triggered the last phase jump detection)
@@ -80,6 +84,10 @@ architecture Behavioral of clk_phase_check_v7 is
     signal clk2_state           : t_clk_state := LOW;
     signal phase_cnt            : unsigned(11 downto 0) := (others => '0');
     signal phase                : unsigned(11 downto 0) := (others => '0');
+    signal phase_update         : std_logic := '0'; 
+    signal phase_min            : unsigned(11 downto 0) := (others => '1');
+    signal phase_max            : unsigned(11 downto 0) := (others => '0');
+    signal phase_mean           : std_logic_vector(11 downto 0) := (others => '0');
     signal phase_jump           : std_logic;
     signal phase_jump_cnt       : unsigned(15 downto 0) := (others => '0');
     signal phase_jump_size      : unsigned(11 downto 0) := (others => '0');
@@ -89,6 +97,9 @@ begin
 
     mmcm_ps_clk <= clk1_i;
     phase_o <= std_logic_vector(phase);
+    phase_mean_o <= phase_mean;
+    phase_min_o <= std_logic_vector(phase_min);
+    phase_max_o <= std_logic_vector(phase_max);
     phase_jump_o <= phase_jump;
     phase_jump_cnt_o <= std_logic_vector(phase_jump_cnt);
     phase_jump_size_o <= std_logic_vector(phase_jump_size);
@@ -251,11 +262,16 @@ begin
                 clk2_state <= LOW;
                 phase_cnt <= (others => '0');
                 phase <= (others => '0');
+                phase_min <= (others => '1');
+                phase_max <= (others => '0');
                 phase_jump <= '0';
                 phase_jump_cnt <= (others => '0');
                 phase_jump_size <= (others => '0');
+                phase_update <= '0';
             else
                 sample_ok_sync_prev <= sample_ok_sync;
+                phase_update <= '0';
+                
                 -- first sample
                 if (sample_ok_sync_prev = '0' and sample_ok_sync = '1') then
                     if (clk1_i = '1') then
@@ -284,8 +300,15 @@ begin
                     -- fix the phase measurement when both clocks sample high
                     elsif (clk1_state = HIGH and clk2_state = HIGH) then
                         phase <= phase_cnt;
+                        phase_update <= '1';
+                        if (phase_cnt < phase_min) then
+                            phase_min <= phase_cnt;
+                        end if;
+                        if (phase_cnt > phase_max) then
+                            phase_max <= phase_cnt;
+                        end if;
+                                                
                         first_ever_sample <= '0';
-                        
                         if (first_ever_sample = '0') then
                             if ((phase_cnt > phase) and ((phase_cnt - phase) > PHASE_JUMP_THRESH)) then
                                 phase_jump <= '1';
@@ -320,6 +343,19 @@ begin
             clk_i     => sampling_clk_bufg,
             reset_i   => reset_i or phase_jump,
             seconds_o => phase_jump_time
+        );
+
+    i_phase_mean : entity work.running_mean
+        generic map(
+            g_INPUT_OUTPUT_WIDTH       => 12,
+            g_WINDOW_SIZE_POWER_OF_TWO => 11
+        )
+        port map(
+            clk_i   => sampling_clk_bufg,
+            reset_i => reset_i,
+            value_i => std_logic_vector(phase),
+            valid_i => phase_update,
+            mean_o  => phase_mean
         );
 
     i_ila : component ila_clk_phase_check

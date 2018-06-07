@@ -97,14 +97,18 @@ entity gth_wrapper is
     gth_misc_ctrl_arr_i   : in  t_gth_misc_ctrl_arr(g_NUM_OF_GTH_GTs-1 downto 0);
     gth_misc_status_arr_o : out t_gth_misc_status_arr(g_NUM_OF_GTH_GTs-1 downto 0);
 
+    gth_gbt_tx_pippm_ctrl_i : in t_gth_tx_pippm_ctrl;
+
     gth_tx_data_arr_i : in  t_gt_8b10b_tx_data_arr(g_NUM_OF_GTH_GTs-1 downto 0);
     gth_rx_data_arr_o : out t_gt_8b10b_rx_data_arr(g_NUM_OF_GTH_GTs-1 downto 0);
 
     gth_gbt_tx_data_arr_i : in  t_gt_gbt_tx_data_arr(g_NUM_OF_GTH_GTs-1 downto 0);
     gth_gbt_rx_data_arr_o : out t_gt_gbt_rx_data_arr(g_NUM_OF_GTH_GTs-1 downto 0);
     
-    gth_gbt_common_rxusrclk_o : out std_logic;
-    gth_gbt_common_txoutclk_o : out std_logic
+    gth_gbt_common_rxusrclk_o    : out std_logic;
+    gth_gbt_common_txoutclk_o    : out std_logic;
+    gth_gbt_common_txoutclkpcs_o : out std_logic;
+    gth_gbt_phalign_o            : out std_logic
     
     );
 end gth_wrapper;
@@ -230,6 +234,7 @@ begin
       gen_gth_4p8g_txuserclk_master : if c_gth_config_arr(n).gth_txclk_out_master = true generate
 
         s_GTH_4p8g_TX_MMCM_reset <= s_tx_startup_fsm_mmcm_reset(n);
+        gth_gbt_phalign_o <= s_gth_tx_init_arr(n).TXPHALIGN;
         
 --        i_pcs_clk_phase_check : entity work.clk_phase_check_v7
 --            generic map(
@@ -278,7 +283,9 @@ begin
       clk_gth_rx_usrclk_arr_o => s_clk_gth_rx_usrclk_arr,
 
       clk_gth_4p8g_common_rxusrclk_o => s_gth_4p8g_common_rxusrclk,
-      clk_gth_4p8g_common_txoutclk_o => gth_gbt_common_txoutclk_o
+      clk_gth_4p8g_common_txoutclk_o => gth_gbt_common_txoutclk_o,
+      clk_gth_4p8g_common_txoutclkpcs_o => gth_gbt_common_txoutclkpcs_o
+
       );
 
   ttc_clks_reset_o <= s_GTH_4p8g_TX_MMCM_reset;
@@ -477,7 +484,8 @@ begin
           gth_misc_ctrl_i   => s_gth_misc_ctrl_arr(n),
           gth_misc_status_o => s_gth_misc_status_arr(n),
           gth_tx_data_i     => s_gth_tx_data_arr(n),
-          gth_rx_data_o     => s_gth_rx_data_arr(n)
+          gth_rx_data_o     => s_gth_rx_data_arr(n),
+          tx_pippm_ctrl_i   => gth_gbt_tx_pippm_ctrl_i
           );
 
     end generate;

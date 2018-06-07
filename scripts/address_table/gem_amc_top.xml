@@ -45,6 +45,15 @@
               description="Setting this to 1 will disable the phase alignment to backplane ref clock.
                            This is intended to be used only in setups that don't have an AMC13 and thus no backplane TTC clock, but generate the TTC clock internally in CTP7."
               fw_signal="ttc_ctrl.clk_ctrl.force_sync_done" fw_default="0b0"/>
+        <node id="PA_DISABLE_INIT_SHIFT_OUT" address="0x4" mask="0x40000000" permission="rw"
+              description="If this is set to 0 (default), then when the phase alignment FSM is reset,
+                           it will first shift the phase out of lock if it is currently locked,
+                           and then start searching for lock as usual"
+              fw_signal="ttc_ctrl.clk_ctrl.no_init_shift_out" fw_default="0b0"/>
+        <node id="PA_DISABLE_GTH_PHASE_TRACKING" address="0x4" mask="0x20000000" permission="rw"
+              description="If this is set to 0 (default), then the GTH PI PPM controller will be used to track the phase of the TXUSRCLK
+                           every time the TXUSRCLK is shifted, this may help to keep the fiber links alive while resetting the phase alignment FSM"
+              fw_signal="ttc_ctrl.clk_ctrl.gth_phalign_disable" fw_default="0b0"/>
       </node>
 
       <node id="CONFIG" address="0x10"
@@ -117,10 +126,10 @@
                 fw_signal="ttc_clks_status_i.phase_unlock_cnt"
                 sw_monitor_warn_min_threshold="1"/>
           <node id="SYNC_DONE_TIME" address="0x2" mask="0x0000ffff" permission="r"
-                description="Number of seconds since last sync was done"
+                description="Number of seconds since last sync was done (max = around 18.2 hours)"
                 fw_signal="ttc_clks_status_i.sync_done_time"/>
           <node id="PHASE_UNLOCK_TIME" address="0x2" mask="0xffff0000" permission="r"
-                description="Number of seconds since last phase unlock"
+                description="Number of seconds since last phase unlock (max = around 18.2 hours)"
                 fw_signal="ttc_clks_status_i.phase_unlock_time"/>
           <node id="PA_PLL_LOCK_WINDOW" address="0x3" mask="0x0000ffff" permission="r"
                 description="Phase alignment: the width of the phase lock window"
@@ -134,23 +143,60 @@
           <node id="PA_FSM_STATE" address="0x4" mask="0x70000000" permission="r"
                 description="Phase alignment: phase alignment FSM state (debugging register)"
                 fw_signal="ttc_clks_status_i.pa_fsm_state"/>
-          <node id="PM_PHASE" address="0x5" mask="0x00000fff" permission="r"
-                description="Phase monitoring: phase difference between the rising edges of the jitter cleaned 40MHz and backplane TTC 40MHz clocks.
+
+          <node id="TTC_PM_PHASE" address="0x5" mask="0x00000fff" permission="r"
+                description="TTC Phase monitoring: phase difference between the rising edges of the jitter cleaned 40MHz and backplane TTC 40MHz clocks.
                              Each count is about 18.6012ps
                              Note that absolute value is not very important, because these clocks will always have some offset due to routing on the FPGA,
                              the important thing is that this value doesn't change much."
-                fw_signal="ttc_clks_status_i.phase"/>
-          <node id="PM_PHASE_JUMP_CNT" address="0x5" mask="0xffff0000" permission="r"
-                description="Phase monitoring: number of times a phase jump has been detected.
+                fw_signal="ttc_clks_status_i.pm_ttc.phase"/>
+          <node id="TTC_PM_PHASE_MEAN" address="0x5" mask="0x00fff000" permission="r"
+                description="TTC Phase monitoring: the mean of the phase in the last 2048 measurements"
+                fw_signal="ttc_clks_status_i.pm_ttc.phase_mean"/>
+          <node id="TTC_PM_PHASE_MIN" address="0x6" mask="0x00000fff" permission="r"
+                description="TTC Phase monitoring: the minimum measured phase value since last counter reset"
+                fw_signal="ttc_clks_status_i.pm_ttc.phase_min"/>
+          <node id="TTC_PM_PHASE_MAX" address="0x6" mask="0x00fff000" permission="r"
+                description="TTC Phase monitoring: the maximum measured phase value since last counter reset"
+                fw_signal="ttc_clks_status_i.pm_ttc.phase_max"/>
+          <node id="TTC_PM_PHASE_JUMP_CNT" address="0x7" mask="0x0000ffff" permission="r"
+                description="TTC Phase monitoring: number of times a phase jump has been detected.
                              A phase jump detection is triggered by a large difference between two subsequent phase measurements
                              (currently the threshold is set at 2ns)"
-                fw_signal="ttc_clks_status_i.phase_jump_cnt"/>
-          <node id="PM_PHASE_JUMP_SIZE" address="0x6" mask="0x00000fff" permission="r"
-                description="Phase monitoring: the magnitude of the phase jump (difference between the subsequent phase measurements that triggered the last phase jump detection)"
-                fw_signal="ttc_clks_status_i.phase_jump_size"/>
-          <node id="PM_PHASE_JUMP_TIME" address="0x6" mask="0xffff0000" permission="r"
-                description="Phase monitoring: number of seconds since last phase jump"
-                fw_signal="ttc_clks_status_i.phase_jump_time"/>
+                fw_signal="ttc_clks_status_i.pm_ttc.phase_jump_cnt"/>
+          <node id="TTC_PM_PHASE_JUMP_SIZE" address="0x7" mask="0x0fff0000" permission="r"
+                description="TTC Phase monitoring: the magnitude of the phase jump (difference between the subsequent phase measurements that triggered the last phase jump detection)"
+                fw_signal="ttc_clks_status_i.pm_ttc.phase_jump_size"/>
+          <node id="TTC_PM_PHASE_JUMP_TIME" address="0x8" mask="0x0000ffff" permission="r"
+                description="TTC Phase monitoring: number of seconds since last phase jump"
+                fw_signal="ttc_clks_status_i.pm_ttc.phase_jump_time"/>
+
+          <node id="GTH_PM_PHASE" address="0x9" mask="0x00000fff" permission="r"
+                description="GTH Phase monitoring: phase difference between the rising edges of the GTH PCS 120MHz and the TXUSRCLK 120MHz clocks.
+                             Each count is about 18.6012ps
+                             Note that absolute value is not very important, because these clocks will always have some offset due to routing on the FPGA,
+                             the important thing is that this value doesn't change much."
+                fw_signal="ttc_clks_status_i.pm_gth.phase"/>
+          <node id="GTH_PM_PHASE_MEAN" address="0x9" mask="0x00fff000" permission="r"
+                description="GTH Phase monitoring: the mean of the phase in the last 2048 measurements"
+                fw_signal="ttc_clks_status_i.pm_gth.phase_mean"/>
+          <node id="GTH_PM_PHASE_MIN" address="0xa" mask="0x00000fff" permission="r"
+                description="GTH Phase monitoring: the minimum measured phase value since last counter reset"
+                fw_signal="ttc_clks_status_i.pm_gth.phase_min"/>
+          <node id="GTH_PM_PHASE_MAX" address="0xa" mask="0x00fff000" permission="r"
+                description="GTH Phase monitoring: the maximum measured phase value since last counter reset"
+                fw_signal="ttc_clks_status_i.pm_gth.phase_max"/>
+          <node id="GTH_PM_PHASE_JUMP_CNT" address="0xb" mask="0x0000ffff" permission="r"
+                description="GTH Phase monitoring: number of times a phase jump has been detected.
+                             A phase jump detection is triggered by a large difference between two subsequent phase measurements
+                             (currently the threshold is set at 2ns)"
+                fw_signal="ttc_clks_status_i.pm_gth.phase_jump_cnt"/>
+          <node id="GTH_PM_PHASE_JUMP_SIZE" address="0xb" mask="0x0fff0000" permission="r"
+                description="GTH Phase monitoring: the magnitude of the phase jump (difference between the subsequent phase measurements that triggered the last phase jump detection)"
+                fw_signal="ttc_clks_status_i.pm_gth.phase_jump_size"/>
+          <node id="GTH_PM_PHASE_JUMP_TIME" address="0xc" mask="0x0000ffff" permission="r"
+                description="GTH Phase monitoring: number of seconds since last phase jump"
+                fw_signal="ttc_clks_status_i.pm_gth.phase_jump_time"/>
         </node>
 
         <node id="TTC_SINGLE_ERROR_CNT" address="0x10" mask="0x0000ffff" permission="r"

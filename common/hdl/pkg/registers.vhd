@@ -15,7 +15,7 @@ package registers is
     -- data status, bc0 status, command counters and a small spy buffer)
     --============================================================================
 
-    constant REG_TTC_NUM_REGS : integer := 31;
+    constant REG_TTC_NUM_REGS : integer := 37;
     constant REG_TTC_ADDRESS_MSB : integer := 7;
     constant REG_TTC_ADDRESS_LSB : integer := 0;
     constant REG_TTC_CTRL_MODULE_RESET_ADDR    : std_logic_vector(7 downto 0) := x"00";
@@ -37,6 +37,14 @@ package registers is
     constant REG_TTC_CTRL_L1A_ENABLE_ADDR    : std_logic_vector(7 downto 0) := x"04";
     constant REG_TTC_CTRL_L1A_ENABLE_BIT    : integer := 0;
     constant REG_TTC_CTRL_L1A_ENABLE_DEFAULT : std_logic := '1';
+
+    constant REG_TTC_CTRL_PA_DISABLE_GTH_PHASE_TRACKING_ADDR    : std_logic_vector(7 downto 0) := x"04";
+    constant REG_TTC_CTRL_PA_DISABLE_GTH_PHASE_TRACKING_BIT    : integer := 29;
+    constant REG_TTC_CTRL_PA_DISABLE_GTH_PHASE_TRACKING_DEFAULT : std_logic := '0';
+
+    constant REG_TTC_CTRL_PA_DISABLE_INIT_SHIFT_OUT_ADDR    : std_logic_vector(7 downto 0) := x"04";
+    constant REG_TTC_CTRL_PA_DISABLE_INIT_SHIFT_OUT_BIT    : integer := 30;
+    constant REG_TTC_CTRL_PA_DISABLE_INIT_SHIFT_OUT_DEFAULT : std_logic := '0';
 
     constant REG_TTC_CTRL_DISABLE_PHASE_ALIGNMENT_ADDR    : std_logic_vector(7 downto 0) := x"04";
     constant REG_TTC_CTRL_DISABLE_PHASE_ALIGNMENT_BIT    : integer := 31;
@@ -132,21 +140,61 @@ package registers is
     constant REG_TTC_STATUS_CLK_PA_FSM_STATE_MSB    : integer := 30;
     constant REG_TTC_STATUS_CLK_PA_FSM_STATE_LSB     : integer := 28;
 
-    constant REG_TTC_STATUS_CLK_PM_PHASE_ADDR    : std_logic_vector(7 downto 0) := x"25";
-    constant REG_TTC_STATUS_CLK_PM_PHASE_MSB    : integer := 11;
-    constant REG_TTC_STATUS_CLK_PM_PHASE_LSB     : integer := 0;
+    constant REG_TTC_STATUS_CLK_TTC_PM_PHASE_ADDR    : std_logic_vector(7 downto 0) := x"25";
+    constant REG_TTC_STATUS_CLK_TTC_PM_PHASE_MSB    : integer := 11;
+    constant REG_TTC_STATUS_CLK_TTC_PM_PHASE_LSB     : integer := 0;
 
-    constant REG_TTC_STATUS_CLK_PM_PHASE_JUMP_CNT_ADDR    : std_logic_vector(7 downto 0) := x"25";
-    constant REG_TTC_STATUS_CLK_PM_PHASE_JUMP_CNT_MSB    : integer := 31;
-    constant REG_TTC_STATUS_CLK_PM_PHASE_JUMP_CNT_LSB     : integer := 16;
+    constant REG_TTC_STATUS_CLK_TTC_PM_PHASE_MEAN_ADDR    : std_logic_vector(7 downto 0) := x"25";
+    constant REG_TTC_STATUS_CLK_TTC_PM_PHASE_MEAN_MSB    : integer := 23;
+    constant REG_TTC_STATUS_CLK_TTC_PM_PHASE_MEAN_LSB     : integer := 12;
 
-    constant REG_TTC_STATUS_CLK_PM_PHASE_JUMP_SIZE_ADDR    : std_logic_vector(7 downto 0) := x"26";
-    constant REG_TTC_STATUS_CLK_PM_PHASE_JUMP_SIZE_MSB    : integer := 11;
-    constant REG_TTC_STATUS_CLK_PM_PHASE_JUMP_SIZE_LSB     : integer := 0;
+    constant REG_TTC_STATUS_CLK_TTC_PM_PHASE_MIN_ADDR    : std_logic_vector(7 downto 0) := x"26";
+    constant REG_TTC_STATUS_CLK_TTC_PM_PHASE_MIN_MSB    : integer := 11;
+    constant REG_TTC_STATUS_CLK_TTC_PM_PHASE_MIN_LSB     : integer := 0;
 
-    constant REG_TTC_STATUS_CLK_PM_PHASE_JUMP_TIME_ADDR    : std_logic_vector(7 downto 0) := x"26";
-    constant REG_TTC_STATUS_CLK_PM_PHASE_JUMP_TIME_MSB    : integer := 31;
-    constant REG_TTC_STATUS_CLK_PM_PHASE_JUMP_TIME_LSB     : integer := 16;
+    constant REG_TTC_STATUS_CLK_TTC_PM_PHASE_MAX_ADDR    : std_logic_vector(7 downto 0) := x"26";
+    constant REG_TTC_STATUS_CLK_TTC_PM_PHASE_MAX_MSB    : integer := 23;
+    constant REG_TTC_STATUS_CLK_TTC_PM_PHASE_MAX_LSB     : integer := 12;
+
+    constant REG_TTC_STATUS_CLK_TTC_PM_PHASE_JUMP_CNT_ADDR    : std_logic_vector(7 downto 0) := x"27";
+    constant REG_TTC_STATUS_CLK_TTC_PM_PHASE_JUMP_CNT_MSB    : integer := 15;
+    constant REG_TTC_STATUS_CLK_TTC_PM_PHASE_JUMP_CNT_LSB     : integer := 0;
+
+    constant REG_TTC_STATUS_CLK_TTC_PM_PHASE_JUMP_SIZE_ADDR    : std_logic_vector(7 downto 0) := x"27";
+    constant REG_TTC_STATUS_CLK_TTC_PM_PHASE_JUMP_SIZE_MSB    : integer := 27;
+    constant REG_TTC_STATUS_CLK_TTC_PM_PHASE_JUMP_SIZE_LSB     : integer := 16;
+
+    constant REG_TTC_STATUS_CLK_TTC_PM_PHASE_JUMP_TIME_ADDR    : std_logic_vector(7 downto 0) := x"28";
+    constant REG_TTC_STATUS_CLK_TTC_PM_PHASE_JUMP_TIME_MSB    : integer := 15;
+    constant REG_TTC_STATUS_CLK_TTC_PM_PHASE_JUMP_TIME_LSB     : integer := 0;
+
+    constant REG_TTC_STATUS_CLK_GTH_PM_PHASE_ADDR    : std_logic_vector(7 downto 0) := x"29";
+    constant REG_TTC_STATUS_CLK_GTH_PM_PHASE_MSB    : integer := 11;
+    constant REG_TTC_STATUS_CLK_GTH_PM_PHASE_LSB     : integer := 0;
+
+    constant REG_TTC_STATUS_CLK_GTH_PM_PHASE_MEAN_ADDR    : std_logic_vector(7 downto 0) := x"29";
+    constant REG_TTC_STATUS_CLK_GTH_PM_PHASE_MEAN_MSB    : integer := 23;
+    constant REG_TTC_STATUS_CLK_GTH_PM_PHASE_MEAN_LSB     : integer := 12;
+
+    constant REG_TTC_STATUS_CLK_GTH_PM_PHASE_MIN_ADDR    : std_logic_vector(7 downto 0) := x"2a";
+    constant REG_TTC_STATUS_CLK_GTH_PM_PHASE_MIN_MSB    : integer := 11;
+    constant REG_TTC_STATUS_CLK_GTH_PM_PHASE_MIN_LSB     : integer := 0;
+
+    constant REG_TTC_STATUS_CLK_GTH_PM_PHASE_MAX_ADDR    : std_logic_vector(7 downto 0) := x"2a";
+    constant REG_TTC_STATUS_CLK_GTH_PM_PHASE_MAX_MSB    : integer := 23;
+    constant REG_TTC_STATUS_CLK_GTH_PM_PHASE_MAX_LSB     : integer := 12;
+
+    constant REG_TTC_STATUS_CLK_GTH_PM_PHASE_JUMP_CNT_ADDR    : std_logic_vector(7 downto 0) := x"2b";
+    constant REG_TTC_STATUS_CLK_GTH_PM_PHASE_JUMP_CNT_MSB    : integer := 15;
+    constant REG_TTC_STATUS_CLK_GTH_PM_PHASE_JUMP_CNT_LSB     : integer := 0;
+
+    constant REG_TTC_STATUS_CLK_GTH_PM_PHASE_JUMP_SIZE_ADDR    : std_logic_vector(7 downto 0) := x"2b";
+    constant REG_TTC_STATUS_CLK_GTH_PM_PHASE_JUMP_SIZE_MSB    : integer := 27;
+    constant REG_TTC_STATUS_CLK_GTH_PM_PHASE_JUMP_SIZE_LSB     : integer := 16;
+
+    constant REG_TTC_STATUS_CLK_GTH_PM_PHASE_JUMP_TIME_ADDR    : std_logic_vector(7 downto 0) := x"2c";
+    constant REG_TTC_STATUS_CLK_GTH_PM_PHASE_JUMP_TIME_MSB    : integer := 15;
+    constant REG_TTC_STATUS_CLK_GTH_PM_PHASE_JUMP_TIME_LSB     : integer := 0;
 
     constant REG_TTC_STATUS_TTC_SINGLE_ERROR_CNT_ADDR    : std_logic_vector(7 downto 0) := x"30";
     constant REG_TTC_STATUS_TTC_SINGLE_ERROR_CNT_MSB    : integer := 15;

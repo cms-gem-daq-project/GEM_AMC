@@ -233,6 +233,12 @@ package gth_pkg is
     eyescandataerror : std_logic;
   end record;
 
+  type t_gth_tx_pippm_ctrl is record
+    enable      : std_logic; -- should be asserted for 2 TXUSRCLK cycles to initiate the phase shift
+    direction   : std_logic; -- 1 means increment, 0 means decrement
+    step_size   : std_logic_vector(3 downto 0); -- the amount to be shifted (1 unit = PISO_serial_clk_period * TXOUT_DIV / 64)
+  end record;
+
   type t_gth_common_clk_out_arr is array(integer range <>) of t_gth_common_clk_out;
   type t_gth_common_clk_in_arr is array(integer range <>) of t_gth_common_clk_in;
 

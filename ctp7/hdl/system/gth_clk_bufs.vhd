@@ -59,7 +59,8 @@ entity gth_clk_bufs is
     clk_gth_rx_usrclk_arr_o : out std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
 
     clk_gth_4p8g_common_rxusrclk_o : out std_logic;
-    clk_gth_4p8g_common_txoutclk_o : out std_logic
+    clk_gth_4p8g_common_txoutclk_o : out std_logic;
+    clk_gth_4p8g_common_txoutclkpcs_o : out std_logic
 
     );
 end gth_clk_bufs;
@@ -71,14 +72,15 @@ architecture gth_clk_bufs_arch of gth_clk_bufs is
 --                                                         Signal declarations
 --============================================================================
 
-  signal s_gth_4p8g_txusrclk        : std_logic;
-  signal s_gth_4p8g_txusrclk_90deg  : std_logic;
-  signal s_gth_4p8g_txoutclk        : std_logic;
-  signal s_gth_4p8g_txoutclk_bufg   : std_logic;
-  signal s_gth_4p8g_mmcm_locked     : std_logic;
+  signal s_gth_4p8g_txusrclk_90deg   : std_logic;
+  signal s_gth_4p8g_txoutclk         : std_logic;
+  signal s_gth_4p8g_txoutclk_bufg    : std_logic;
+  signal s_gth_4p8g_txoutclkpcs      : std_logic;
+  signal s_gth_4p8g_txoutclkpcs_bufg : std_logic;
+  signal s_gth_4p8g_mmcm_locked      : std_logic;
 
-  signal s_gth_3p2g_txusrclk        : std_logic;
-  signal s_gth_3p2g_txoutclk        : std_logic;
+  signal s_gth_3p2g_txusrclk         : std_logic;
+  signal s_gth_3p2g_txoutclk         : std_logic;
   
 --============================================================================
 --                                                          Architecture begin
@@ -89,6 +91,7 @@ begin
 --============================================================================
 
   clk_gth_4p8g_common_txoutclk_o <= s_gth_4p8g_txoutclk_bufg;
+  clk_gth_4p8g_common_txoutclkpcs_o <= s_gth_4p8g_txoutclkpcs_bufg;
   clk_gth_4p8g_common_rxusrclk_o <= ttc_clks_i.clk_120;
   --GTH_4p8g_TX_MMCM_locked_o <= s_gth_4p8g_mmcm_locked;
   GTH_4p8g_TX_MMCM_locked_o <= ttc_clks_locked_i;
@@ -147,11 +150,18 @@ begin
       gen_gth_4p8g_txuserclk_master : if c_gth_config_arr(n).gth_txclk_out_master = true generate
 
         s_gth_4p8g_txoutclk <= gth_gt_clk_out_arr_i(n).txoutclk;
+        s_gth_4p8g_txoutclkpcs <= gth_gt_clk_out_arr_i(n).txoutpcs;
 
         i_bufg_4p8g_tx_outclk : BUFG
             port map(
                 I => s_gth_4p8g_txoutclk,
                 O => s_gth_4p8g_txoutclk_bufg
+            );
+            
+        i_bufg_4p8g_tx_outclkpcs : BUFG
+            port map(
+                I => s_gth_4p8g_txoutclkpcs,
+                O => s_gth_4p8g_txoutclkpcs_bufg
             );
             
         -- Instantiate a MMCM module to divide the reference clock. Uses internal feedback

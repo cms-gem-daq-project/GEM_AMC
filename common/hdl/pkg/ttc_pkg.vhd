@@ -31,6 +31,17 @@ package ttc_pkg is
         clk_40_backplane : std_logic;
     end record;
 
+    type t_phase_monitor_status is record
+        phase               : std_logic_vector(11 downto 0); -- phase difference between the rising edges of the jitter cleaned 40MHz and backplane TTC 40MHz clocks (each count is about 18.6012ps)
+        phase_mean          : std_logic_vector(11 downto 0); -- the mean of the phase in the last 2048 measurements
+        phase_min           : std_logic_vector(11 downto 0); -- the minimum measured phase value since last reset
+        phase_max           : std_logic_vector(11 downto 0); -- the maximum measured phase value since last reset
+        phase_jump          : std_logic;                     -- this signal goes high if a significant phase difference is observed compared to the previous measurement
+        phase_jump_cnt      : std_logic_vector(15 downto 0); -- number of times a phase jump has been detected
+        phase_jump_size     : std_logic_vector(11 downto 0); -- the magnitude of the phase jump (difference between the subsequent measurements that triggered the last phase jump detection)
+        phase_jump_time     : std_logic_vector(15 downto 0); -- number of seconds since last phase jump
+    end record;
+
     type t_ttc_clk_status is record
         sync_done           : std_logic; -- Jitter cleaned clock is locked and phase alignment procedure is finished (use this to start the GTH startup FSM)
         mmcm_locked         : std_logic; -- MMCM is locked (input is jitter cleaned 160MHz clock)
@@ -45,18 +56,20 @@ package ttc_pkg is
         phase_shift_cnt     : std_logic_vector(15 downto 0); -- number of phase shifts done by the phase alignment FSM
         pa_fsm_state        : std_logic_vector(2 downto 0);  -- phase alignment FSM state
         -- phase monitor
-        phase               : std_logic_vector(11 downto 0); -- phase difference between the rising edges of the jitter cleaned 40MHz and backplane TTC 40MHz clocks (each count is about 18.6012ps)
-        phase_jump          : std_logic;                     -- this signal goes high if a significant phase difference is observed compared to the previous measurement
-        phase_jump_cnt      : std_logic_vector(15 downto 0); -- number of times a phase jump has been detected
-        phase_jump_size     : std_logic_vector(11 downto 0); -- the magnitude of the phase jump (difference between the subsequent measurements that triggered the last phase jump detection)
-        phase_jump_time     : std_logic_vector(15 downto 0); -- number of seconds since last phase jump
+        pm_ttc              : t_phase_monitor_status;
+        pm_gth              : t_phase_monitor_status;
+        -- gth pi ppm
+        gth_pi_shift_error  : std_logic; -- error while shifting the phase of the GTH PI
+        gth_pi_shift_cnt    : std_logic_vector(15 downto 0);
     end record;
 
     type t_ttc_clk_ctrl is record
-        reset_cnt       : std_logic; -- reset the counters
-        reset_sync_fsm  : std_logic; -- reset the sync FSM, this will restart the phase alignment procedure
-        reset_mmcm      : std_logic; -- reset the MMCM, this will reset the MMCM and also restart the phase alignment procedure
-        force_sync_done : std_logic; -- force the sync_done signal high -- this may be useful in setups where backplane clock does not exist (no AMC13), and only the jitter cleaned clock is available
+        reset_cnt           : std_logic; -- reset the counters
+        reset_sync_fsm      : std_logic; -- reset the sync FSM, this will restart the phase alignment procedure
+        reset_mmcm          : std_logic; -- reset the MMCM, this will reset the MMCM and also restart the phase alignment procedure
+        force_sync_done     : std_logic; -- force the sync_done signal high -- this may be useful in setups where backplane clock does not exist (no AMC13), and only the jitter cleaned clock is available
+        no_init_shift_out   : std_logic; -- if this is set to 0 (default), then when the phase alignment FSM is reset, it will first shift the phase out of lock if it is currently locked, and then start searching for lock as usual
+        gth_phalign_disable : std_logic; -- if this is set to 0 (default), then the GTH PI PPM controller will be used to track the phase of the TXUSRCLK every time the TXUSRCLK is shifted, this may help to keep the fiber links alive while resetting the phase alignment FSM
     end record;
 
     type t_ttc_cmds is record
