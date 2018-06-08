@@ -745,7 +745,7 @@ begin
       TXPIPPMEN                  => tx_pippm_ctrl_i.enable, --'0',
       TXPIPPMOVRDEN              => '0',
       TXPIPPMPD                  => '0',
-      TXPIPPMSEL                 => '0',
+      TXPIPPMSEL                 => '1',
       TXPIPPMSTEPSIZE            => tx_pippm_ctrl_i.direction & tx_pippm_ctrl_i.step_size, -- "00000",
       ---------------------- Transceiver Reset Mode Operation --------------------
       GTRESETSEL                 => '0',
@@ -771,7 +771,7 @@ begin
       ------------------ Transmit Ports - Pattern Generator Ports ----------------
       TXPRBSFORCEERR            => gth_tx_ctrl_i.txprbsforceerr,
       ------------------ Transmit Ports - TX Buffer Bypass Ports -----------------
-      TXDLYBYPASS               => '0',
+      TXDLYBYPASS               => '1',
       TXDLYEN                   => gth_tx_init_i.TXDLYEN,
       TXDLYHOLD                 => '0',
       TXDLYOVRDEN               => '0',

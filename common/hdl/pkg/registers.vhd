@@ -192,9 +192,16 @@ package registers is
     constant REG_TTC_STATUS_CLK_GTH_PM_PHASE_JUMP_SIZE_MSB    : integer := 27;
     constant REG_TTC_STATUS_CLK_GTH_PM_PHASE_JUMP_SIZE_LSB     : integer := 16;
 
+    constant REG_TTC_STATUS_CLK_GTH_SHIFT_ERROR_ADDR    : std_logic_vector(7 downto 0) := x"2b";
+    constant REG_TTC_STATUS_CLK_GTH_SHIFT_ERROR_BIT    : integer := 31;
+
     constant REG_TTC_STATUS_CLK_GTH_PM_PHASE_JUMP_TIME_ADDR    : std_logic_vector(7 downto 0) := x"2c";
     constant REG_TTC_STATUS_CLK_GTH_PM_PHASE_JUMP_TIME_MSB    : integer := 15;
     constant REG_TTC_STATUS_CLK_GTH_PM_PHASE_JUMP_TIME_LSB     : integer := 0;
+
+    constant REG_TTC_STATUS_CLK_GTH_SHIFT_CNT_ADDR    : std_logic_vector(7 downto 0) := x"2c";
+    constant REG_TTC_STATUS_CLK_GTH_SHIFT_CNT_MSB    : integer := 31;
+    constant REG_TTC_STATUS_CLK_GTH_SHIFT_CNT_LSB     : integer := 16;
 
     constant REG_TTC_STATUS_TTC_SINGLE_ERROR_CNT_ADDR    : std_logic_vector(7 downto 0) := x"30";
     constant REG_TTC_STATUS_TTC_SINGLE_ERROR_CNT_MSB    : integer := 15;

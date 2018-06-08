@@ -51,6 +51,8 @@
           <node id="GTH_PM_PHASE_JUMP_CNT" address="0xb" permission="r" mask="0xffff"/>
           <node id="GTH_PM_PHASE_JUMP_SIZE" address="0xb" permission="r" mask="0xfff0000"/>
           <node id="GTH_PM_PHASE_JUMP_TIME" address="0xc" permission="r" mask="0xffff"/>
+          <node id="GTH_SHIFT_ERROR" address="0xb" permission="r" mask="0x80000000"/>
+          <node id="GTH_SHIFT_CNT" address="0xc" permission="r" mask="0xffff0000"/>
         </node>
         <node id="TTC_SINGLE_ERROR_CNT" address="0x10" permission="r" mask="0xffff"/>
         <node id="TTC_DOUBLE_ERROR_CNT" address="0x10" permission="r" mask="0xffff0000"/>

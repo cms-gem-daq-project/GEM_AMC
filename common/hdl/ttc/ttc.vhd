@@ -507,7 +507,9 @@ begin
     regs_read_arr(18)(REG_TTC_STATUS_CLK_GTH_PM_PHASE_MAX_MSB downto REG_TTC_STATUS_CLK_GTH_PM_PHASE_MAX_LSB) <= ttc_clks_status_i.pm_gth.phase_max;
     regs_read_arr(19)(REG_TTC_STATUS_CLK_GTH_PM_PHASE_JUMP_CNT_MSB downto REG_TTC_STATUS_CLK_GTH_PM_PHASE_JUMP_CNT_LSB) <= ttc_clks_status_i.pm_gth.phase_jump_cnt;
     regs_read_arr(19)(REG_TTC_STATUS_CLK_GTH_PM_PHASE_JUMP_SIZE_MSB downto REG_TTC_STATUS_CLK_GTH_PM_PHASE_JUMP_SIZE_LSB) <= ttc_clks_status_i.pm_gth.phase_jump_size;
+    regs_read_arr(19)(REG_TTC_STATUS_CLK_GTH_SHIFT_ERROR_BIT) <= ttc_clks_status_i.gth_pi_shift_error;
     regs_read_arr(20)(REG_TTC_STATUS_CLK_GTH_PM_PHASE_JUMP_TIME_MSB downto REG_TTC_STATUS_CLK_GTH_PM_PHASE_JUMP_TIME_LSB) <= ttc_clks_status_i.pm_gth.phase_jump_time;
+    regs_read_arr(20)(REG_TTC_STATUS_CLK_GTH_SHIFT_CNT_MSB downto REG_TTC_STATUS_CLK_GTH_SHIFT_CNT_LSB) <= ttc_clks_status_i.gth_pi_shift_cnt;
     regs_read_arr(21)(REG_TTC_STATUS_TTC_SINGLE_ERROR_CNT_MSB downto REG_TTC_STATUS_TTC_SINGLE_ERROR_CNT_LSB) <= ttc_status.single_err;
     regs_read_arr(21)(REG_TTC_STATUS_TTC_DOUBLE_ERROR_CNT_MSB downto REG_TTC_STATUS_TTC_DOUBLE_ERROR_CNT_LSB) <= ttc_status.double_err;
     regs_read_arr(22)(REG_TTC_STATUS_BC0_LOCKED_BIT) <= ttc_status.bc0_status.locked;

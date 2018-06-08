@@ -135,7 +135,7 @@
                 description="Phase alignment: the width of the phase lock window"
                 fw_signal="ttc_clks_status_i.pll_lock_window"/>
           <node id="PA_PHASE_SHIFT_CNT" address="0x3" mask="0xffff0000" permission="r"
-                description="Phase alignment: number of phase shifts done by the phase alignment FSM"
+                description="Phase alignment: number of phase shifts done by the phase alignment FSM (each shift corresponds to 18.6012ps)"
                 fw_signal="ttc_clks_status_i.phase_shift_cnt"/>
           <node id="PA_PLL_LOCK_CLOCKS" address="0x4" mask="0x00ffffff" permission="r"
                 description="Phase alignment: number of clock cycles it took the phase monitoring PLL to lock (debugging register)"
@@ -197,6 +197,12 @@
           <node id="GTH_PM_PHASE_JUMP_TIME" address="0xc" mask="0x0000ffff" permission="r"
                 description="GTH Phase monitoring: number of seconds since last phase jump"
                 fw_signal="ttc_clks_status_i.pm_gth.phase_jump_time"/>
+          <node id="GTH_SHIFT_ERROR" address="0xb" mask="0x80000000" permission="r"
+                description="Phase alignment: Error during GTH phase shifting"
+                fw_signal="ttc_clks_status_i.gth_pi_shift_error"/>
+          <node id="GTH_SHIFT_CNT" address="0xc" mask="0xffff0000" permission="r"
+                description="Phase alignment: Number of GTH shifts done since last phase alignment reset (each shift corresponds to 6.5104ps, so 20 GTH shifts matches 7 MMCM shifts)"
+                fw_signal="ttc_clks_status_i.gth_pi_shift_cnt"/>
         </node>
 
         <node id="TTC_SINGLE_ERROR_CNT" address="0x10" mask="0x0000ffff" permission="r"

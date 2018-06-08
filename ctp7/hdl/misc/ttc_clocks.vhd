@@ -720,7 +720,7 @@ begin
                 if (gth_shift_req_dly = '1' and gth_shift_ack = '0') then
                     gth_shift_ack <= '1';
                                         
-                    gth_tx_pippm_ctrl.direction <= gth_shift_dir;
+                    gth_tx_pippm_ctrl.direction <= not gth_shift_dir; -- shifting the MMCM feedback clock forward, actually shifts the outputs backwards.. so in this case we have to shift the PMA clock also backwards..
                     gth_tx_pippm_ctrl.enable <= '1';
                     gth_shift_en_timer <= "01";
                     
