@@ -11,6 +11,23 @@
         <node id="DISABLE_PHASE_ALIGNMENT" address="0x4" permission="rw" mask="0x80000000"/>
         <node id="PA_DISABLE_INIT_SHIFT_OUT" address="0x4" permission="rw" mask="0x40000000"/>
         <node id="PA_DISABLE_GTH_PHASE_TRACKING" address="0x4" permission="rw" mask="0x20000000"/>
+        <node id="PA_GTH_SHIFT_REV_DIR" address="0x4" permission="rw" mask="0x10000000"/>
+        <node id="PA_GTH_SHIFT_USE_SEL" address="0x4" permission="rw" mask="0x8000000"/>
+        <node id="GTH_TXDLYBYPASS" address="0x4" permission="rw" mask="0x4000000"/>
+        <node id="PA_SHIFT_WAIT_TIME" address="0x4" permission="rw" mask="0xffff00"/>
+        <node id="PA_MANUAL_OVERRIDE" address="0x5" permission="rw" mask="0x1"/>
+        <node id="PA_MANUAL_SHIFT_DIR" address="0x5" permission="rw" mask="0x2"/>
+        <node id="PA_MANUAL_SHIFT_EN" address="0x6" permission="w" />
+        <node id="PA_GTH_MANUAL_SEL_OVERRIDE" address="0x7" permission="rw" mask="0x1"/>
+        <node id="PA_GTH_MANUAL_OVERRIDE" address="0x7" permission="rw" mask="0x2"/>
+        <node id="PA_GTH_MANUAL_SHIFT_DIR" address="0x7" permission="rw" mask="0x4"/>
+        <node id="PA_GTH_MANUAL_SHIFT_STEP" address="0x7" permission="rw" mask="0xf0"/>
+        <node id="PA_GTH_MANUAL_COMBINED" address="0x7" permission="rw" mask="0x100"/>
+        <node id="PA_GTH_MANUAL_SHIFT_EN" address="0x8" permission="w" />
+        <node id="PA_MANUAL_PLL_RESET" address="0x9" permission="w" />
+        <node id="BUF_DEPTH_AFTER_RESET" address="0xd" permission="rw" mask="0xf"/>
+        <node id="BUF_OOS_MIN_DEPTH" address="0xd" permission="rw" mask="0xf0"/>
+        <node id="BUF_OOS_MAX_DEPTH" address="0xd" permission="rw" mask="0xf00"/>
       </node>
       <node id="CONFIG" address="0x10" >
         <node id="CMD_BC0" address="0x0" permission="rw" mask="0xff"/>
@@ -51,8 +68,11 @@
           <node id="GTH_PM_PHASE_JUMP_CNT" address="0xb" permission="r" mask="0xffff"/>
           <node id="GTH_PM_PHASE_JUMP_SIZE" address="0xb" permission="r" mask="0xfff0000"/>
           <node id="GTH_PM_PHASE_JUMP_TIME" address="0xc" permission="r" mask="0xffff"/>
-          <node id="GTH_SHIFT_ERROR" address="0xb" permission="r" mask="0x80000000"/>
+          <node id="GTH_SHIFT_ERROR" address="0xb" permission="r" mask="0xf0000000"/>
           <node id="GTH_SHIFT_CNT" address="0xc" permission="r" mask="0xffff0000"/>
+          <node id="GTH_RESET_CNT" address="0xd" permission="r" mask="0xffff"/>
+          <node id="PA_MANUAL_SHIFT_CNT" address="0xe" permission="r" mask="0xffff"/>
+          <node id="PA_MANUAL_GTH_SHIFT_CNT" address="0xe" permission="r" mask="0xffff0000"/>
         </node>
         <node id="TTC_SINGLE_ERROR_CNT" address="0x10" permission="r" mask="0xffff"/>
         <node id="TTC_DOUBLE_ERROR_CNT" address="0x10" permission="r" mask="0xffff0000"/>
@@ -61,6 +81,19 @@
           <node id="UNLOCK_CNT" address="0x1" permission="r" mask="0xffff"/>
           <node id="OVERFLOW_CNT" address="0x2" permission="r" mask="0xffff"/>
           <node id="UNDERFLOW_CNT" address="0x2" permission="r" mask="0xffff0000"/>
+        </node>
+        <node id="BUFFER" address="0x15" >
+          <node id="DEPTH" address="0x0" permission="r" mask="0xf"/>
+          <node id="MIN_DEPTH" address="0x0" permission="r" mask="0xf0"/>
+          <node id="MAX_DEPTH" address="0x0" permission="r" mask="0xf00"/>
+          <node id="OOS" address="0x0" permission="r" mask="0x1000"/>
+          <node id="BUSY" address="0x0" permission="r" mask="0x2000"/>
+          <node id="OOS_CNT" address="0x0" permission="r" mask="0xffff0000"/>
+          <node id="UNF_CNT" address="0x1" permission="r" mask="0xffff"/>
+          <node id="OVF_CNT" address="0x1" permission="r" mask="0xffff0000"/>
+          <node id="LAST_OOS_TIME_SECONDS" address="0x2" permission="r" mask="0xffff"/>
+          <node id="OOS_DURATION_LAST" address="0x3" permission="r" mask="0xffffffff"/>
+          <node id="OOS_DURATION_MAX" address="0x4" permission="r" mask="0xffffffff"/>
         </node>
       </node>
       <node id="CMD_COUNTERS" address="0x40" >
@@ -931,9 +964,19 @@
         <node id="ZERO_SUPPRESSION_EN" address="0x0" permission="rw" mask="0x2"/>
         <node id="TTS_OVERRIDE" address="0x0" permission="rw" mask="0xf0"/>
         <node id="INPUT_ENABLE_MASK" address="0x0" permission="rw" mask="0xffffff00"/>
-        <node id="DAV_TIMEOUT" address="0x6" permission="rw" mask="0xffffff"/>
+        <node id="DAV_TIMEOUT" address="0x1" permission="rw" mask="0xffffff"/>
+        <node id="EOE_USE_OH_EC_BC" address="0x1" permission="rw" mask="0x1000000"/>
+        <node id="ENABLE_INPUT_AUTOKILL" address="0x1" permission="rw" mask="0x2000000"/>
+        <node id="INPUT_AUTOKILL_THRESH" address="0x2" permission="rw" mask="0xffff"/>
       </node>
-      <node id="STATUS" address="0x1" >
+      <node id="EXT_CONTROL" address="0x10" >
+        <node id="RUN_TYPE" address="0x0" permission="rw" mask="0xf000000"/>
+        <node id="RUN_PARAMS" address="0x0" permission="rw" mask="0xffffff"/>
+        <node id="RUN_PARAM1" address="0x0" permission="rw" mask="0x0000ff"/>
+        <node id="RUN_PARAM2" address="0x0" permission="rw" mask="0x00ff00"/>
+        <node id="RUN_PARAM3" address="0x0" permission="rw" mask="0xff0000"/>
+      </node>
+      <node id="STATUS" address="0x20" >
         <node id="DAQ_LINK_RDY" address="0x0" permission="r" mask="0x1"/>
         <node id="DAQ_CLK_LOCKED" address="0x0" permission="r" mask="0x2"/>
         <node id="TTC_RDY" address="0x0" permission="r" mask="0x4"/>
@@ -946,8 +989,9 @@
         <node id="L1A_FIFO_IS_NEAR_FULL" address="0x0" permission="r" mask="0x4000000"/>
         <node id="L1A_FIFO_IS_EMPTY" address="0x0" permission="r" mask="0x8000000"/>
         <node id="TTS_STATE" address="0x0" permission="r" mask="0xf0000000"/>
+        <node id="INPUT_AUTOKILL_MASK" address="0x1" permission="r" mask="0xffffff"/>
       </node>
-      <node id="EXT_STATUS" address="0x2" >
+      <node id="EXT_STATUS" address="0x30" >
         <node id="NOTINTABLE_ERR" address="0x0" permission="r" mask="0xffff"/>
         <node id="DISPER_ERR" address="0x1" permission="r" mask="0xffff"/>
         <node id="L1AID" address="0x2" permission="r" mask="0xffffff"/>
@@ -962,14 +1006,7 @@
         <node id="TTS_WARN_CNT" address="0x9" permission="r" mask="0xffff0000"/>
         <node id="DAQ_WORD_RATE" address="0xa" permission="r" />
       </node>
-      <node id="EXT_CONTROL" address="0xe" >
-        <node id="RUN_TYPE" address="0x1" permission="rw" mask="0xf000000"/>
-        <node id="RUN_PARAMS" address="0x1" permission="rw" mask="0xffffff"/>
-        <node id="RUN_PARAM1" address="0x1" permission="rw" mask="0x0000ff"/>
-        <node id="RUN_PARAM2" address="0x1" permission="rw" mask="0x00ff00"/>
-        <node id="RUN_PARAM3" address="0x1" permission="rw" mask="0xff0000"/>
-      </node>
-      <node id="OH0" address="0x10" >
+      <node id="OH0" address="0x50" >
         <node id="CONTROL" address="0x0" >
           <node id="EOE_TIMEOUT" address="0x3" permission="rw" mask="0xffffff"/>
         </node>
@@ -1006,16 +1043,21 @@
           <node id="EVT_RATE" address="0x6" permission="r" mask="0xffff8000"/>
           <node id="MAX_EOE_TIMER" address="0x7" permission="r" mask="0xffffff"/>
           <node id="LAST_EOE_TIMER" address="0x8" permission="r" mask="0xffffff"/>
+          <node id="LIVE_VFAT_WORDS_64_LAST" address="0x9" permission="r" mask="0xfff"/>
+          <node id="LIVE_VFAT_WORDS_64_MIN" address="0x9" permission="r" mask="0xfff000"/>
+          <node id="LIVE_VFAT_WORDS_64_MAX" address="0xa" permission="r" mask="0xfff"/>
+          <node id="DAV_TIMEOUT_CONSEC_CNT" address="0xb" permission="r" mask="0xffff"/>
+          <node id="DAV_TIMEOUT_CNT" address="0xb" permission="r" mask="0xffff0000"/>
         </node>
-        <node id="LASTBLOCK0" address="0x9" permission="r" />
-        <node id="LASTBLOCK1" address="0xa" permission="r" />
-        <node id="LASTBLOCK2" address="0xb" permission="r" />
-        <node id="LASTBLOCK3" address="0xc" permission="r" />
-        <node id="LASTBLOCK4" address="0xd" permission="r" />
-        <node id="LASTBLOCK5" address="0xe" permission="r" />
-        <node id="LASTBLOCK6" address="0xf" permission="r" />
+        <node id="LASTBLOCK0" address="0x10" permission="r" />
+        <node id="LASTBLOCK1" address="0x11" permission="r" />
+        <node id="LASTBLOCK2" address="0x12" permission="r" />
+        <node id="LASTBLOCK3" address="0x13" permission="r" />
+        <node id="LASTBLOCK4" address="0x14" permission="r" />
+        <node id="LASTBLOCK5" address="0x15" permission="r" />
+        <node id="LASTBLOCK6" address="0x16" permission="r" />
       </node>
-      <node id="OH1" address="0x20" >
+      <node id="OH1" address="0x70" >
         <node id="CONTROL" address="0x0" >
           <node id="EOE_TIMEOUT" address="0x3" permission="rw" mask="0xffffff"/>
         </node>
@@ -1052,16 +1094,21 @@
           <node id="EVT_RATE" address="0x6" permission="r" mask="0xffff8000"/>
           <node id="MAX_EOE_TIMER" address="0x7" permission="r" mask="0xffffff"/>
           <node id="LAST_EOE_TIMER" address="0x8" permission="r" mask="0xffffff"/>
+          <node id="LIVE_VFAT_WORDS_64_LAST" address="0x9" permission="r" mask="0xfff"/>
+          <node id="LIVE_VFAT_WORDS_64_MIN" address="0x9" permission="r" mask="0xfff000"/>
+          <node id="LIVE_VFAT_WORDS_64_MAX" address="0xa" permission="r" mask="0xfff"/>
+          <node id="DAV_TIMEOUT_CONSEC_CNT" address="0xb" permission="r" mask="0xffff"/>
+          <node id="DAV_TIMEOUT_CNT" address="0xb" permission="r" mask="0xffff0000"/>
         </node>
-        <node id="LASTBLOCK0" address="0x9" permission="r" />
-        <node id="LASTBLOCK1" address="0xa" permission="r" />
-        <node id="LASTBLOCK2" address="0xb" permission="r" />
-        <node id="LASTBLOCK3" address="0xc" permission="r" />
-        <node id="LASTBLOCK4" address="0xd" permission="r" />
-        <node id="LASTBLOCK5" address="0xe" permission="r" />
-        <node id="LASTBLOCK6" address="0xf" permission="r" />
+        <node id="LASTBLOCK0" address="0x10" permission="r" />
+        <node id="LASTBLOCK1" address="0x11" permission="r" />
+        <node id="LASTBLOCK2" address="0x12" permission="r" />
+        <node id="LASTBLOCK3" address="0x13" permission="r" />
+        <node id="LASTBLOCK4" address="0x14" permission="r" />
+        <node id="LASTBLOCK5" address="0x15" permission="r" />
+        <node id="LASTBLOCK6" address="0x16" permission="r" />
       </node>
-      <node id="OH2" address="0x30" >
+      <node id="OH2" address="0x90" >
         <node id="CONTROL" address="0x0" >
           <node id="EOE_TIMEOUT" address="0x3" permission="rw" mask="0xffffff"/>
         </node>
@@ -1098,16 +1145,21 @@
           <node id="EVT_RATE" address="0x6" permission="r" mask="0xffff8000"/>
           <node id="MAX_EOE_TIMER" address="0x7" permission="r" mask="0xffffff"/>
           <node id="LAST_EOE_TIMER" address="0x8" permission="r" mask="0xffffff"/>
+          <node id="LIVE_VFAT_WORDS_64_LAST" address="0x9" permission="r" mask="0xfff"/>
+          <node id="LIVE_VFAT_WORDS_64_MIN" address="0x9" permission="r" mask="0xfff000"/>
+          <node id="LIVE_VFAT_WORDS_64_MAX" address="0xa" permission="r" mask="0xfff"/>
+          <node id="DAV_TIMEOUT_CONSEC_CNT" address="0xb" permission="r" mask="0xffff"/>
+          <node id="DAV_TIMEOUT_CNT" address="0xb" permission="r" mask="0xffff0000"/>
         </node>
-        <node id="LASTBLOCK0" address="0x9" permission="r" />
-        <node id="LASTBLOCK1" address="0xa" permission="r" />
-        <node id="LASTBLOCK2" address="0xb" permission="r" />
-        <node id="LASTBLOCK3" address="0xc" permission="r" />
-        <node id="LASTBLOCK4" address="0xd" permission="r" />
-        <node id="LASTBLOCK5" address="0xe" permission="r" />
-        <node id="LASTBLOCK6" address="0xf" permission="r" />
+        <node id="LASTBLOCK0" address="0x10" permission="r" />
+        <node id="LASTBLOCK1" address="0x11" permission="r" />
+        <node id="LASTBLOCK2" address="0x12" permission="r" />
+        <node id="LASTBLOCK3" address="0x13" permission="r" />
+        <node id="LASTBLOCK4" address="0x14" permission="r" />
+        <node id="LASTBLOCK5" address="0x15" permission="r" />
+        <node id="LASTBLOCK6" address="0x16" permission="r" />
       </node>
-      <node id="OH3" address="0x40" >
+      <node id="OH3" address="0xb0" >
         <node id="CONTROL" address="0x0" >
           <node id="EOE_TIMEOUT" address="0x3" permission="rw" mask="0xffffff"/>
         </node>
@@ -1144,16 +1196,21 @@
           <node id="EVT_RATE" address="0x6" permission="r" mask="0xffff8000"/>
           <node id="MAX_EOE_TIMER" address="0x7" permission="r" mask="0xffffff"/>
           <node id="LAST_EOE_TIMER" address="0x8" permission="r" mask="0xffffff"/>
+          <node id="LIVE_VFAT_WORDS_64_LAST" address="0x9" permission="r" mask="0xfff"/>
+          <node id="LIVE_VFAT_WORDS_64_MIN" address="0x9" permission="r" mask="0xfff000"/>
+          <node id="LIVE_VFAT_WORDS_64_MAX" address="0xa" permission="r" mask="0xfff"/>
+          <node id="DAV_TIMEOUT_CONSEC_CNT" address="0xb" permission="r" mask="0xffff"/>
+          <node id="DAV_TIMEOUT_CNT" address="0xb" permission="r" mask="0xffff0000"/>
         </node>
-        <node id="LASTBLOCK0" address="0x9" permission="r" />
-        <node id="LASTBLOCK1" address="0xa" permission="r" />
-        <node id="LASTBLOCK2" address="0xb" permission="r" />
-        <node id="LASTBLOCK3" address="0xc" permission="r" />
-        <node id="LASTBLOCK4" address="0xd" permission="r" />
-        <node id="LASTBLOCK5" address="0xe" permission="r" />
-        <node id="LASTBLOCK6" address="0xf" permission="r" />
+        <node id="LASTBLOCK0" address="0x10" permission="r" />
+        <node id="LASTBLOCK1" address="0x11" permission="r" />
+        <node id="LASTBLOCK2" address="0x12" permission="r" />
+        <node id="LASTBLOCK3" address="0x13" permission="r" />
+        <node id="LASTBLOCK4" address="0x14" permission="r" />
+        <node id="LASTBLOCK5" address="0x15" permission="r" />
+        <node id="LASTBLOCK6" address="0x16" permission="r" />
       </node>
-      <node id="OH4" address="0x50" >
+      <node id="OH4" address="0xd0" >
         <node id="CONTROL" address="0x0" >
           <node id="EOE_TIMEOUT" address="0x3" permission="rw" mask="0xffffff"/>
         </node>
@@ -1190,16 +1247,21 @@
           <node id="EVT_RATE" address="0x6" permission="r" mask="0xffff8000"/>
           <node id="MAX_EOE_TIMER" address="0x7" permission="r" mask="0xffffff"/>
           <node id="LAST_EOE_TIMER" address="0x8" permission="r" mask="0xffffff"/>
+          <node id="LIVE_VFAT_WORDS_64_LAST" address="0x9" permission="r" mask="0xfff"/>
+          <node id="LIVE_VFAT_WORDS_64_MIN" address="0x9" permission="r" mask="0xfff000"/>
+          <node id="LIVE_VFAT_WORDS_64_MAX" address="0xa" permission="r" mask="0xfff"/>
+          <node id="DAV_TIMEOUT_CONSEC_CNT" address="0xb" permission="r" mask="0xffff"/>
+          <node id="DAV_TIMEOUT_CNT" address="0xb" permission="r" mask="0xffff0000"/>
         </node>
-        <node id="LASTBLOCK0" address="0x9" permission="r" />
-        <node id="LASTBLOCK1" address="0xa" permission="r" />
-        <node id="LASTBLOCK2" address="0xb" permission="r" />
-        <node id="LASTBLOCK3" address="0xc" permission="r" />
-        <node id="LASTBLOCK4" address="0xd" permission="r" />
-        <node id="LASTBLOCK5" address="0xe" permission="r" />
-        <node id="LASTBLOCK6" address="0xf" permission="r" />
+        <node id="LASTBLOCK0" address="0x10" permission="r" />
+        <node id="LASTBLOCK1" address="0x11" permission="r" />
+        <node id="LASTBLOCK2" address="0x12" permission="r" />
+        <node id="LASTBLOCK3" address="0x13" permission="r" />
+        <node id="LASTBLOCK4" address="0x14" permission="r" />
+        <node id="LASTBLOCK5" address="0x15" permission="r" />
+        <node id="LASTBLOCK6" address="0x16" permission="r" />
       </node>
-      <node id="OH5" address="0x60" >
+      <node id="OH5" address="0xf0" >
         <node id="CONTROL" address="0x0" >
           <node id="EOE_TIMEOUT" address="0x3" permission="rw" mask="0xffffff"/>
         </node>
@@ -1236,16 +1298,21 @@
           <node id="EVT_RATE" address="0x6" permission="r" mask="0xffff8000"/>
           <node id="MAX_EOE_TIMER" address="0x7" permission="r" mask="0xffffff"/>
           <node id="LAST_EOE_TIMER" address="0x8" permission="r" mask="0xffffff"/>
+          <node id="LIVE_VFAT_WORDS_64_LAST" address="0x9" permission="r" mask="0xfff"/>
+          <node id="LIVE_VFAT_WORDS_64_MIN" address="0x9" permission="r" mask="0xfff000"/>
+          <node id="LIVE_VFAT_WORDS_64_MAX" address="0xa" permission="r" mask="0xfff"/>
+          <node id="DAV_TIMEOUT_CONSEC_CNT" address="0xb" permission="r" mask="0xffff"/>
+          <node id="DAV_TIMEOUT_CNT" address="0xb" permission="r" mask="0xffff0000"/>
         </node>
-        <node id="LASTBLOCK0" address="0x9" permission="r" />
-        <node id="LASTBLOCK1" address="0xa" permission="r" />
-        <node id="LASTBLOCK2" address="0xb" permission="r" />
-        <node id="LASTBLOCK3" address="0xc" permission="r" />
-        <node id="LASTBLOCK4" address="0xd" permission="r" />
-        <node id="LASTBLOCK5" address="0xe" permission="r" />
-        <node id="LASTBLOCK6" address="0xf" permission="r" />
+        <node id="LASTBLOCK0" address="0x10" permission="r" />
+        <node id="LASTBLOCK1" address="0x11" permission="r" />
+        <node id="LASTBLOCK2" address="0x12" permission="r" />
+        <node id="LASTBLOCK3" address="0x13" permission="r" />
+        <node id="LASTBLOCK4" address="0x14" permission="r" />
+        <node id="LASTBLOCK5" address="0x15" permission="r" />
+        <node id="LASTBLOCK6" address="0x16" permission="r" />
       </node>
-      <node id="OH6" address="0x70" >
+      <node id="OH6" address="0x110" >
         <node id="CONTROL" address="0x0" >
           <node id="EOE_TIMEOUT" address="0x3" permission="rw" mask="0xffffff"/>
         </node>
@@ -1282,16 +1349,21 @@
           <node id="EVT_RATE" address="0x6" permission="r" mask="0xffff8000"/>
           <node id="MAX_EOE_TIMER" address="0x7" permission="r" mask="0xffffff"/>
           <node id="LAST_EOE_TIMER" address="0x8" permission="r" mask="0xffffff"/>
+          <node id="LIVE_VFAT_WORDS_64_LAST" address="0x9" permission="r" mask="0xfff"/>
+          <node id="LIVE_VFAT_WORDS_64_MIN" address="0x9" permission="r" mask="0xfff000"/>
+          <node id="LIVE_VFAT_WORDS_64_MAX" address="0xa" permission="r" mask="0xfff"/>
+          <node id="DAV_TIMEOUT_CONSEC_CNT" address="0xb" permission="r" mask="0xffff"/>
+          <node id="DAV_TIMEOUT_CNT" address="0xb" permission="r" mask="0xffff0000"/>
         </node>
-        <node id="LASTBLOCK0" address="0x9" permission="r" />
-        <node id="LASTBLOCK1" address="0xa" permission="r" />
-        <node id="LASTBLOCK2" address="0xb" permission="r" />
-        <node id="LASTBLOCK3" address="0xc" permission="r" />
-        <node id="LASTBLOCK4" address="0xd" permission="r" />
-        <node id="LASTBLOCK5" address="0xe" permission="r" />
-        <node id="LASTBLOCK6" address="0xf" permission="r" />
+        <node id="LASTBLOCK0" address="0x10" permission="r" />
+        <node id="LASTBLOCK1" address="0x11" permission="r" />
+        <node id="LASTBLOCK2" address="0x12" permission="r" />
+        <node id="LASTBLOCK3" address="0x13" permission="r" />
+        <node id="LASTBLOCK4" address="0x14" permission="r" />
+        <node id="LASTBLOCK5" address="0x15" permission="r" />
+        <node id="LASTBLOCK6" address="0x16" permission="r" />
       </node>
-      <node id="OH7" address="0x80" >
+      <node id="OH7" address="0x130" >
         <node id="CONTROL" address="0x0" >
           <node id="EOE_TIMEOUT" address="0x3" permission="rw" mask="0xffffff"/>
         </node>
@@ -1328,16 +1400,21 @@
           <node id="EVT_RATE" address="0x6" permission="r" mask="0xffff8000"/>
           <node id="MAX_EOE_TIMER" address="0x7" permission="r" mask="0xffffff"/>
           <node id="LAST_EOE_TIMER" address="0x8" permission="r" mask="0xffffff"/>
+          <node id="LIVE_VFAT_WORDS_64_LAST" address="0x9" permission="r" mask="0xfff"/>
+          <node id="LIVE_VFAT_WORDS_64_MIN" address="0x9" permission="r" mask="0xfff000"/>
+          <node id="LIVE_VFAT_WORDS_64_MAX" address="0xa" permission="r" mask="0xfff"/>
+          <node id="DAV_TIMEOUT_CONSEC_CNT" address="0xb" permission="r" mask="0xffff"/>
+          <node id="DAV_TIMEOUT_CNT" address="0xb" permission="r" mask="0xffff0000"/>
         </node>
-        <node id="LASTBLOCK0" address="0x9" permission="r" />
-        <node id="LASTBLOCK1" address="0xa" permission="r" />
-        <node id="LASTBLOCK2" address="0xb" permission="r" />
-        <node id="LASTBLOCK3" address="0xc" permission="r" />
-        <node id="LASTBLOCK4" address="0xd" permission="r" />
-        <node id="LASTBLOCK5" address="0xe" permission="r" />
-        <node id="LASTBLOCK6" address="0xf" permission="r" />
+        <node id="LASTBLOCK0" address="0x10" permission="r" />
+        <node id="LASTBLOCK1" address="0x11" permission="r" />
+        <node id="LASTBLOCK2" address="0x12" permission="r" />
+        <node id="LASTBLOCK3" address="0x13" permission="r" />
+        <node id="LASTBLOCK4" address="0x14" permission="r" />
+        <node id="LASTBLOCK5" address="0x15" permission="r" />
+        <node id="LASTBLOCK6" address="0x16" permission="r" />
       </node>
-      <node id="OH8" address="0x90" >
+      <node id="OH8" address="0x150" >
         <node id="CONTROL" address="0x0" >
           <node id="EOE_TIMEOUT" address="0x3" permission="rw" mask="0xffffff"/>
         </node>
@@ -1374,16 +1451,21 @@
           <node id="EVT_RATE" address="0x6" permission="r" mask="0xffff8000"/>
           <node id="MAX_EOE_TIMER" address="0x7" permission="r" mask="0xffffff"/>
           <node id="LAST_EOE_TIMER" address="0x8" permission="r" mask="0xffffff"/>
+          <node id="LIVE_VFAT_WORDS_64_LAST" address="0x9" permission="r" mask="0xfff"/>
+          <node id="LIVE_VFAT_WORDS_64_MIN" address="0x9" permission="r" mask="0xfff000"/>
+          <node id="LIVE_VFAT_WORDS_64_MAX" address="0xa" permission="r" mask="0xfff"/>
+          <node id="DAV_TIMEOUT_CONSEC_CNT" address="0xb" permission="r" mask="0xffff"/>
+          <node id="DAV_TIMEOUT_CNT" address="0xb" permission="r" mask="0xffff0000"/>
         </node>
-        <node id="LASTBLOCK0" address="0x9" permission="r" />
-        <node id="LASTBLOCK1" address="0xa" permission="r" />
-        <node id="LASTBLOCK2" address="0xb" permission="r" />
-        <node id="LASTBLOCK3" address="0xc" permission="r" />
-        <node id="LASTBLOCK4" address="0xd" permission="r" />
-        <node id="LASTBLOCK5" address="0xe" permission="r" />
-        <node id="LASTBLOCK6" address="0xf" permission="r" />
+        <node id="LASTBLOCK0" address="0x10" permission="r" />
+        <node id="LASTBLOCK1" address="0x11" permission="r" />
+        <node id="LASTBLOCK2" address="0x12" permission="r" />
+        <node id="LASTBLOCK3" address="0x13" permission="r" />
+        <node id="LASTBLOCK4" address="0x14" permission="r" />
+        <node id="LASTBLOCK5" address="0x15" permission="r" />
+        <node id="LASTBLOCK6" address="0x16" permission="r" />
       </node>
-      <node id="OH9" address="0xa0" >
+      <node id="OH9" address="0x170" >
         <node id="CONTROL" address="0x0" >
           <node id="EOE_TIMEOUT" address="0x3" permission="rw" mask="0xffffff"/>
         </node>
@@ -1420,16 +1502,21 @@
           <node id="EVT_RATE" address="0x6" permission="r" mask="0xffff8000"/>
           <node id="MAX_EOE_TIMER" address="0x7" permission="r" mask="0xffffff"/>
           <node id="LAST_EOE_TIMER" address="0x8" permission="r" mask="0xffffff"/>
+          <node id="LIVE_VFAT_WORDS_64_LAST" address="0x9" permission="r" mask="0xfff"/>
+          <node id="LIVE_VFAT_WORDS_64_MIN" address="0x9" permission="r" mask="0xfff000"/>
+          <node id="LIVE_VFAT_WORDS_64_MAX" address="0xa" permission="r" mask="0xfff"/>
+          <node id="DAV_TIMEOUT_CONSEC_CNT" address="0xb" permission="r" mask="0xffff"/>
+          <node id="DAV_TIMEOUT_CNT" address="0xb" permission="r" mask="0xffff0000"/>
         </node>
-        <node id="LASTBLOCK0" address="0x9" permission="r" />
-        <node id="LASTBLOCK1" address="0xa" permission="r" />
-        <node id="LASTBLOCK2" address="0xb" permission="r" />
-        <node id="LASTBLOCK3" address="0xc" permission="r" />
-        <node id="LASTBLOCK4" address="0xd" permission="r" />
-        <node id="LASTBLOCK5" address="0xe" permission="r" />
-        <node id="LASTBLOCK6" address="0xf" permission="r" />
+        <node id="LASTBLOCK0" address="0x10" permission="r" />
+        <node id="LASTBLOCK1" address="0x11" permission="r" />
+        <node id="LASTBLOCK2" address="0x12" permission="r" />
+        <node id="LASTBLOCK3" address="0x13" permission="r" />
+        <node id="LASTBLOCK4" address="0x14" permission="r" />
+        <node id="LASTBLOCK5" address="0x15" permission="r" />
+        <node id="LASTBLOCK6" address="0x16" permission="r" />
       </node>
-      <node id="OH10" address="0xb0" >
+      <node id="OH10" address="0x190" >
         <node id="CONTROL" address="0x0" >
           <node id="EOE_TIMEOUT" address="0x3" permission="rw" mask="0xffffff"/>
         </node>
@@ -1466,16 +1553,21 @@
           <node id="EVT_RATE" address="0x6" permission="r" mask="0xffff8000"/>
           <node id="MAX_EOE_TIMER" address="0x7" permission="r" mask="0xffffff"/>
           <node id="LAST_EOE_TIMER" address="0x8" permission="r" mask="0xffffff"/>
+          <node id="LIVE_VFAT_WORDS_64_LAST" address="0x9" permission="r" mask="0xfff"/>
+          <node id="LIVE_VFAT_WORDS_64_MIN" address="0x9" permission="r" mask="0xfff000"/>
+          <node id="LIVE_VFAT_WORDS_64_MAX" address="0xa" permission="r" mask="0xfff"/>
+          <node id="DAV_TIMEOUT_CONSEC_CNT" address="0xb" permission="r" mask="0xffff"/>
+          <node id="DAV_TIMEOUT_CNT" address="0xb" permission="r" mask="0xffff0000"/>
         </node>
-        <node id="LASTBLOCK0" address="0x9" permission="r" />
-        <node id="LASTBLOCK1" address="0xa" permission="r" />
-        <node id="LASTBLOCK2" address="0xb" permission="r" />
-        <node id="LASTBLOCK3" address="0xc" permission="r" />
-        <node id="LASTBLOCK4" address="0xd" permission="r" />
-        <node id="LASTBLOCK5" address="0xe" permission="r" />
-        <node id="LASTBLOCK6" address="0xf" permission="r" />
+        <node id="LASTBLOCK0" address="0x10" permission="r" />
+        <node id="LASTBLOCK1" address="0x11" permission="r" />
+        <node id="LASTBLOCK2" address="0x12" permission="r" />
+        <node id="LASTBLOCK3" address="0x13" permission="r" />
+        <node id="LASTBLOCK4" address="0x14" permission="r" />
+        <node id="LASTBLOCK5" address="0x15" permission="r" />
+        <node id="LASTBLOCK6" address="0x16" permission="r" />
       </node>
-      <node id="OH11" address="0xc0" >
+      <node id="OH11" address="0x1b0" >
         <node id="CONTROL" address="0x0" >
           <node id="EOE_TIMEOUT" address="0x3" permission="rw" mask="0xffffff"/>
         </node>
@@ -1512,14 +1604,19 @@
           <node id="EVT_RATE" address="0x6" permission="r" mask="0xffff8000"/>
           <node id="MAX_EOE_TIMER" address="0x7" permission="r" mask="0xffffff"/>
           <node id="LAST_EOE_TIMER" address="0x8" permission="r" mask="0xffffff"/>
+          <node id="LIVE_VFAT_WORDS_64_LAST" address="0x9" permission="r" mask="0xfff"/>
+          <node id="LIVE_VFAT_WORDS_64_MIN" address="0x9" permission="r" mask="0xfff000"/>
+          <node id="LIVE_VFAT_WORDS_64_MAX" address="0xa" permission="r" mask="0xfff"/>
+          <node id="DAV_TIMEOUT_CONSEC_CNT" address="0xb" permission="r" mask="0xffff"/>
+          <node id="DAV_TIMEOUT_CNT" address="0xb" permission="r" mask="0xffff0000"/>
         </node>
-        <node id="LASTBLOCK0" address="0x9" permission="r" />
-        <node id="LASTBLOCK1" address="0xa" permission="r" />
-        <node id="LASTBLOCK2" address="0xb" permission="r" />
-        <node id="LASTBLOCK3" address="0xc" permission="r" />
-        <node id="LASTBLOCK4" address="0xd" permission="r" />
-        <node id="LASTBLOCK5" address="0xe" permission="r" />
-        <node id="LASTBLOCK6" address="0xf" permission="r" />
+        <node id="LASTBLOCK0" address="0x10" permission="r" />
+        <node id="LASTBLOCK1" address="0x11" permission="r" />
+        <node id="LASTBLOCK2" address="0x12" permission="r" />
+        <node id="LASTBLOCK3" address="0x13" permission="r" />
+        <node id="LASTBLOCK4" address="0x14" permission="r" />
+        <node id="LASTBLOCK5" address="0x15" permission="r" />
+        <node id="LASTBLOCK6" address="0x16" permission="r" />
       </node>
     </node>
     <node id="OH_LINKS" address="0x600000" >

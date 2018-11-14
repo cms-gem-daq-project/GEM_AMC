@@ -15,7 +15,7 @@ package registers is
     -- data status, bc0 status, command counters and a small spy buffer)
     --============================================================================
 
-    constant REG_TTC_NUM_REGS : integer := 37;
+    constant REG_TTC_NUM_REGS : integer := 50;
     constant REG_TTC_ADDRESS_MSB : integer := 7;
     constant REG_TTC_ADDRESS_LSB : integer := 0;
     constant REG_TTC_CTRL_MODULE_RESET_ADDR    : std_logic_vector(7 downto 0) := x"00";
@@ -38,9 +38,26 @@ package registers is
     constant REG_TTC_CTRL_L1A_ENABLE_BIT    : integer := 0;
     constant REG_TTC_CTRL_L1A_ENABLE_DEFAULT : std_logic := '1';
 
+    constant REG_TTC_CTRL_PA_SHIFT_WAIT_TIME_ADDR    : std_logic_vector(7 downto 0) := x"04";
+    constant REG_TTC_CTRL_PA_SHIFT_WAIT_TIME_MSB    : integer := 23;
+    constant REG_TTC_CTRL_PA_SHIFT_WAIT_TIME_LSB     : integer := 8;
+    constant REG_TTC_CTRL_PA_SHIFT_WAIT_TIME_DEFAULT : std_logic_vector(23 downto 8) := x"a2c2";
+
+    constant REG_TTC_CTRL_GTH_TXDLYBYPASS_ADDR    : std_logic_vector(7 downto 0) := x"04";
+    constant REG_TTC_CTRL_GTH_TXDLYBYPASS_BIT    : integer := 26;
+    constant REG_TTC_CTRL_GTH_TXDLYBYPASS_DEFAULT : std_logic := '1';
+
+    constant REG_TTC_CTRL_PA_GTH_SHIFT_USE_SEL_ADDR    : std_logic_vector(7 downto 0) := x"04";
+    constant REG_TTC_CTRL_PA_GTH_SHIFT_USE_SEL_BIT    : integer := 27;
+    constant REG_TTC_CTRL_PA_GTH_SHIFT_USE_SEL_DEFAULT : std_logic := '0';
+
+    constant REG_TTC_CTRL_PA_GTH_SHIFT_REV_DIR_ADDR    : std_logic_vector(7 downto 0) := x"04";
+    constant REG_TTC_CTRL_PA_GTH_SHIFT_REV_DIR_BIT    : integer := 28;
+    constant REG_TTC_CTRL_PA_GTH_SHIFT_REV_DIR_DEFAULT : std_logic := '0';
+
     constant REG_TTC_CTRL_PA_DISABLE_GTH_PHASE_TRACKING_ADDR    : std_logic_vector(7 downto 0) := x"04";
     constant REG_TTC_CTRL_PA_DISABLE_GTH_PHASE_TRACKING_BIT    : integer := 29;
-    constant REG_TTC_CTRL_PA_DISABLE_GTH_PHASE_TRACKING_DEFAULT : std_logic := '0';
+    constant REG_TTC_CTRL_PA_DISABLE_GTH_PHASE_TRACKING_DEFAULT : std_logic := '1';
 
     constant REG_TTC_CTRL_PA_DISABLE_INIT_SHIFT_OUT_ADDR    : std_logic_vector(7 downto 0) := x"04";
     constant REG_TTC_CTRL_PA_DISABLE_INIT_SHIFT_OUT_BIT    : integer := 30;
@@ -48,7 +65,63 @@ package registers is
 
     constant REG_TTC_CTRL_DISABLE_PHASE_ALIGNMENT_ADDR    : std_logic_vector(7 downto 0) := x"04";
     constant REG_TTC_CTRL_DISABLE_PHASE_ALIGNMENT_BIT    : integer := 31;
-    constant REG_TTC_CTRL_DISABLE_PHASE_ALIGNMENT_DEFAULT : std_logic := '0';
+    constant REG_TTC_CTRL_DISABLE_PHASE_ALIGNMENT_DEFAULT : std_logic := '1';
+
+    constant REG_TTC_CTRL_PA_MANUAL_OVERRIDE_ADDR    : std_logic_vector(7 downto 0) := x"05";
+    constant REG_TTC_CTRL_PA_MANUAL_OVERRIDE_BIT    : integer := 0;
+    constant REG_TTC_CTRL_PA_MANUAL_OVERRIDE_DEFAULT : std_logic := '0';
+
+    constant REG_TTC_CTRL_PA_MANUAL_SHIFT_DIR_ADDR    : std_logic_vector(7 downto 0) := x"05";
+    constant REG_TTC_CTRL_PA_MANUAL_SHIFT_DIR_BIT    : integer := 1;
+    constant REG_TTC_CTRL_PA_MANUAL_SHIFT_DIR_DEFAULT : std_logic := '0';
+
+    constant REG_TTC_CTRL_PA_MANUAL_SHIFT_EN_ADDR    : std_logic_vector(7 downto 0) := x"06";
+    constant REG_TTC_CTRL_PA_MANUAL_SHIFT_EN_MSB    : integer := 31;
+    constant REG_TTC_CTRL_PA_MANUAL_SHIFT_EN_LSB     : integer := 0;
+
+    constant REG_TTC_CTRL_PA_GTH_MANUAL_SEL_OVERRIDE_ADDR    : std_logic_vector(7 downto 0) := x"07";
+    constant REG_TTC_CTRL_PA_GTH_MANUAL_SEL_OVERRIDE_BIT    : integer := 0;
+    constant REG_TTC_CTRL_PA_GTH_MANUAL_SEL_OVERRIDE_DEFAULT : std_logic := '0';
+
+    constant REG_TTC_CTRL_PA_GTH_MANUAL_OVERRIDE_ADDR    : std_logic_vector(7 downto 0) := x"07";
+    constant REG_TTC_CTRL_PA_GTH_MANUAL_OVERRIDE_BIT    : integer := 1;
+    constant REG_TTC_CTRL_PA_GTH_MANUAL_OVERRIDE_DEFAULT : std_logic := '0';
+
+    constant REG_TTC_CTRL_PA_GTH_MANUAL_SHIFT_DIR_ADDR    : std_logic_vector(7 downto 0) := x"07";
+    constant REG_TTC_CTRL_PA_GTH_MANUAL_SHIFT_DIR_BIT    : integer := 2;
+    constant REG_TTC_CTRL_PA_GTH_MANUAL_SHIFT_DIR_DEFAULT : std_logic := '0';
+
+    constant REG_TTC_CTRL_PA_GTH_MANUAL_SHIFT_STEP_ADDR    : std_logic_vector(7 downto 0) := x"07";
+    constant REG_TTC_CTRL_PA_GTH_MANUAL_SHIFT_STEP_MSB    : integer := 7;
+    constant REG_TTC_CTRL_PA_GTH_MANUAL_SHIFT_STEP_LSB     : integer := 4;
+    constant REG_TTC_CTRL_PA_GTH_MANUAL_SHIFT_STEP_DEFAULT : std_logic_vector(7 downto 4) := x"1";
+
+    constant REG_TTC_CTRL_PA_GTH_MANUAL_COMBINED_ADDR    : std_logic_vector(7 downto 0) := x"07";
+    constant REG_TTC_CTRL_PA_GTH_MANUAL_COMBINED_BIT    : integer := 8;
+    constant REG_TTC_CTRL_PA_GTH_MANUAL_COMBINED_DEFAULT : std_logic := '1';
+
+    constant REG_TTC_CTRL_PA_GTH_MANUAL_SHIFT_EN_ADDR    : std_logic_vector(7 downto 0) := x"08";
+    constant REG_TTC_CTRL_PA_GTH_MANUAL_SHIFT_EN_MSB    : integer := 31;
+    constant REG_TTC_CTRL_PA_GTH_MANUAL_SHIFT_EN_LSB     : integer := 0;
+
+    constant REG_TTC_CTRL_PA_MANUAL_PLL_RESET_ADDR    : std_logic_vector(7 downto 0) := x"09";
+    constant REG_TTC_CTRL_PA_MANUAL_PLL_RESET_MSB    : integer := 31;
+    constant REG_TTC_CTRL_PA_MANUAL_PLL_RESET_LSB     : integer := 0;
+
+    constant REG_TTC_CTRL_BUF_DEPTH_AFTER_RESET_ADDR    : std_logic_vector(7 downto 0) := x"0d";
+    constant REG_TTC_CTRL_BUF_DEPTH_AFTER_RESET_MSB    : integer := 3;
+    constant REG_TTC_CTRL_BUF_DEPTH_AFTER_RESET_LSB     : integer := 0;
+    constant REG_TTC_CTRL_BUF_DEPTH_AFTER_RESET_DEFAULT : std_logic_vector(3 downto 0) := x"2";
+
+    constant REG_TTC_CTRL_BUF_OOS_MIN_DEPTH_ADDR    : std_logic_vector(7 downto 0) := x"0d";
+    constant REG_TTC_CTRL_BUF_OOS_MIN_DEPTH_MSB    : integer := 7;
+    constant REG_TTC_CTRL_BUF_OOS_MIN_DEPTH_LSB     : integer := 4;
+    constant REG_TTC_CTRL_BUF_OOS_MIN_DEPTH_DEFAULT : std_logic_vector(7 downto 4) := x"2";
+
+    constant REG_TTC_CTRL_BUF_OOS_MAX_DEPTH_ADDR    : std_logic_vector(7 downto 0) := x"0d";
+    constant REG_TTC_CTRL_BUF_OOS_MAX_DEPTH_MSB    : integer := 11;
+    constant REG_TTC_CTRL_BUF_OOS_MAX_DEPTH_LSB     : integer := 8;
+    constant REG_TTC_CTRL_BUF_OOS_MAX_DEPTH_DEFAULT : std_logic_vector(11 downto 8) := x"4";
 
     constant REG_TTC_CONFIG_CMD_BC0_ADDR    : std_logic_vector(7 downto 0) := x"10";
     constant REG_TTC_CONFIG_CMD_BC0_MSB    : integer := 7;
@@ -193,7 +266,8 @@ package registers is
     constant REG_TTC_STATUS_CLK_GTH_PM_PHASE_JUMP_SIZE_LSB     : integer := 16;
 
     constant REG_TTC_STATUS_CLK_GTH_SHIFT_ERROR_ADDR    : std_logic_vector(7 downto 0) := x"2b";
-    constant REG_TTC_STATUS_CLK_GTH_SHIFT_ERROR_BIT    : integer := 31;
+    constant REG_TTC_STATUS_CLK_GTH_SHIFT_ERROR_MSB    : integer := 31;
+    constant REG_TTC_STATUS_CLK_GTH_SHIFT_ERROR_LSB     : integer := 28;
 
     constant REG_TTC_STATUS_CLK_GTH_PM_PHASE_JUMP_TIME_ADDR    : std_logic_vector(7 downto 0) := x"2c";
     constant REG_TTC_STATUS_CLK_GTH_PM_PHASE_JUMP_TIME_MSB    : integer := 15;
@@ -202,6 +276,18 @@ package registers is
     constant REG_TTC_STATUS_CLK_GTH_SHIFT_CNT_ADDR    : std_logic_vector(7 downto 0) := x"2c";
     constant REG_TTC_STATUS_CLK_GTH_SHIFT_CNT_MSB    : integer := 31;
     constant REG_TTC_STATUS_CLK_GTH_SHIFT_CNT_LSB     : integer := 16;
+
+    constant REG_TTC_STATUS_CLK_GTH_RESET_CNT_ADDR    : std_logic_vector(7 downto 0) := x"2d";
+    constant REG_TTC_STATUS_CLK_GTH_RESET_CNT_MSB    : integer := 15;
+    constant REG_TTC_STATUS_CLK_GTH_RESET_CNT_LSB     : integer := 0;
+
+    constant REG_TTC_STATUS_CLK_PA_MANUAL_SHIFT_CNT_ADDR    : std_logic_vector(7 downto 0) := x"2e";
+    constant REG_TTC_STATUS_CLK_PA_MANUAL_SHIFT_CNT_MSB    : integer := 15;
+    constant REG_TTC_STATUS_CLK_PA_MANUAL_SHIFT_CNT_LSB     : integer := 0;
+
+    constant REG_TTC_STATUS_CLK_PA_MANUAL_GTH_SHIFT_CNT_ADDR    : std_logic_vector(7 downto 0) := x"2e";
+    constant REG_TTC_STATUS_CLK_PA_MANUAL_GTH_SHIFT_CNT_MSB    : integer := 31;
+    constant REG_TTC_STATUS_CLK_PA_MANUAL_GTH_SHIFT_CNT_LSB     : integer := 16;
 
     constant REG_TTC_STATUS_TTC_SINGLE_ERROR_CNT_ADDR    : std_logic_vector(7 downto 0) := x"30";
     constant REG_TTC_STATUS_TTC_SINGLE_ERROR_CNT_MSB    : integer := 15;
@@ -225,6 +311,48 @@ package registers is
     constant REG_TTC_STATUS_BC0_UNDERFLOW_CNT_ADDR    : std_logic_vector(7 downto 0) := x"33";
     constant REG_TTC_STATUS_BC0_UNDERFLOW_CNT_MSB    : integer := 31;
     constant REG_TTC_STATUS_BC0_UNDERFLOW_CNT_LSB     : integer := 16;
+
+    constant REG_TTC_STATUS_BUFFER_DEPTH_ADDR    : std_logic_vector(7 downto 0) := x"35";
+    constant REG_TTC_STATUS_BUFFER_DEPTH_MSB    : integer := 3;
+    constant REG_TTC_STATUS_BUFFER_DEPTH_LSB     : integer := 0;
+
+    constant REG_TTC_STATUS_BUFFER_MIN_DEPTH_ADDR    : std_logic_vector(7 downto 0) := x"35";
+    constant REG_TTC_STATUS_BUFFER_MIN_DEPTH_MSB    : integer := 7;
+    constant REG_TTC_STATUS_BUFFER_MIN_DEPTH_LSB     : integer := 4;
+
+    constant REG_TTC_STATUS_BUFFER_MAX_DEPTH_ADDR    : std_logic_vector(7 downto 0) := x"35";
+    constant REG_TTC_STATUS_BUFFER_MAX_DEPTH_MSB    : integer := 11;
+    constant REG_TTC_STATUS_BUFFER_MAX_DEPTH_LSB     : integer := 8;
+
+    constant REG_TTC_STATUS_BUFFER_OOS_ADDR    : std_logic_vector(7 downto 0) := x"35";
+    constant REG_TTC_STATUS_BUFFER_OOS_BIT    : integer := 12;
+
+    constant REG_TTC_STATUS_BUFFER_BUSY_ADDR    : std_logic_vector(7 downto 0) := x"35";
+    constant REG_TTC_STATUS_BUFFER_BUSY_BIT    : integer := 13;
+
+    constant REG_TTC_STATUS_BUFFER_OOS_CNT_ADDR    : std_logic_vector(7 downto 0) := x"35";
+    constant REG_TTC_STATUS_BUFFER_OOS_CNT_MSB    : integer := 31;
+    constant REG_TTC_STATUS_BUFFER_OOS_CNT_LSB     : integer := 16;
+
+    constant REG_TTC_STATUS_BUFFER_UNF_CNT_ADDR    : std_logic_vector(7 downto 0) := x"36";
+    constant REG_TTC_STATUS_BUFFER_UNF_CNT_MSB    : integer := 15;
+    constant REG_TTC_STATUS_BUFFER_UNF_CNT_LSB     : integer := 0;
+
+    constant REG_TTC_STATUS_BUFFER_OVF_CNT_ADDR    : std_logic_vector(7 downto 0) := x"36";
+    constant REG_TTC_STATUS_BUFFER_OVF_CNT_MSB    : integer := 31;
+    constant REG_TTC_STATUS_BUFFER_OVF_CNT_LSB     : integer := 16;
+
+    constant REG_TTC_STATUS_BUFFER_LAST_OOS_TIME_SECONDS_ADDR    : std_logic_vector(7 downto 0) := x"37";
+    constant REG_TTC_STATUS_BUFFER_LAST_OOS_TIME_SECONDS_MSB    : integer := 15;
+    constant REG_TTC_STATUS_BUFFER_LAST_OOS_TIME_SECONDS_LSB     : integer := 0;
+
+    constant REG_TTC_STATUS_BUFFER_OOS_DURATION_LAST_ADDR    : std_logic_vector(7 downto 0) := x"38";
+    constant REG_TTC_STATUS_BUFFER_OOS_DURATION_LAST_MSB    : integer := 31;
+    constant REG_TTC_STATUS_BUFFER_OOS_DURATION_LAST_LSB     : integer := 0;
+
+    constant REG_TTC_STATUS_BUFFER_OOS_DURATION_MAX_ADDR    : std_logic_vector(7 downto 0) := x"39";
+    constant REG_TTC_STATUS_BUFFER_OOS_DURATION_MAX_MSB    : integer := 31;
+    constant REG_TTC_STATUS_BUFFER_OOS_DURATION_MAX_LSB     : integer := 0;
 
     constant REG_TTC_CMD_COUNTERS_L1A_ADDR    : std_logic_vector(7 downto 0) := x"40";
     constant REG_TTC_CMD_COUNTERS_L1A_MSB    : integer := 31;
@@ -3033,7 +3161,7 @@ package registers is
     -- needed headers and trailers to AMC13 over DAQLink
     --============================================================================
 
-    constant REG_DAQ_NUM_REGS : integer := 206;
+    constant REG_DAQ_NUM_REGS : integer := 244;
     constant REG_DAQ_ADDRESS_MSB : integer := 8;
     constant REG_DAQ_ADDRESS_LSB : integer := 0;
     constant REG_DAQ_CONTROL_DAQ_ENABLE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"00";
@@ -3062,1715 +3190,1972 @@ package registers is
     constant REG_DAQ_CONTROL_INPUT_ENABLE_MASK_LSB     : integer := 8;
     constant REG_DAQ_CONTROL_INPUT_ENABLE_MASK_DEFAULT : std_logic_vector(31 downto 8) := x"000001";
 
-    constant REG_DAQ_STATUS_DAQ_LINK_RDY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"01";
-    constant REG_DAQ_STATUS_DAQ_LINK_RDY_BIT    : integer := 0;
-
-    constant REG_DAQ_STATUS_DAQ_CLK_LOCKED_ADDR    : std_logic_vector(8 downto 0) := '0' & x"01";
-    constant REG_DAQ_STATUS_DAQ_CLK_LOCKED_BIT    : integer := 1;
-
-    constant REG_DAQ_STATUS_TTC_RDY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"01";
-    constant REG_DAQ_STATUS_TTC_RDY_BIT    : integer := 2;
-
-    constant REG_DAQ_STATUS_DAQ_LINK_AFULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"01";
-    constant REG_DAQ_STATUS_DAQ_LINK_AFULL_BIT    : integer := 3;
-
-    constant REG_DAQ_STATUS_DAQ_OUTPUT_FIFO_HAD_OVERFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"01";
-    constant REG_DAQ_STATUS_DAQ_OUTPUT_FIFO_HAD_OVERFLOW_BIT    : integer := 4;
-
-    constant REG_DAQ_STATUS_TTC_BC0_LOCKED_ADDR    : std_logic_vector(8 downto 0) := '0' & x"01";
-    constant REG_DAQ_STATUS_TTC_BC0_LOCKED_BIT    : integer := 5;
-
-    constant REG_DAQ_STATUS_L1A_FIFO_HAD_OVERFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"01";
-    constant REG_DAQ_STATUS_L1A_FIFO_HAD_OVERFLOW_BIT    : integer := 23;
-
-    constant REG_DAQ_STATUS_L1A_FIFO_IS_UNDERFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"01";
-    constant REG_DAQ_STATUS_L1A_FIFO_IS_UNDERFLOW_BIT    : integer := 24;
-
-    constant REG_DAQ_STATUS_L1A_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"01";
-    constant REG_DAQ_STATUS_L1A_FIFO_IS_FULL_BIT    : integer := 25;
-
-    constant REG_DAQ_STATUS_L1A_FIFO_IS_NEAR_FULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"01";
-    constant REG_DAQ_STATUS_L1A_FIFO_IS_NEAR_FULL_BIT    : integer := 26;
-
-    constant REG_DAQ_STATUS_L1A_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"01";
-    constant REG_DAQ_STATUS_L1A_FIFO_IS_EMPTY_BIT    : integer := 27;
-
-    constant REG_DAQ_STATUS_TTS_STATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"01";
-    constant REG_DAQ_STATUS_TTS_STATE_MSB    : integer := 31;
-    constant REG_DAQ_STATUS_TTS_STATE_LSB     : integer := 28;
-
-    constant REG_DAQ_EXT_STATUS_NOTINTABLE_ERR_ADDR    : std_logic_vector(8 downto 0) := '0' & x"02";
-    constant REG_DAQ_EXT_STATUS_NOTINTABLE_ERR_MSB    : integer := 15;
-    constant REG_DAQ_EXT_STATUS_NOTINTABLE_ERR_LSB     : integer := 0;
-
-    constant REG_DAQ_EXT_STATUS_DISPER_ERR_ADDR    : std_logic_vector(8 downto 0) := '0' & x"03";
-    constant REG_DAQ_EXT_STATUS_DISPER_ERR_MSB    : integer := 15;
-    constant REG_DAQ_EXT_STATUS_DISPER_ERR_LSB     : integer := 0;
-
-    constant REG_DAQ_EXT_STATUS_L1AID_ADDR    : std_logic_vector(8 downto 0) := '0' & x"04";
-    constant REG_DAQ_EXT_STATUS_L1AID_MSB    : integer := 23;
-    constant REG_DAQ_EXT_STATUS_L1AID_LSB     : integer := 0;
-
-    constant REG_DAQ_EXT_STATUS_EVT_SENT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"05";
-    constant REG_DAQ_EXT_STATUS_EVT_SENT_MSB    : integer := 31;
-    constant REG_DAQ_EXT_STATUS_EVT_SENT_LSB     : integer := 0;
-
-    constant REG_DAQ_CONTROL_DAV_TIMEOUT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"06";
+    constant REG_DAQ_CONTROL_DAV_TIMEOUT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"01";
     constant REG_DAQ_CONTROL_DAV_TIMEOUT_MSB    : integer := 23;
     constant REG_DAQ_CONTROL_DAV_TIMEOUT_LSB     : integer := 0;
     constant REG_DAQ_CONTROL_DAV_TIMEOUT_DEFAULT : std_logic_vector(23 downto 0) := x"000500";
 
-    constant REG_DAQ_EXT_STATUS_MAX_DAV_TIMER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"07";
-    constant REG_DAQ_EXT_STATUS_MAX_DAV_TIMER_MSB    : integer := 23;
-    constant REG_DAQ_EXT_STATUS_MAX_DAV_TIMER_LSB     : integer := 0;
+    constant REG_DAQ_CONTROL_EOE_USE_OH_EC_BC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"01";
+    constant REG_DAQ_CONTROL_EOE_USE_OH_EC_BC_BIT    : integer := 24;
+    constant REG_DAQ_CONTROL_EOE_USE_OH_EC_BC_DEFAULT : std_logic := '1';
 
-    constant REG_DAQ_EXT_STATUS_LAST_DAV_TIMER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"08";
-    constant REG_DAQ_EXT_STATUS_LAST_DAV_TIMER_MSB    : integer := 23;
-    constant REG_DAQ_EXT_STATUS_LAST_DAV_TIMER_LSB     : integer := 0;
+    constant REG_DAQ_CONTROL_ENABLE_INPUT_AUTOKILL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"01";
+    constant REG_DAQ_CONTROL_ENABLE_INPUT_AUTOKILL_BIT    : integer := 25;
+    constant REG_DAQ_CONTROL_ENABLE_INPUT_AUTOKILL_DEFAULT : std_logic := '1';
 
-    constant REG_DAQ_EXT_STATUS_L1A_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"09";
-    constant REG_DAQ_EXT_STATUS_L1A_FIFO_DATA_CNT_MSB    : integer := 12;
-    constant REG_DAQ_EXT_STATUS_L1A_FIFO_DATA_CNT_LSB     : integer := 0;
+    constant REG_DAQ_CONTROL_INPUT_AUTOKILL_THRESH_ADDR    : std_logic_vector(8 downto 0) := '0' & x"02";
+    constant REG_DAQ_CONTROL_INPUT_AUTOKILL_THRESH_MSB    : integer := 15;
+    constant REG_DAQ_CONTROL_INPUT_AUTOKILL_THRESH_LSB     : integer := 0;
+    constant REG_DAQ_CONTROL_INPUT_AUTOKILL_THRESH_DEFAULT : std_logic_vector(15 downto 0) := x"0064";
 
-    constant REG_DAQ_EXT_STATUS_DAQ_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"09";
-    constant REG_DAQ_EXT_STATUS_DAQ_FIFO_DATA_CNT_MSB    : integer := 28;
-    constant REG_DAQ_EXT_STATUS_DAQ_FIFO_DATA_CNT_LSB     : integer := 16;
-
-    constant REG_DAQ_EXT_STATUS_L1A_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"0a";
-    constant REG_DAQ_EXT_STATUS_L1A_FIFO_NEAR_FULL_CNT_MSB    : integer := 15;
-    constant REG_DAQ_EXT_STATUS_L1A_FIFO_NEAR_FULL_CNT_LSB     : integer := 0;
-
-    constant REG_DAQ_EXT_STATUS_DAQ_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"0a";
-    constant REG_DAQ_EXT_STATUS_DAQ_FIFO_NEAR_FULL_CNT_MSB    : integer := 31;
-    constant REG_DAQ_EXT_STATUS_DAQ_FIFO_NEAR_FULL_CNT_LSB     : integer := 16;
-
-    constant REG_DAQ_EXT_STATUS_DAQ_ALMOST_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"0b";
-    constant REG_DAQ_EXT_STATUS_DAQ_ALMOST_FULL_CNT_MSB    : integer := 15;
-    constant REG_DAQ_EXT_STATUS_DAQ_ALMOST_FULL_CNT_LSB     : integer := 0;
-
-    constant REG_DAQ_EXT_STATUS_TTS_WARN_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"0b";
-    constant REG_DAQ_EXT_STATUS_TTS_WARN_CNT_MSB    : integer := 31;
-    constant REG_DAQ_EXT_STATUS_TTS_WARN_CNT_LSB     : integer := 16;
-
-    constant REG_DAQ_EXT_STATUS_DAQ_WORD_RATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"0c";
-    constant REG_DAQ_EXT_STATUS_DAQ_WORD_RATE_MSB    : integer := 31;
-    constant REG_DAQ_EXT_STATUS_DAQ_WORD_RATE_LSB     : integer := 0;
-
-    constant REG_DAQ_EXT_CONTROL_RUN_PARAMS_ADDR    : std_logic_vector(8 downto 0) := '0' & x"0f";
+    constant REG_DAQ_EXT_CONTROL_RUN_PARAMS_ADDR    : std_logic_vector(8 downto 0) := '0' & x"10";
     constant REG_DAQ_EXT_CONTROL_RUN_PARAMS_MSB    : integer := 23;
     constant REG_DAQ_EXT_CONTROL_RUN_PARAMS_LSB     : integer := 0;
     constant REG_DAQ_EXT_CONTROL_RUN_PARAMS_DEFAULT : std_logic_vector(23 downto 0) := x"000000";
 
-    constant REG_DAQ_EXT_CONTROL_RUN_TYPE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"0f";
+    constant REG_DAQ_EXT_CONTROL_RUN_TYPE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"10";
     constant REG_DAQ_EXT_CONTROL_RUN_TYPE_MSB    : integer := 27;
     constant REG_DAQ_EXT_CONTROL_RUN_TYPE_LSB     : integer := 24;
     constant REG_DAQ_EXT_CONTROL_RUN_TYPE_DEFAULT : std_logic_vector(27 downto 24) := x"0";
 
-    constant REG_DAQ_OH0_STATUS_VFAT_MIXED_EC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"10";
+    constant REG_DAQ_STATUS_DAQ_LINK_RDY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"20";
+    constant REG_DAQ_STATUS_DAQ_LINK_RDY_BIT    : integer := 0;
+
+    constant REG_DAQ_STATUS_DAQ_CLK_LOCKED_ADDR    : std_logic_vector(8 downto 0) := '0' & x"20";
+    constant REG_DAQ_STATUS_DAQ_CLK_LOCKED_BIT    : integer := 1;
+
+    constant REG_DAQ_STATUS_TTC_RDY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"20";
+    constant REG_DAQ_STATUS_TTC_RDY_BIT    : integer := 2;
+
+    constant REG_DAQ_STATUS_DAQ_LINK_AFULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"20";
+    constant REG_DAQ_STATUS_DAQ_LINK_AFULL_BIT    : integer := 3;
+
+    constant REG_DAQ_STATUS_DAQ_OUTPUT_FIFO_HAD_OVERFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"20";
+    constant REG_DAQ_STATUS_DAQ_OUTPUT_FIFO_HAD_OVERFLOW_BIT    : integer := 4;
+
+    constant REG_DAQ_STATUS_TTC_BC0_LOCKED_ADDR    : std_logic_vector(8 downto 0) := '0' & x"20";
+    constant REG_DAQ_STATUS_TTC_BC0_LOCKED_BIT    : integer := 5;
+
+    constant REG_DAQ_STATUS_L1A_FIFO_HAD_OVERFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"20";
+    constant REG_DAQ_STATUS_L1A_FIFO_HAD_OVERFLOW_BIT    : integer := 23;
+
+    constant REG_DAQ_STATUS_L1A_FIFO_IS_UNDERFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"20";
+    constant REG_DAQ_STATUS_L1A_FIFO_IS_UNDERFLOW_BIT    : integer := 24;
+
+    constant REG_DAQ_STATUS_L1A_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"20";
+    constant REG_DAQ_STATUS_L1A_FIFO_IS_FULL_BIT    : integer := 25;
+
+    constant REG_DAQ_STATUS_L1A_FIFO_IS_NEAR_FULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"20";
+    constant REG_DAQ_STATUS_L1A_FIFO_IS_NEAR_FULL_BIT    : integer := 26;
+
+    constant REG_DAQ_STATUS_L1A_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"20";
+    constant REG_DAQ_STATUS_L1A_FIFO_IS_EMPTY_BIT    : integer := 27;
+
+    constant REG_DAQ_STATUS_TTS_STATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"20";
+    constant REG_DAQ_STATUS_TTS_STATE_MSB    : integer := 31;
+    constant REG_DAQ_STATUS_TTS_STATE_LSB     : integer := 28;
+
+    constant REG_DAQ_STATUS_INPUT_AUTOKILL_MASK_ADDR    : std_logic_vector(8 downto 0) := '0' & x"21";
+    constant REG_DAQ_STATUS_INPUT_AUTOKILL_MASK_MSB    : integer := 23;
+    constant REG_DAQ_STATUS_INPUT_AUTOKILL_MASK_LSB     : integer := 0;
+
+    constant REG_DAQ_EXT_STATUS_NOTINTABLE_ERR_ADDR    : std_logic_vector(8 downto 0) := '0' & x"30";
+    constant REG_DAQ_EXT_STATUS_NOTINTABLE_ERR_MSB    : integer := 15;
+    constant REG_DAQ_EXT_STATUS_NOTINTABLE_ERR_LSB     : integer := 0;
+
+    constant REG_DAQ_EXT_STATUS_DISPER_ERR_ADDR    : std_logic_vector(8 downto 0) := '0' & x"31";
+    constant REG_DAQ_EXT_STATUS_DISPER_ERR_MSB    : integer := 15;
+    constant REG_DAQ_EXT_STATUS_DISPER_ERR_LSB     : integer := 0;
+
+    constant REG_DAQ_EXT_STATUS_L1AID_ADDR    : std_logic_vector(8 downto 0) := '0' & x"32";
+    constant REG_DAQ_EXT_STATUS_L1AID_MSB    : integer := 23;
+    constant REG_DAQ_EXT_STATUS_L1AID_LSB     : integer := 0;
+
+    constant REG_DAQ_EXT_STATUS_EVT_SENT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"33";
+    constant REG_DAQ_EXT_STATUS_EVT_SENT_MSB    : integer := 31;
+    constant REG_DAQ_EXT_STATUS_EVT_SENT_LSB     : integer := 0;
+
+    constant REG_DAQ_EXT_STATUS_MAX_DAV_TIMER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"35";
+    constant REG_DAQ_EXT_STATUS_MAX_DAV_TIMER_MSB    : integer := 23;
+    constant REG_DAQ_EXT_STATUS_MAX_DAV_TIMER_LSB     : integer := 0;
+
+    constant REG_DAQ_EXT_STATUS_LAST_DAV_TIMER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"36";
+    constant REG_DAQ_EXT_STATUS_LAST_DAV_TIMER_MSB    : integer := 23;
+    constant REG_DAQ_EXT_STATUS_LAST_DAV_TIMER_LSB     : integer := 0;
+
+    constant REG_DAQ_EXT_STATUS_L1A_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"37";
+    constant REG_DAQ_EXT_STATUS_L1A_FIFO_DATA_CNT_MSB    : integer := 12;
+    constant REG_DAQ_EXT_STATUS_L1A_FIFO_DATA_CNT_LSB     : integer := 0;
+
+    constant REG_DAQ_EXT_STATUS_DAQ_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"37";
+    constant REG_DAQ_EXT_STATUS_DAQ_FIFO_DATA_CNT_MSB    : integer := 28;
+    constant REG_DAQ_EXT_STATUS_DAQ_FIFO_DATA_CNT_LSB     : integer := 16;
+
+    constant REG_DAQ_EXT_STATUS_L1A_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"38";
+    constant REG_DAQ_EXT_STATUS_L1A_FIFO_NEAR_FULL_CNT_MSB    : integer := 15;
+    constant REG_DAQ_EXT_STATUS_L1A_FIFO_NEAR_FULL_CNT_LSB     : integer := 0;
+
+    constant REG_DAQ_EXT_STATUS_DAQ_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"38";
+    constant REG_DAQ_EXT_STATUS_DAQ_FIFO_NEAR_FULL_CNT_MSB    : integer := 31;
+    constant REG_DAQ_EXT_STATUS_DAQ_FIFO_NEAR_FULL_CNT_LSB     : integer := 16;
+
+    constant REG_DAQ_EXT_STATUS_DAQ_ALMOST_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"39";
+    constant REG_DAQ_EXT_STATUS_DAQ_ALMOST_FULL_CNT_MSB    : integer := 15;
+    constant REG_DAQ_EXT_STATUS_DAQ_ALMOST_FULL_CNT_LSB     : integer := 0;
+
+    constant REG_DAQ_EXT_STATUS_TTS_WARN_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"39";
+    constant REG_DAQ_EXT_STATUS_TTS_WARN_CNT_MSB    : integer := 31;
+    constant REG_DAQ_EXT_STATUS_TTS_WARN_CNT_LSB     : integer := 16;
+
+    constant REG_DAQ_EXT_STATUS_DAQ_WORD_RATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"3a";
+    constant REG_DAQ_EXT_STATUS_DAQ_WORD_RATE_MSB    : integer := 31;
+    constant REG_DAQ_EXT_STATUS_DAQ_WORD_RATE_LSB     : integer := 0;
+
+    constant REG_DAQ_OH0_STATUS_VFAT_MIXED_EC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"50";
     constant REG_DAQ_OH0_STATUS_VFAT_MIXED_EC_BIT    : integer := 1;
 
-    constant REG_DAQ_OH0_STATUS_VFAT_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"10";
+    constant REG_DAQ_OH0_STATUS_VFAT_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"50";
     constant REG_DAQ_OH0_STATUS_VFAT_MIXED_BC_BIT    : integer := 2;
 
-    constant REG_DAQ_OH0_STATUS_OH_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"10";
+    constant REG_DAQ_OH0_STATUS_OH_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"50";
     constant REG_DAQ_OH0_STATUS_OH_MIXED_BC_BIT    : integer := 3;
 
-    constant REG_DAQ_OH0_STATUS_VFAT_TOO_MANY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"10";
+    constant REG_DAQ_OH0_STATUS_VFAT_TOO_MANY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"50";
     constant REG_DAQ_OH0_STATUS_VFAT_TOO_MANY_BIT    : integer := 4;
 
-    constant REG_DAQ_OH0_STATUS_VFAT_SMALL_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '0' & x"10";
+    constant REG_DAQ_OH0_STATUS_VFAT_SMALL_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '0' & x"50";
     constant REG_DAQ_OH0_STATUS_VFAT_SMALL_BLOCK_BIT    : integer := 5;
 
-    constant REG_DAQ_OH0_STATUS_VFAT_LARGE_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '0' & x"10";
+    constant REG_DAQ_OH0_STATUS_VFAT_LARGE_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '0' & x"50";
     constant REG_DAQ_OH0_STATUS_VFAT_LARGE_BLOCK_BIT    : integer := 6;
 
-    constant REG_DAQ_OH0_STATUS_VFAT_NO_MARKER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"10";
+    constant REG_DAQ_OH0_STATUS_VFAT_NO_MARKER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"50";
     constant REG_DAQ_OH0_STATUS_VFAT_NO_MARKER_BIT    : integer := 7;
 
-    constant REG_DAQ_OH0_STATUS_INPUT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"10";
+    constant REG_DAQ_OH0_STATUS_INPUT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"50";
     constant REG_DAQ_OH0_STATUS_INPUT_FIFO_HAD_OFLOW_BIT    : integer := 8;
 
-    constant REG_DAQ_OH0_STATUS_INPUT_FIFO_HAD_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"10";
+    constant REG_DAQ_OH0_STATUS_INPUT_FIFO_HAD_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"50";
     constant REG_DAQ_OH0_STATUS_INPUT_FIFO_HAD_UFLOW_BIT    : integer := 9;
 
-    constant REG_DAQ_OH0_STATUS_EVENT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"10";
+    constant REG_DAQ_OH0_STATUS_EVENT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"50";
     constant REG_DAQ_OH0_STATUS_EVENT_FIFO_HAD_OFLOW_BIT    : integer := 10;
 
-    constant REG_DAQ_OH0_STATUS_EVT_SIZE_ERR_ADDR    : std_logic_vector(8 downto 0) := '0' & x"10";
+    constant REG_DAQ_OH0_STATUS_EVT_SIZE_ERR_ADDR    : std_logic_vector(8 downto 0) := '0' & x"50";
     constant REG_DAQ_OH0_STATUS_EVT_SIZE_ERR_BIT    : integer := 11;
 
-    constant REG_DAQ_OH0_STATUS_TTS_STATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"10";
+    constant REG_DAQ_OH0_STATUS_TTS_STATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"50";
     constant REG_DAQ_OH0_STATUS_TTS_STATE_MSB    : integer := 15;
     constant REG_DAQ_OH0_STATUS_TTS_STATE_LSB     : integer := 12;
 
-    constant REG_DAQ_OH0_STATUS_INPUT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"10";
+    constant REG_DAQ_OH0_STATUS_INPUT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"50";
     constant REG_DAQ_OH0_STATUS_INPUT_FIFO_IS_UFLOW_BIT    : integer := 24;
 
-    constant REG_DAQ_OH0_STATUS_INPUT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"10";
+    constant REG_DAQ_OH0_STATUS_INPUT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"50";
     constant REG_DAQ_OH0_STATUS_INPUT_FIFO_IS_FULL_BIT    : integer := 25;
 
-    constant REG_DAQ_OH0_STATUS_INPUT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"10";
+    constant REG_DAQ_OH0_STATUS_INPUT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"50";
     constant REG_DAQ_OH0_STATUS_INPUT_FIFO_IS_AFULL_BIT    : integer := 26;
 
-    constant REG_DAQ_OH0_STATUS_INPUT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"10";
+    constant REG_DAQ_OH0_STATUS_INPUT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"50";
     constant REG_DAQ_OH0_STATUS_INPUT_FIFO_IS_EMPTY_BIT    : integer := 27;
 
-    constant REG_DAQ_OH0_STATUS_EVENT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"10";
+    constant REG_DAQ_OH0_STATUS_EVENT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"50";
     constant REG_DAQ_OH0_STATUS_EVENT_FIFO_IS_UFLOW_BIT    : integer := 28;
 
-    constant REG_DAQ_OH0_STATUS_EVENT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"10";
+    constant REG_DAQ_OH0_STATUS_EVENT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"50";
     constant REG_DAQ_OH0_STATUS_EVENT_FIFO_IS_FULL_BIT    : integer := 29;
 
-    constant REG_DAQ_OH0_STATUS_EVENT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"10";
+    constant REG_DAQ_OH0_STATUS_EVENT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"50";
     constant REG_DAQ_OH0_STATUS_EVENT_FIFO_IS_AFULL_BIT    : integer := 30;
 
-    constant REG_DAQ_OH0_STATUS_EVENT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"10";
+    constant REG_DAQ_OH0_STATUS_EVENT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"50";
     constant REG_DAQ_OH0_STATUS_EVENT_FIFO_IS_EMPTY_BIT    : integer := 31;
 
-    constant REG_DAQ_OH0_COUNTERS_CORRUPT_VFAT_BLK_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"11";
+    constant REG_DAQ_OH0_COUNTERS_CORRUPT_VFAT_BLK_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"51";
     constant REG_DAQ_OH0_COUNTERS_CORRUPT_VFAT_BLK_CNT_MSB    : integer := 31;
     constant REG_DAQ_OH0_COUNTERS_CORRUPT_VFAT_BLK_CNT_LSB     : integer := 0;
 
-    constant REG_DAQ_OH0_COUNTERS_EVN_ADDR    : std_logic_vector(8 downto 0) := '0' & x"12";
+    constant REG_DAQ_OH0_COUNTERS_EVN_ADDR    : std_logic_vector(8 downto 0) := '0' & x"52";
     constant REG_DAQ_OH0_COUNTERS_EVN_MSB    : integer := 23;
     constant REG_DAQ_OH0_COUNTERS_EVN_LSB     : integer := 0;
 
-    constant REG_DAQ_OH0_CONTROL_EOE_TIMEOUT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"13";
+    constant REG_DAQ_OH0_CONTROL_EOE_TIMEOUT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"53";
     constant REG_DAQ_OH0_CONTROL_EOE_TIMEOUT_MSB    : integer := 23;
     constant REG_DAQ_OH0_CONTROL_EOE_TIMEOUT_LSB     : integer := 0;
     constant REG_DAQ_OH0_CONTROL_EOE_TIMEOUT_DEFAULT : std_logic_vector(23 downto 0) := x"000100";
 
-    constant REG_DAQ_OH0_COUNTERS_INPUT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"14";
+    constant REG_DAQ_OH0_COUNTERS_INPUT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"54";
     constant REG_DAQ_OH0_COUNTERS_INPUT_FIFO_DATA_CNT_MSB    : integer := 11;
     constant REG_DAQ_OH0_COUNTERS_INPUT_FIFO_DATA_CNT_LSB     : integer := 0;
 
-    constant REG_DAQ_OH0_COUNTERS_EVT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"14";
+    constant REG_DAQ_OH0_COUNTERS_EVT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"54";
     constant REG_DAQ_OH0_COUNTERS_EVT_FIFO_DATA_CNT_MSB    : integer := 27;
     constant REG_DAQ_OH0_COUNTERS_EVT_FIFO_DATA_CNT_LSB     : integer := 16;
 
-    constant REG_DAQ_OH0_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"15";
+    constant REG_DAQ_OH0_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"55";
     constant REG_DAQ_OH0_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_MSB    : integer := 15;
     constant REG_DAQ_OH0_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_LSB     : integer := 0;
 
-    constant REG_DAQ_OH0_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"15";
+    constant REG_DAQ_OH0_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"55";
     constant REG_DAQ_OH0_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_MSB    : integer := 31;
     constant REG_DAQ_OH0_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_LSB     : integer := 16;
 
-    constant REG_DAQ_OH0_COUNTERS_VFAT_BLOCK_RATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"16";
+    constant REG_DAQ_OH0_COUNTERS_VFAT_BLOCK_RATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"56";
     constant REG_DAQ_OH0_COUNTERS_VFAT_BLOCK_RATE_MSB    : integer := 14;
     constant REG_DAQ_OH0_COUNTERS_VFAT_BLOCK_RATE_LSB     : integer := 0;
 
-    constant REG_DAQ_OH0_COUNTERS_EVT_RATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"16";
+    constant REG_DAQ_OH0_COUNTERS_EVT_RATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"56";
     constant REG_DAQ_OH0_COUNTERS_EVT_RATE_MSB    : integer := 31;
     constant REG_DAQ_OH0_COUNTERS_EVT_RATE_LSB     : integer := 15;
 
-    constant REG_DAQ_OH0_COUNTERS_MAX_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"17";
+    constant REG_DAQ_OH0_COUNTERS_MAX_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"57";
     constant REG_DAQ_OH0_COUNTERS_MAX_EOE_TIMER_MSB    : integer := 23;
     constant REG_DAQ_OH0_COUNTERS_MAX_EOE_TIMER_LSB     : integer := 0;
 
-    constant REG_DAQ_OH0_COUNTERS_LAST_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"18";
+    constant REG_DAQ_OH0_COUNTERS_LAST_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"58";
     constant REG_DAQ_OH0_COUNTERS_LAST_EOE_TIMER_MSB    : integer := 23;
     constant REG_DAQ_OH0_COUNTERS_LAST_EOE_TIMER_LSB     : integer := 0;
 
-    constant REG_DAQ_OH0_LASTBLOCK0_ADDR    : std_logic_vector(8 downto 0) := '0' & x"19";
+    constant REG_DAQ_OH0_COUNTERS_LIVE_VFAT_WORDS_64_LAST_ADDR    : std_logic_vector(8 downto 0) := '0' & x"59";
+    constant REG_DAQ_OH0_COUNTERS_LIVE_VFAT_WORDS_64_LAST_MSB    : integer := 11;
+    constant REG_DAQ_OH0_COUNTERS_LIVE_VFAT_WORDS_64_LAST_LSB     : integer := 0;
+
+    constant REG_DAQ_OH0_COUNTERS_LIVE_VFAT_WORDS_64_MIN_ADDR    : std_logic_vector(8 downto 0) := '0' & x"59";
+    constant REG_DAQ_OH0_COUNTERS_LIVE_VFAT_WORDS_64_MIN_MSB    : integer := 23;
+    constant REG_DAQ_OH0_COUNTERS_LIVE_VFAT_WORDS_64_MIN_LSB     : integer := 12;
+
+    constant REG_DAQ_OH0_COUNTERS_LIVE_VFAT_WORDS_64_MAX_ADDR    : std_logic_vector(8 downto 0) := '0' & x"5a";
+    constant REG_DAQ_OH0_COUNTERS_LIVE_VFAT_WORDS_64_MAX_MSB    : integer := 11;
+    constant REG_DAQ_OH0_COUNTERS_LIVE_VFAT_WORDS_64_MAX_LSB     : integer := 0;
+
+    constant REG_DAQ_OH0_COUNTERS_DAV_TIMEOUT_CONSEC_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"5b";
+    constant REG_DAQ_OH0_COUNTERS_DAV_TIMEOUT_CONSEC_CNT_MSB    : integer := 15;
+    constant REG_DAQ_OH0_COUNTERS_DAV_TIMEOUT_CONSEC_CNT_LSB     : integer := 0;
+
+    constant REG_DAQ_OH0_COUNTERS_DAV_TIMEOUT_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"5b";
+    constant REG_DAQ_OH0_COUNTERS_DAV_TIMEOUT_CNT_MSB    : integer := 31;
+    constant REG_DAQ_OH0_COUNTERS_DAV_TIMEOUT_CNT_LSB     : integer := 16;
+
+    constant REG_DAQ_OH0_LASTBLOCK0_ADDR    : std_logic_vector(8 downto 0) := '0' & x"60";
     constant REG_DAQ_OH0_LASTBLOCK0_MSB    : integer := 31;
     constant REG_DAQ_OH0_LASTBLOCK0_LSB     : integer := 0;
 
-    constant REG_DAQ_OH0_LASTBLOCK1_ADDR    : std_logic_vector(8 downto 0) := '0' & x"1a";
+    constant REG_DAQ_OH0_LASTBLOCK1_ADDR    : std_logic_vector(8 downto 0) := '0' & x"61";
     constant REG_DAQ_OH0_LASTBLOCK1_MSB    : integer := 31;
     constant REG_DAQ_OH0_LASTBLOCK1_LSB     : integer := 0;
 
-    constant REG_DAQ_OH0_LASTBLOCK2_ADDR    : std_logic_vector(8 downto 0) := '0' & x"1b";
+    constant REG_DAQ_OH0_LASTBLOCK2_ADDR    : std_logic_vector(8 downto 0) := '0' & x"62";
     constant REG_DAQ_OH0_LASTBLOCK2_MSB    : integer := 31;
     constant REG_DAQ_OH0_LASTBLOCK2_LSB     : integer := 0;
 
-    constant REG_DAQ_OH0_LASTBLOCK3_ADDR    : std_logic_vector(8 downto 0) := '0' & x"1c";
+    constant REG_DAQ_OH0_LASTBLOCK3_ADDR    : std_logic_vector(8 downto 0) := '0' & x"63";
     constant REG_DAQ_OH0_LASTBLOCK3_MSB    : integer := 31;
     constant REG_DAQ_OH0_LASTBLOCK3_LSB     : integer := 0;
 
-    constant REG_DAQ_OH0_LASTBLOCK4_ADDR    : std_logic_vector(8 downto 0) := '0' & x"1d";
+    constant REG_DAQ_OH0_LASTBLOCK4_ADDR    : std_logic_vector(8 downto 0) := '0' & x"64";
     constant REG_DAQ_OH0_LASTBLOCK4_MSB    : integer := 31;
     constant REG_DAQ_OH0_LASTBLOCK4_LSB     : integer := 0;
 
-    constant REG_DAQ_OH0_LASTBLOCK5_ADDR    : std_logic_vector(8 downto 0) := '0' & x"1e";
+    constant REG_DAQ_OH0_LASTBLOCK5_ADDR    : std_logic_vector(8 downto 0) := '0' & x"65";
     constant REG_DAQ_OH0_LASTBLOCK5_MSB    : integer := 31;
     constant REG_DAQ_OH0_LASTBLOCK5_LSB     : integer := 0;
 
-    constant REG_DAQ_OH0_LASTBLOCK6_ADDR    : std_logic_vector(8 downto 0) := '0' & x"1f";
+    constant REG_DAQ_OH0_LASTBLOCK6_ADDR    : std_logic_vector(8 downto 0) := '0' & x"66";
     constant REG_DAQ_OH0_LASTBLOCK6_MSB    : integer := 31;
     constant REG_DAQ_OH0_LASTBLOCK6_LSB     : integer := 0;
 
-    constant REG_DAQ_OH1_STATUS_VFAT_MIXED_EC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"20";
+    constant REG_DAQ_OH1_STATUS_VFAT_MIXED_EC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"70";
     constant REG_DAQ_OH1_STATUS_VFAT_MIXED_EC_BIT    : integer := 1;
 
-    constant REG_DAQ_OH1_STATUS_VFAT_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"20";
+    constant REG_DAQ_OH1_STATUS_VFAT_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"70";
     constant REG_DAQ_OH1_STATUS_VFAT_MIXED_BC_BIT    : integer := 2;
 
-    constant REG_DAQ_OH1_STATUS_OH_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"20";
+    constant REG_DAQ_OH1_STATUS_OH_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"70";
     constant REG_DAQ_OH1_STATUS_OH_MIXED_BC_BIT    : integer := 3;
 
-    constant REG_DAQ_OH1_STATUS_VFAT_TOO_MANY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"20";
+    constant REG_DAQ_OH1_STATUS_VFAT_TOO_MANY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"70";
     constant REG_DAQ_OH1_STATUS_VFAT_TOO_MANY_BIT    : integer := 4;
 
-    constant REG_DAQ_OH1_STATUS_VFAT_SMALL_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '0' & x"20";
+    constant REG_DAQ_OH1_STATUS_VFAT_SMALL_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '0' & x"70";
     constant REG_DAQ_OH1_STATUS_VFAT_SMALL_BLOCK_BIT    : integer := 5;
 
-    constant REG_DAQ_OH1_STATUS_VFAT_LARGE_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '0' & x"20";
+    constant REG_DAQ_OH1_STATUS_VFAT_LARGE_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '0' & x"70";
     constant REG_DAQ_OH1_STATUS_VFAT_LARGE_BLOCK_BIT    : integer := 6;
 
-    constant REG_DAQ_OH1_STATUS_VFAT_NO_MARKER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"20";
+    constant REG_DAQ_OH1_STATUS_VFAT_NO_MARKER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"70";
     constant REG_DAQ_OH1_STATUS_VFAT_NO_MARKER_BIT    : integer := 7;
 
-    constant REG_DAQ_OH1_STATUS_INPUT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"20";
+    constant REG_DAQ_OH1_STATUS_INPUT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"70";
     constant REG_DAQ_OH1_STATUS_INPUT_FIFO_HAD_OFLOW_BIT    : integer := 8;
 
-    constant REG_DAQ_OH1_STATUS_INPUT_FIFO_HAD_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"20";
+    constant REG_DAQ_OH1_STATUS_INPUT_FIFO_HAD_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"70";
     constant REG_DAQ_OH1_STATUS_INPUT_FIFO_HAD_UFLOW_BIT    : integer := 9;
 
-    constant REG_DAQ_OH1_STATUS_EVENT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"20";
+    constant REG_DAQ_OH1_STATUS_EVENT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"70";
     constant REG_DAQ_OH1_STATUS_EVENT_FIFO_HAD_OFLOW_BIT    : integer := 10;
 
-    constant REG_DAQ_OH1_STATUS_EVT_SIZE_ERR_ADDR    : std_logic_vector(8 downto 0) := '0' & x"20";
+    constant REG_DAQ_OH1_STATUS_EVT_SIZE_ERR_ADDR    : std_logic_vector(8 downto 0) := '0' & x"70";
     constant REG_DAQ_OH1_STATUS_EVT_SIZE_ERR_BIT    : integer := 11;
 
-    constant REG_DAQ_OH1_STATUS_TTS_STATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"20";
+    constant REG_DAQ_OH1_STATUS_TTS_STATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"70";
     constant REG_DAQ_OH1_STATUS_TTS_STATE_MSB    : integer := 15;
     constant REG_DAQ_OH1_STATUS_TTS_STATE_LSB     : integer := 12;
 
-    constant REG_DAQ_OH1_STATUS_INPUT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"20";
+    constant REG_DAQ_OH1_STATUS_INPUT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"70";
     constant REG_DAQ_OH1_STATUS_INPUT_FIFO_IS_UFLOW_BIT    : integer := 24;
 
-    constant REG_DAQ_OH1_STATUS_INPUT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"20";
+    constant REG_DAQ_OH1_STATUS_INPUT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"70";
     constant REG_DAQ_OH1_STATUS_INPUT_FIFO_IS_FULL_BIT    : integer := 25;
 
-    constant REG_DAQ_OH1_STATUS_INPUT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"20";
+    constant REG_DAQ_OH1_STATUS_INPUT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"70";
     constant REG_DAQ_OH1_STATUS_INPUT_FIFO_IS_AFULL_BIT    : integer := 26;
 
-    constant REG_DAQ_OH1_STATUS_INPUT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"20";
+    constant REG_DAQ_OH1_STATUS_INPUT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"70";
     constant REG_DAQ_OH1_STATUS_INPUT_FIFO_IS_EMPTY_BIT    : integer := 27;
 
-    constant REG_DAQ_OH1_STATUS_EVENT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"20";
+    constant REG_DAQ_OH1_STATUS_EVENT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"70";
     constant REG_DAQ_OH1_STATUS_EVENT_FIFO_IS_UFLOW_BIT    : integer := 28;
 
-    constant REG_DAQ_OH1_STATUS_EVENT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"20";
+    constant REG_DAQ_OH1_STATUS_EVENT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"70";
     constant REG_DAQ_OH1_STATUS_EVENT_FIFO_IS_FULL_BIT    : integer := 29;
 
-    constant REG_DAQ_OH1_STATUS_EVENT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"20";
+    constant REG_DAQ_OH1_STATUS_EVENT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"70";
     constant REG_DAQ_OH1_STATUS_EVENT_FIFO_IS_AFULL_BIT    : integer := 30;
 
-    constant REG_DAQ_OH1_STATUS_EVENT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"20";
+    constant REG_DAQ_OH1_STATUS_EVENT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"70";
     constant REG_DAQ_OH1_STATUS_EVENT_FIFO_IS_EMPTY_BIT    : integer := 31;
 
-    constant REG_DAQ_OH1_COUNTERS_CORRUPT_VFAT_BLK_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"21";
+    constant REG_DAQ_OH1_COUNTERS_CORRUPT_VFAT_BLK_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"71";
     constant REG_DAQ_OH1_COUNTERS_CORRUPT_VFAT_BLK_CNT_MSB    : integer := 31;
     constant REG_DAQ_OH1_COUNTERS_CORRUPT_VFAT_BLK_CNT_LSB     : integer := 0;
 
-    constant REG_DAQ_OH1_COUNTERS_EVN_ADDR    : std_logic_vector(8 downto 0) := '0' & x"22";
+    constant REG_DAQ_OH1_COUNTERS_EVN_ADDR    : std_logic_vector(8 downto 0) := '0' & x"72";
     constant REG_DAQ_OH1_COUNTERS_EVN_MSB    : integer := 23;
     constant REG_DAQ_OH1_COUNTERS_EVN_LSB     : integer := 0;
 
-    constant REG_DAQ_OH1_CONTROL_EOE_TIMEOUT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"23";
+    constant REG_DAQ_OH1_CONTROL_EOE_TIMEOUT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"73";
     constant REG_DAQ_OH1_CONTROL_EOE_TIMEOUT_MSB    : integer := 23;
     constant REG_DAQ_OH1_CONTROL_EOE_TIMEOUT_LSB     : integer := 0;
     constant REG_DAQ_OH1_CONTROL_EOE_TIMEOUT_DEFAULT : std_logic_vector(23 downto 0) := x"000100";
 
-    constant REG_DAQ_OH1_COUNTERS_INPUT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"24";
+    constant REG_DAQ_OH1_COUNTERS_INPUT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"74";
     constant REG_DAQ_OH1_COUNTERS_INPUT_FIFO_DATA_CNT_MSB    : integer := 11;
     constant REG_DAQ_OH1_COUNTERS_INPUT_FIFO_DATA_CNT_LSB     : integer := 0;
 
-    constant REG_DAQ_OH1_COUNTERS_EVT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"24";
+    constant REG_DAQ_OH1_COUNTERS_EVT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"74";
     constant REG_DAQ_OH1_COUNTERS_EVT_FIFO_DATA_CNT_MSB    : integer := 27;
     constant REG_DAQ_OH1_COUNTERS_EVT_FIFO_DATA_CNT_LSB     : integer := 16;
 
-    constant REG_DAQ_OH1_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"25";
+    constant REG_DAQ_OH1_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"75";
     constant REG_DAQ_OH1_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_MSB    : integer := 15;
     constant REG_DAQ_OH1_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_LSB     : integer := 0;
 
-    constant REG_DAQ_OH1_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"25";
+    constant REG_DAQ_OH1_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"75";
     constant REG_DAQ_OH1_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_MSB    : integer := 31;
     constant REG_DAQ_OH1_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_LSB     : integer := 16;
 
-    constant REG_DAQ_OH1_COUNTERS_VFAT_BLOCK_RATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"26";
+    constant REG_DAQ_OH1_COUNTERS_VFAT_BLOCK_RATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"76";
     constant REG_DAQ_OH1_COUNTERS_VFAT_BLOCK_RATE_MSB    : integer := 14;
     constant REG_DAQ_OH1_COUNTERS_VFAT_BLOCK_RATE_LSB     : integer := 0;
 
-    constant REG_DAQ_OH1_COUNTERS_EVT_RATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"26";
+    constant REG_DAQ_OH1_COUNTERS_EVT_RATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"76";
     constant REG_DAQ_OH1_COUNTERS_EVT_RATE_MSB    : integer := 31;
     constant REG_DAQ_OH1_COUNTERS_EVT_RATE_LSB     : integer := 15;
 
-    constant REG_DAQ_OH1_COUNTERS_MAX_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"27";
+    constant REG_DAQ_OH1_COUNTERS_MAX_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"77";
     constant REG_DAQ_OH1_COUNTERS_MAX_EOE_TIMER_MSB    : integer := 23;
     constant REG_DAQ_OH1_COUNTERS_MAX_EOE_TIMER_LSB     : integer := 0;
 
-    constant REG_DAQ_OH1_COUNTERS_LAST_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"28";
+    constant REG_DAQ_OH1_COUNTERS_LAST_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"78";
     constant REG_DAQ_OH1_COUNTERS_LAST_EOE_TIMER_MSB    : integer := 23;
     constant REG_DAQ_OH1_COUNTERS_LAST_EOE_TIMER_LSB     : integer := 0;
 
-    constant REG_DAQ_OH1_LASTBLOCK0_ADDR    : std_logic_vector(8 downto 0) := '0' & x"29";
+    constant REG_DAQ_OH1_COUNTERS_LIVE_VFAT_WORDS_64_LAST_ADDR    : std_logic_vector(8 downto 0) := '0' & x"79";
+    constant REG_DAQ_OH1_COUNTERS_LIVE_VFAT_WORDS_64_LAST_MSB    : integer := 11;
+    constant REG_DAQ_OH1_COUNTERS_LIVE_VFAT_WORDS_64_LAST_LSB     : integer := 0;
+
+    constant REG_DAQ_OH1_COUNTERS_LIVE_VFAT_WORDS_64_MIN_ADDR    : std_logic_vector(8 downto 0) := '0' & x"79";
+    constant REG_DAQ_OH1_COUNTERS_LIVE_VFAT_WORDS_64_MIN_MSB    : integer := 23;
+    constant REG_DAQ_OH1_COUNTERS_LIVE_VFAT_WORDS_64_MIN_LSB     : integer := 12;
+
+    constant REG_DAQ_OH1_COUNTERS_LIVE_VFAT_WORDS_64_MAX_ADDR    : std_logic_vector(8 downto 0) := '0' & x"7a";
+    constant REG_DAQ_OH1_COUNTERS_LIVE_VFAT_WORDS_64_MAX_MSB    : integer := 11;
+    constant REG_DAQ_OH1_COUNTERS_LIVE_VFAT_WORDS_64_MAX_LSB     : integer := 0;
+
+    constant REG_DAQ_OH1_COUNTERS_DAV_TIMEOUT_CONSEC_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"7b";
+    constant REG_DAQ_OH1_COUNTERS_DAV_TIMEOUT_CONSEC_CNT_MSB    : integer := 15;
+    constant REG_DAQ_OH1_COUNTERS_DAV_TIMEOUT_CONSEC_CNT_LSB     : integer := 0;
+
+    constant REG_DAQ_OH1_COUNTERS_DAV_TIMEOUT_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"7b";
+    constant REG_DAQ_OH1_COUNTERS_DAV_TIMEOUT_CNT_MSB    : integer := 31;
+    constant REG_DAQ_OH1_COUNTERS_DAV_TIMEOUT_CNT_LSB     : integer := 16;
+
+    constant REG_DAQ_OH1_LASTBLOCK0_ADDR    : std_logic_vector(8 downto 0) := '0' & x"80";
     constant REG_DAQ_OH1_LASTBLOCK0_MSB    : integer := 31;
     constant REG_DAQ_OH1_LASTBLOCK0_LSB     : integer := 0;
 
-    constant REG_DAQ_OH1_LASTBLOCK1_ADDR    : std_logic_vector(8 downto 0) := '0' & x"2a";
+    constant REG_DAQ_OH1_LASTBLOCK1_ADDR    : std_logic_vector(8 downto 0) := '0' & x"81";
     constant REG_DAQ_OH1_LASTBLOCK1_MSB    : integer := 31;
     constant REG_DAQ_OH1_LASTBLOCK1_LSB     : integer := 0;
 
-    constant REG_DAQ_OH1_LASTBLOCK2_ADDR    : std_logic_vector(8 downto 0) := '0' & x"2b";
+    constant REG_DAQ_OH1_LASTBLOCK2_ADDR    : std_logic_vector(8 downto 0) := '0' & x"82";
     constant REG_DAQ_OH1_LASTBLOCK2_MSB    : integer := 31;
     constant REG_DAQ_OH1_LASTBLOCK2_LSB     : integer := 0;
 
-    constant REG_DAQ_OH1_LASTBLOCK3_ADDR    : std_logic_vector(8 downto 0) := '0' & x"2c";
+    constant REG_DAQ_OH1_LASTBLOCK3_ADDR    : std_logic_vector(8 downto 0) := '0' & x"83";
     constant REG_DAQ_OH1_LASTBLOCK3_MSB    : integer := 31;
     constant REG_DAQ_OH1_LASTBLOCK3_LSB     : integer := 0;
 
-    constant REG_DAQ_OH1_LASTBLOCK4_ADDR    : std_logic_vector(8 downto 0) := '0' & x"2d";
+    constant REG_DAQ_OH1_LASTBLOCK4_ADDR    : std_logic_vector(8 downto 0) := '0' & x"84";
     constant REG_DAQ_OH1_LASTBLOCK4_MSB    : integer := 31;
     constant REG_DAQ_OH1_LASTBLOCK4_LSB     : integer := 0;
 
-    constant REG_DAQ_OH1_LASTBLOCK5_ADDR    : std_logic_vector(8 downto 0) := '0' & x"2e";
+    constant REG_DAQ_OH1_LASTBLOCK5_ADDR    : std_logic_vector(8 downto 0) := '0' & x"85";
     constant REG_DAQ_OH1_LASTBLOCK5_MSB    : integer := 31;
     constant REG_DAQ_OH1_LASTBLOCK5_LSB     : integer := 0;
 
-    constant REG_DAQ_OH1_LASTBLOCK6_ADDR    : std_logic_vector(8 downto 0) := '0' & x"2f";
+    constant REG_DAQ_OH1_LASTBLOCK6_ADDR    : std_logic_vector(8 downto 0) := '0' & x"86";
     constant REG_DAQ_OH1_LASTBLOCK6_MSB    : integer := 31;
     constant REG_DAQ_OH1_LASTBLOCK6_LSB     : integer := 0;
 
-    constant REG_DAQ_OH2_STATUS_VFAT_MIXED_EC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"30";
+    constant REG_DAQ_OH2_STATUS_VFAT_MIXED_EC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"90";
     constant REG_DAQ_OH2_STATUS_VFAT_MIXED_EC_BIT    : integer := 1;
 
-    constant REG_DAQ_OH2_STATUS_VFAT_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"30";
+    constant REG_DAQ_OH2_STATUS_VFAT_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"90";
     constant REG_DAQ_OH2_STATUS_VFAT_MIXED_BC_BIT    : integer := 2;
 
-    constant REG_DAQ_OH2_STATUS_OH_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"30";
+    constant REG_DAQ_OH2_STATUS_OH_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"90";
     constant REG_DAQ_OH2_STATUS_OH_MIXED_BC_BIT    : integer := 3;
 
-    constant REG_DAQ_OH2_STATUS_VFAT_TOO_MANY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"30";
+    constant REG_DAQ_OH2_STATUS_VFAT_TOO_MANY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"90";
     constant REG_DAQ_OH2_STATUS_VFAT_TOO_MANY_BIT    : integer := 4;
 
-    constant REG_DAQ_OH2_STATUS_VFAT_SMALL_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '0' & x"30";
+    constant REG_DAQ_OH2_STATUS_VFAT_SMALL_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '0' & x"90";
     constant REG_DAQ_OH2_STATUS_VFAT_SMALL_BLOCK_BIT    : integer := 5;
 
-    constant REG_DAQ_OH2_STATUS_VFAT_LARGE_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '0' & x"30";
+    constant REG_DAQ_OH2_STATUS_VFAT_LARGE_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '0' & x"90";
     constant REG_DAQ_OH2_STATUS_VFAT_LARGE_BLOCK_BIT    : integer := 6;
 
-    constant REG_DAQ_OH2_STATUS_VFAT_NO_MARKER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"30";
+    constant REG_DAQ_OH2_STATUS_VFAT_NO_MARKER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"90";
     constant REG_DAQ_OH2_STATUS_VFAT_NO_MARKER_BIT    : integer := 7;
 
-    constant REG_DAQ_OH2_STATUS_INPUT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"30";
+    constant REG_DAQ_OH2_STATUS_INPUT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"90";
     constant REG_DAQ_OH2_STATUS_INPUT_FIFO_HAD_OFLOW_BIT    : integer := 8;
 
-    constant REG_DAQ_OH2_STATUS_INPUT_FIFO_HAD_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"30";
+    constant REG_DAQ_OH2_STATUS_INPUT_FIFO_HAD_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"90";
     constant REG_DAQ_OH2_STATUS_INPUT_FIFO_HAD_UFLOW_BIT    : integer := 9;
 
-    constant REG_DAQ_OH2_STATUS_EVENT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"30";
+    constant REG_DAQ_OH2_STATUS_EVENT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"90";
     constant REG_DAQ_OH2_STATUS_EVENT_FIFO_HAD_OFLOW_BIT    : integer := 10;
 
-    constant REG_DAQ_OH2_STATUS_EVT_SIZE_ERR_ADDR    : std_logic_vector(8 downto 0) := '0' & x"30";
+    constant REG_DAQ_OH2_STATUS_EVT_SIZE_ERR_ADDR    : std_logic_vector(8 downto 0) := '0' & x"90";
     constant REG_DAQ_OH2_STATUS_EVT_SIZE_ERR_BIT    : integer := 11;
 
-    constant REG_DAQ_OH2_STATUS_TTS_STATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"30";
+    constant REG_DAQ_OH2_STATUS_TTS_STATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"90";
     constant REG_DAQ_OH2_STATUS_TTS_STATE_MSB    : integer := 15;
     constant REG_DAQ_OH2_STATUS_TTS_STATE_LSB     : integer := 12;
 
-    constant REG_DAQ_OH2_STATUS_INPUT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"30";
+    constant REG_DAQ_OH2_STATUS_INPUT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"90";
     constant REG_DAQ_OH2_STATUS_INPUT_FIFO_IS_UFLOW_BIT    : integer := 24;
 
-    constant REG_DAQ_OH2_STATUS_INPUT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"30";
+    constant REG_DAQ_OH2_STATUS_INPUT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"90";
     constant REG_DAQ_OH2_STATUS_INPUT_FIFO_IS_FULL_BIT    : integer := 25;
 
-    constant REG_DAQ_OH2_STATUS_INPUT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"30";
+    constant REG_DAQ_OH2_STATUS_INPUT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"90";
     constant REG_DAQ_OH2_STATUS_INPUT_FIFO_IS_AFULL_BIT    : integer := 26;
 
-    constant REG_DAQ_OH2_STATUS_INPUT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"30";
+    constant REG_DAQ_OH2_STATUS_INPUT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"90";
     constant REG_DAQ_OH2_STATUS_INPUT_FIFO_IS_EMPTY_BIT    : integer := 27;
 
-    constant REG_DAQ_OH2_STATUS_EVENT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"30";
+    constant REG_DAQ_OH2_STATUS_EVENT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"90";
     constant REG_DAQ_OH2_STATUS_EVENT_FIFO_IS_UFLOW_BIT    : integer := 28;
 
-    constant REG_DAQ_OH2_STATUS_EVENT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"30";
+    constant REG_DAQ_OH2_STATUS_EVENT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"90";
     constant REG_DAQ_OH2_STATUS_EVENT_FIFO_IS_FULL_BIT    : integer := 29;
 
-    constant REG_DAQ_OH2_STATUS_EVENT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"30";
+    constant REG_DAQ_OH2_STATUS_EVENT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"90";
     constant REG_DAQ_OH2_STATUS_EVENT_FIFO_IS_AFULL_BIT    : integer := 30;
 
-    constant REG_DAQ_OH2_STATUS_EVENT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"30";
+    constant REG_DAQ_OH2_STATUS_EVENT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"90";
     constant REG_DAQ_OH2_STATUS_EVENT_FIFO_IS_EMPTY_BIT    : integer := 31;
 
-    constant REG_DAQ_OH2_COUNTERS_CORRUPT_VFAT_BLK_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"31";
+    constant REG_DAQ_OH2_COUNTERS_CORRUPT_VFAT_BLK_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"91";
     constant REG_DAQ_OH2_COUNTERS_CORRUPT_VFAT_BLK_CNT_MSB    : integer := 31;
     constant REG_DAQ_OH2_COUNTERS_CORRUPT_VFAT_BLK_CNT_LSB     : integer := 0;
 
-    constant REG_DAQ_OH2_COUNTERS_EVN_ADDR    : std_logic_vector(8 downto 0) := '0' & x"32";
+    constant REG_DAQ_OH2_COUNTERS_EVN_ADDR    : std_logic_vector(8 downto 0) := '0' & x"92";
     constant REG_DAQ_OH2_COUNTERS_EVN_MSB    : integer := 23;
     constant REG_DAQ_OH2_COUNTERS_EVN_LSB     : integer := 0;
 
-    constant REG_DAQ_OH2_CONTROL_EOE_TIMEOUT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"33";
+    constant REG_DAQ_OH2_CONTROL_EOE_TIMEOUT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"93";
     constant REG_DAQ_OH2_CONTROL_EOE_TIMEOUT_MSB    : integer := 23;
     constant REG_DAQ_OH2_CONTROL_EOE_TIMEOUT_LSB     : integer := 0;
     constant REG_DAQ_OH2_CONTROL_EOE_TIMEOUT_DEFAULT : std_logic_vector(23 downto 0) := x"000100";
 
-    constant REG_DAQ_OH2_COUNTERS_INPUT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"34";
+    constant REG_DAQ_OH2_COUNTERS_INPUT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"94";
     constant REG_DAQ_OH2_COUNTERS_INPUT_FIFO_DATA_CNT_MSB    : integer := 11;
     constant REG_DAQ_OH2_COUNTERS_INPUT_FIFO_DATA_CNT_LSB     : integer := 0;
 
-    constant REG_DAQ_OH2_COUNTERS_EVT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"34";
+    constant REG_DAQ_OH2_COUNTERS_EVT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"94";
     constant REG_DAQ_OH2_COUNTERS_EVT_FIFO_DATA_CNT_MSB    : integer := 27;
     constant REG_DAQ_OH2_COUNTERS_EVT_FIFO_DATA_CNT_LSB     : integer := 16;
 
-    constant REG_DAQ_OH2_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"35";
+    constant REG_DAQ_OH2_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"95";
     constant REG_DAQ_OH2_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_MSB    : integer := 15;
     constant REG_DAQ_OH2_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_LSB     : integer := 0;
 
-    constant REG_DAQ_OH2_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"35";
+    constant REG_DAQ_OH2_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"95";
     constant REG_DAQ_OH2_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_MSB    : integer := 31;
     constant REG_DAQ_OH2_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_LSB     : integer := 16;
 
-    constant REG_DAQ_OH2_COUNTERS_VFAT_BLOCK_RATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"36";
+    constant REG_DAQ_OH2_COUNTERS_VFAT_BLOCK_RATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"96";
     constant REG_DAQ_OH2_COUNTERS_VFAT_BLOCK_RATE_MSB    : integer := 14;
     constant REG_DAQ_OH2_COUNTERS_VFAT_BLOCK_RATE_LSB     : integer := 0;
 
-    constant REG_DAQ_OH2_COUNTERS_EVT_RATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"36";
+    constant REG_DAQ_OH2_COUNTERS_EVT_RATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"96";
     constant REG_DAQ_OH2_COUNTERS_EVT_RATE_MSB    : integer := 31;
     constant REG_DAQ_OH2_COUNTERS_EVT_RATE_LSB     : integer := 15;
 
-    constant REG_DAQ_OH2_COUNTERS_MAX_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"37";
+    constant REG_DAQ_OH2_COUNTERS_MAX_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"97";
     constant REG_DAQ_OH2_COUNTERS_MAX_EOE_TIMER_MSB    : integer := 23;
     constant REG_DAQ_OH2_COUNTERS_MAX_EOE_TIMER_LSB     : integer := 0;
 
-    constant REG_DAQ_OH2_COUNTERS_LAST_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"38";
+    constant REG_DAQ_OH2_COUNTERS_LAST_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"98";
     constant REG_DAQ_OH2_COUNTERS_LAST_EOE_TIMER_MSB    : integer := 23;
     constant REG_DAQ_OH2_COUNTERS_LAST_EOE_TIMER_LSB     : integer := 0;
 
-    constant REG_DAQ_OH2_LASTBLOCK0_ADDR    : std_logic_vector(8 downto 0) := '0' & x"39";
+    constant REG_DAQ_OH2_COUNTERS_LIVE_VFAT_WORDS_64_LAST_ADDR    : std_logic_vector(8 downto 0) := '0' & x"99";
+    constant REG_DAQ_OH2_COUNTERS_LIVE_VFAT_WORDS_64_LAST_MSB    : integer := 11;
+    constant REG_DAQ_OH2_COUNTERS_LIVE_VFAT_WORDS_64_LAST_LSB     : integer := 0;
+
+    constant REG_DAQ_OH2_COUNTERS_LIVE_VFAT_WORDS_64_MIN_ADDR    : std_logic_vector(8 downto 0) := '0' & x"99";
+    constant REG_DAQ_OH2_COUNTERS_LIVE_VFAT_WORDS_64_MIN_MSB    : integer := 23;
+    constant REG_DAQ_OH2_COUNTERS_LIVE_VFAT_WORDS_64_MIN_LSB     : integer := 12;
+
+    constant REG_DAQ_OH2_COUNTERS_LIVE_VFAT_WORDS_64_MAX_ADDR    : std_logic_vector(8 downto 0) := '0' & x"9a";
+    constant REG_DAQ_OH2_COUNTERS_LIVE_VFAT_WORDS_64_MAX_MSB    : integer := 11;
+    constant REG_DAQ_OH2_COUNTERS_LIVE_VFAT_WORDS_64_MAX_LSB     : integer := 0;
+
+    constant REG_DAQ_OH2_COUNTERS_DAV_TIMEOUT_CONSEC_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"9b";
+    constant REG_DAQ_OH2_COUNTERS_DAV_TIMEOUT_CONSEC_CNT_MSB    : integer := 15;
+    constant REG_DAQ_OH2_COUNTERS_DAV_TIMEOUT_CONSEC_CNT_LSB     : integer := 0;
+
+    constant REG_DAQ_OH2_COUNTERS_DAV_TIMEOUT_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"9b";
+    constant REG_DAQ_OH2_COUNTERS_DAV_TIMEOUT_CNT_MSB    : integer := 31;
+    constant REG_DAQ_OH2_COUNTERS_DAV_TIMEOUT_CNT_LSB     : integer := 16;
+
+    constant REG_DAQ_OH2_LASTBLOCK0_ADDR    : std_logic_vector(8 downto 0) := '0' & x"a0";
     constant REG_DAQ_OH2_LASTBLOCK0_MSB    : integer := 31;
     constant REG_DAQ_OH2_LASTBLOCK0_LSB     : integer := 0;
 
-    constant REG_DAQ_OH2_LASTBLOCK1_ADDR    : std_logic_vector(8 downto 0) := '0' & x"3a";
+    constant REG_DAQ_OH2_LASTBLOCK1_ADDR    : std_logic_vector(8 downto 0) := '0' & x"a1";
     constant REG_DAQ_OH2_LASTBLOCK1_MSB    : integer := 31;
     constant REG_DAQ_OH2_LASTBLOCK1_LSB     : integer := 0;
 
-    constant REG_DAQ_OH2_LASTBLOCK2_ADDR    : std_logic_vector(8 downto 0) := '0' & x"3b";
+    constant REG_DAQ_OH2_LASTBLOCK2_ADDR    : std_logic_vector(8 downto 0) := '0' & x"a2";
     constant REG_DAQ_OH2_LASTBLOCK2_MSB    : integer := 31;
     constant REG_DAQ_OH2_LASTBLOCK2_LSB     : integer := 0;
 
-    constant REG_DAQ_OH2_LASTBLOCK3_ADDR    : std_logic_vector(8 downto 0) := '0' & x"3c";
+    constant REG_DAQ_OH2_LASTBLOCK3_ADDR    : std_logic_vector(8 downto 0) := '0' & x"a3";
     constant REG_DAQ_OH2_LASTBLOCK3_MSB    : integer := 31;
     constant REG_DAQ_OH2_LASTBLOCK3_LSB     : integer := 0;
 
-    constant REG_DAQ_OH2_LASTBLOCK4_ADDR    : std_logic_vector(8 downto 0) := '0' & x"3d";
+    constant REG_DAQ_OH2_LASTBLOCK4_ADDR    : std_logic_vector(8 downto 0) := '0' & x"a4";
     constant REG_DAQ_OH2_LASTBLOCK4_MSB    : integer := 31;
     constant REG_DAQ_OH2_LASTBLOCK4_LSB     : integer := 0;
 
-    constant REG_DAQ_OH2_LASTBLOCK5_ADDR    : std_logic_vector(8 downto 0) := '0' & x"3e";
+    constant REG_DAQ_OH2_LASTBLOCK5_ADDR    : std_logic_vector(8 downto 0) := '0' & x"a5";
     constant REG_DAQ_OH2_LASTBLOCK5_MSB    : integer := 31;
     constant REG_DAQ_OH2_LASTBLOCK5_LSB     : integer := 0;
 
-    constant REG_DAQ_OH2_LASTBLOCK6_ADDR    : std_logic_vector(8 downto 0) := '0' & x"3f";
+    constant REG_DAQ_OH2_LASTBLOCK6_ADDR    : std_logic_vector(8 downto 0) := '0' & x"a6";
     constant REG_DAQ_OH2_LASTBLOCK6_MSB    : integer := 31;
     constant REG_DAQ_OH2_LASTBLOCK6_LSB     : integer := 0;
 
-    constant REG_DAQ_OH3_STATUS_VFAT_MIXED_EC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"40";
+    constant REG_DAQ_OH3_STATUS_VFAT_MIXED_EC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b0";
     constant REG_DAQ_OH3_STATUS_VFAT_MIXED_EC_BIT    : integer := 1;
 
-    constant REG_DAQ_OH3_STATUS_VFAT_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"40";
+    constant REG_DAQ_OH3_STATUS_VFAT_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b0";
     constant REG_DAQ_OH3_STATUS_VFAT_MIXED_BC_BIT    : integer := 2;
 
-    constant REG_DAQ_OH3_STATUS_OH_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"40";
+    constant REG_DAQ_OH3_STATUS_OH_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b0";
     constant REG_DAQ_OH3_STATUS_OH_MIXED_BC_BIT    : integer := 3;
 
-    constant REG_DAQ_OH3_STATUS_VFAT_TOO_MANY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"40";
+    constant REG_DAQ_OH3_STATUS_VFAT_TOO_MANY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b0";
     constant REG_DAQ_OH3_STATUS_VFAT_TOO_MANY_BIT    : integer := 4;
 
-    constant REG_DAQ_OH3_STATUS_VFAT_SMALL_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '0' & x"40";
+    constant REG_DAQ_OH3_STATUS_VFAT_SMALL_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b0";
     constant REG_DAQ_OH3_STATUS_VFAT_SMALL_BLOCK_BIT    : integer := 5;
 
-    constant REG_DAQ_OH3_STATUS_VFAT_LARGE_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '0' & x"40";
+    constant REG_DAQ_OH3_STATUS_VFAT_LARGE_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b0";
     constant REG_DAQ_OH3_STATUS_VFAT_LARGE_BLOCK_BIT    : integer := 6;
 
-    constant REG_DAQ_OH3_STATUS_VFAT_NO_MARKER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"40";
+    constant REG_DAQ_OH3_STATUS_VFAT_NO_MARKER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b0";
     constant REG_DAQ_OH3_STATUS_VFAT_NO_MARKER_BIT    : integer := 7;
 
-    constant REG_DAQ_OH3_STATUS_INPUT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"40";
+    constant REG_DAQ_OH3_STATUS_INPUT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b0";
     constant REG_DAQ_OH3_STATUS_INPUT_FIFO_HAD_OFLOW_BIT    : integer := 8;
 
-    constant REG_DAQ_OH3_STATUS_INPUT_FIFO_HAD_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"40";
+    constant REG_DAQ_OH3_STATUS_INPUT_FIFO_HAD_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b0";
     constant REG_DAQ_OH3_STATUS_INPUT_FIFO_HAD_UFLOW_BIT    : integer := 9;
 
-    constant REG_DAQ_OH3_STATUS_EVENT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"40";
+    constant REG_DAQ_OH3_STATUS_EVENT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b0";
     constant REG_DAQ_OH3_STATUS_EVENT_FIFO_HAD_OFLOW_BIT    : integer := 10;
 
-    constant REG_DAQ_OH3_STATUS_EVT_SIZE_ERR_ADDR    : std_logic_vector(8 downto 0) := '0' & x"40";
+    constant REG_DAQ_OH3_STATUS_EVT_SIZE_ERR_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b0";
     constant REG_DAQ_OH3_STATUS_EVT_SIZE_ERR_BIT    : integer := 11;
 
-    constant REG_DAQ_OH3_STATUS_TTS_STATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"40";
+    constant REG_DAQ_OH3_STATUS_TTS_STATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b0";
     constant REG_DAQ_OH3_STATUS_TTS_STATE_MSB    : integer := 15;
     constant REG_DAQ_OH3_STATUS_TTS_STATE_LSB     : integer := 12;
 
-    constant REG_DAQ_OH3_STATUS_INPUT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"40";
+    constant REG_DAQ_OH3_STATUS_INPUT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b0";
     constant REG_DAQ_OH3_STATUS_INPUT_FIFO_IS_UFLOW_BIT    : integer := 24;
 
-    constant REG_DAQ_OH3_STATUS_INPUT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"40";
+    constant REG_DAQ_OH3_STATUS_INPUT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b0";
     constant REG_DAQ_OH3_STATUS_INPUT_FIFO_IS_FULL_BIT    : integer := 25;
 
-    constant REG_DAQ_OH3_STATUS_INPUT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"40";
+    constant REG_DAQ_OH3_STATUS_INPUT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b0";
     constant REG_DAQ_OH3_STATUS_INPUT_FIFO_IS_AFULL_BIT    : integer := 26;
 
-    constant REG_DAQ_OH3_STATUS_INPUT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"40";
+    constant REG_DAQ_OH3_STATUS_INPUT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b0";
     constant REG_DAQ_OH3_STATUS_INPUT_FIFO_IS_EMPTY_BIT    : integer := 27;
 
-    constant REG_DAQ_OH3_STATUS_EVENT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"40";
+    constant REG_DAQ_OH3_STATUS_EVENT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b0";
     constant REG_DAQ_OH3_STATUS_EVENT_FIFO_IS_UFLOW_BIT    : integer := 28;
 
-    constant REG_DAQ_OH3_STATUS_EVENT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"40";
+    constant REG_DAQ_OH3_STATUS_EVENT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b0";
     constant REG_DAQ_OH3_STATUS_EVENT_FIFO_IS_FULL_BIT    : integer := 29;
 
-    constant REG_DAQ_OH3_STATUS_EVENT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"40";
+    constant REG_DAQ_OH3_STATUS_EVENT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b0";
     constant REG_DAQ_OH3_STATUS_EVENT_FIFO_IS_AFULL_BIT    : integer := 30;
 
-    constant REG_DAQ_OH3_STATUS_EVENT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"40";
+    constant REG_DAQ_OH3_STATUS_EVENT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b0";
     constant REG_DAQ_OH3_STATUS_EVENT_FIFO_IS_EMPTY_BIT    : integer := 31;
 
-    constant REG_DAQ_OH3_COUNTERS_CORRUPT_VFAT_BLK_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"41";
+    constant REG_DAQ_OH3_COUNTERS_CORRUPT_VFAT_BLK_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b1";
     constant REG_DAQ_OH3_COUNTERS_CORRUPT_VFAT_BLK_CNT_MSB    : integer := 31;
     constant REG_DAQ_OH3_COUNTERS_CORRUPT_VFAT_BLK_CNT_LSB     : integer := 0;
 
-    constant REG_DAQ_OH3_COUNTERS_EVN_ADDR    : std_logic_vector(8 downto 0) := '0' & x"42";
+    constant REG_DAQ_OH3_COUNTERS_EVN_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b2";
     constant REG_DAQ_OH3_COUNTERS_EVN_MSB    : integer := 23;
     constant REG_DAQ_OH3_COUNTERS_EVN_LSB     : integer := 0;
 
-    constant REG_DAQ_OH3_CONTROL_EOE_TIMEOUT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"43";
+    constant REG_DAQ_OH3_CONTROL_EOE_TIMEOUT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b3";
     constant REG_DAQ_OH3_CONTROL_EOE_TIMEOUT_MSB    : integer := 23;
     constant REG_DAQ_OH3_CONTROL_EOE_TIMEOUT_LSB     : integer := 0;
     constant REG_DAQ_OH3_CONTROL_EOE_TIMEOUT_DEFAULT : std_logic_vector(23 downto 0) := x"000100";
 
-    constant REG_DAQ_OH3_COUNTERS_INPUT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"44";
+    constant REG_DAQ_OH3_COUNTERS_INPUT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b4";
     constant REG_DAQ_OH3_COUNTERS_INPUT_FIFO_DATA_CNT_MSB    : integer := 11;
     constant REG_DAQ_OH3_COUNTERS_INPUT_FIFO_DATA_CNT_LSB     : integer := 0;
 
-    constant REG_DAQ_OH3_COUNTERS_EVT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"44";
+    constant REG_DAQ_OH3_COUNTERS_EVT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b4";
     constant REG_DAQ_OH3_COUNTERS_EVT_FIFO_DATA_CNT_MSB    : integer := 27;
     constant REG_DAQ_OH3_COUNTERS_EVT_FIFO_DATA_CNT_LSB     : integer := 16;
 
-    constant REG_DAQ_OH3_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"45";
+    constant REG_DAQ_OH3_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b5";
     constant REG_DAQ_OH3_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_MSB    : integer := 15;
     constant REG_DAQ_OH3_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_LSB     : integer := 0;
 
-    constant REG_DAQ_OH3_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"45";
+    constant REG_DAQ_OH3_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b5";
     constant REG_DAQ_OH3_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_MSB    : integer := 31;
     constant REG_DAQ_OH3_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_LSB     : integer := 16;
 
-    constant REG_DAQ_OH3_COUNTERS_VFAT_BLOCK_RATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"46";
+    constant REG_DAQ_OH3_COUNTERS_VFAT_BLOCK_RATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b6";
     constant REG_DAQ_OH3_COUNTERS_VFAT_BLOCK_RATE_MSB    : integer := 14;
     constant REG_DAQ_OH3_COUNTERS_VFAT_BLOCK_RATE_LSB     : integer := 0;
 
-    constant REG_DAQ_OH3_COUNTERS_EVT_RATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"46";
+    constant REG_DAQ_OH3_COUNTERS_EVT_RATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b6";
     constant REG_DAQ_OH3_COUNTERS_EVT_RATE_MSB    : integer := 31;
     constant REG_DAQ_OH3_COUNTERS_EVT_RATE_LSB     : integer := 15;
 
-    constant REG_DAQ_OH3_COUNTERS_MAX_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"47";
+    constant REG_DAQ_OH3_COUNTERS_MAX_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b7";
     constant REG_DAQ_OH3_COUNTERS_MAX_EOE_TIMER_MSB    : integer := 23;
     constant REG_DAQ_OH3_COUNTERS_MAX_EOE_TIMER_LSB     : integer := 0;
 
-    constant REG_DAQ_OH3_COUNTERS_LAST_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"48";
+    constant REG_DAQ_OH3_COUNTERS_LAST_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b8";
     constant REG_DAQ_OH3_COUNTERS_LAST_EOE_TIMER_MSB    : integer := 23;
     constant REG_DAQ_OH3_COUNTERS_LAST_EOE_TIMER_LSB     : integer := 0;
 
-    constant REG_DAQ_OH3_LASTBLOCK0_ADDR    : std_logic_vector(8 downto 0) := '0' & x"49";
+    constant REG_DAQ_OH3_COUNTERS_LIVE_VFAT_WORDS_64_LAST_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b9";
+    constant REG_DAQ_OH3_COUNTERS_LIVE_VFAT_WORDS_64_LAST_MSB    : integer := 11;
+    constant REG_DAQ_OH3_COUNTERS_LIVE_VFAT_WORDS_64_LAST_LSB     : integer := 0;
+
+    constant REG_DAQ_OH3_COUNTERS_LIVE_VFAT_WORDS_64_MIN_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b9";
+    constant REG_DAQ_OH3_COUNTERS_LIVE_VFAT_WORDS_64_MIN_MSB    : integer := 23;
+    constant REG_DAQ_OH3_COUNTERS_LIVE_VFAT_WORDS_64_MIN_LSB     : integer := 12;
+
+    constant REG_DAQ_OH3_COUNTERS_LIVE_VFAT_WORDS_64_MAX_ADDR    : std_logic_vector(8 downto 0) := '0' & x"ba";
+    constant REG_DAQ_OH3_COUNTERS_LIVE_VFAT_WORDS_64_MAX_MSB    : integer := 11;
+    constant REG_DAQ_OH3_COUNTERS_LIVE_VFAT_WORDS_64_MAX_LSB     : integer := 0;
+
+    constant REG_DAQ_OH3_COUNTERS_DAV_TIMEOUT_CONSEC_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"bb";
+    constant REG_DAQ_OH3_COUNTERS_DAV_TIMEOUT_CONSEC_CNT_MSB    : integer := 15;
+    constant REG_DAQ_OH3_COUNTERS_DAV_TIMEOUT_CONSEC_CNT_LSB     : integer := 0;
+
+    constant REG_DAQ_OH3_COUNTERS_DAV_TIMEOUT_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"bb";
+    constant REG_DAQ_OH3_COUNTERS_DAV_TIMEOUT_CNT_MSB    : integer := 31;
+    constant REG_DAQ_OH3_COUNTERS_DAV_TIMEOUT_CNT_LSB     : integer := 16;
+
+    constant REG_DAQ_OH3_LASTBLOCK0_ADDR    : std_logic_vector(8 downto 0) := '0' & x"c0";
     constant REG_DAQ_OH3_LASTBLOCK0_MSB    : integer := 31;
     constant REG_DAQ_OH3_LASTBLOCK0_LSB     : integer := 0;
 
-    constant REG_DAQ_OH3_LASTBLOCK1_ADDR    : std_logic_vector(8 downto 0) := '0' & x"4a";
+    constant REG_DAQ_OH3_LASTBLOCK1_ADDR    : std_logic_vector(8 downto 0) := '0' & x"c1";
     constant REG_DAQ_OH3_LASTBLOCK1_MSB    : integer := 31;
     constant REG_DAQ_OH3_LASTBLOCK1_LSB     : integer := 0;
 
-    constant REG_DAQ_OH3_LASTBLOCK2_ADDR    : std_logic_vector(8 downto 0) := '0' & x"4b";
+    constant REG_DAQ_OH3_LASTBLOCK2_ADDR    : std_logic_vector(8 downto 0) := '0' & x"c2";
     constant REG_DAQ_OH3_LASTBLOCK2_MSB    : integer := 31;
     constant REG_DAQ_OH3_LASTBLOCK2_LSB     : integer := 0;
 
-    constant REG_DAQ_OH3_LASTBLOCK3_ADDR    : std_logic_vector(8 downto 0) := '0' & x"4c";
+    constant REG_DAQ_OH3_LASTBLOCK3_ADDR    : std_logic_vector(8 downto 0) := '0' & x"c3";
     constant REG_DAQ_OH3_LASTBLOCK3_MSB    : integer := 31;
     constant REG_DAQ_OH3_LASTBLOCK3_LSB     : integer := 0;
 
-    constant REG_DAQ_OH3_LASTBLOCK4_ADDR    : std_logic_vector(8 downto 0) := '0' & x"4d";
+    constant REG_DAQ_OH3_LASTBLOCK4_ADDR    : std_logic_vector(8 downto 0) := '0' & x"c4";
     constant REG_DAQ_OH3_LASTBLOCK4_MSB    : integer := 31;
     constant REG_DAQ_OH3_LASTBLOCK4_LSB     : integer := 0;
 
-    constant REG_DAQ_OH3_LASTBLOCK5_ADDR    : std_logic_vector(8 downto 0) := '0' & x"4e";
+    constant REG_DAQ_OH3_LASTBLOCK5_ADDR    : std_logic_vector(8 downto 0) := '0' & x"c5";
     constant REG_DAQ_OH3_LASTBLOCK5_MSB    : integer := 31;
     constant REG_DAQ_OH3_LASTBLOCK5_LSB     : integer := 0;
 
-    constant REG_DAQ_OH3_LASTBLOCK6_ADDR    : std_logic_vector(8 downto 0) := '0' & x"4f";
+    constant REG_DAQ_OH3_LASTBLOCK6_ADDR    : std_logic_vector(8 downto 0) := '0' & x"c6";
     constant REG_DAQ_OH3_LASTBLOCK6_MSB    : integer := 31;
     constant REG_DAQ_OH3_LASTBLOCK6_LSB     : integer := 0;
 
-    constant REG_DAQ_OH4_STATUS_VFAT_MIXED_EC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"50";
+    constant REG_DAQ_OH4_STATUS_VFAT_MIXED_EC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"d0";
     constant REG_DAQ_OH4_STATUS_VFAT_MIXED_EC_BIT    : integer := 1;
 
-    constant REG_DAQ_OH4_STATUS_VFAT_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"50";
+    constant REG_DAQ_OH4_STATUS_VFAT_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"d0";
     constant REG_DAQ_OH4_STATUS_VFAT_MIXED_BC_BIT    : integer := 2;
 
-    constant REG_DAQ_OH4_STATUS_OH_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"50";
+    constant REG_DAQ_OH4_STATUS_OH_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"d0";
     constant REG_DAQ_OH4_STATUS_OH_MIXED_BC_BIT    : integer := 3;
 
-    constant REG_DAQ_OH4_STATUS_VFAT_TOO_MANY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"50";
+    constant REG_DAQ_OH4_STATUS_VFAT_TOO_MANY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"d0";
     constant REG_DAQ_OH4_STATUS_VFAT_TOO_MANY_BIT    : integer := 4;
 
-    constant REG_DAQ_OH4_STATUS_VFAT_SMALL_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '0' & x"50";
+    constant REG_DAQ_OH4_STATUS_VFAT_SMALL_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '0' & x"d0";
     constant REG_DAQ_OH4_STATUS_VFAT_SMALL_BLOCK_BIT    : integer := 5;
 
-    constant REG_DAQ_OH4_STATUS_VFAT_LARGE_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '0' & x"50";
+    constant REG_DAQ_OH4_STATUS_VFAT_LARGE_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '0' & x"d0";
     constant REG_DAQ_OH4_STATUS_VFAT_LARGE_BLOCK_BIT    : integer := 6;
 
-    constant REG_DAQ_OH4_STATUS_VFAT_NO_MARKER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"50";
+    constant REG_DAQ_OH4_STATUS_VFAT_NO_MARKER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"d0";
     constant REG_DAQ_OH4_STATUS_VFAT_NO_MARKER_BIT    : integer := 7;
 
-    constant REG_DAQ_OH4_STATUS_INPUT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"50";
+    constant REG_DAQ_OH4_STATUS_INPUT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"d0";
     constant REG_DAQ_OH4_STATUS_INPUT_FIFO_HAD_OFLOW_BIT    : integer := 8;
 
-    constant REG_DAQ_OH4_STATUS_INPUT_FIFO_HAD_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"50";
+    constant REG_DAQ_OH4_STATUS_INPUT_FIFO_HAD_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"d0";
     constant REG_DAQ_OH4_STATUS_INPUT_FIFO_HAD_UFLOW_BIT    : integer := 9;
 
-    constant REG_DAQ_OH4_STATUS_EVENT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"50";
+    constant REG_DAQ_OH4_STATUS_EVENT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"d0";
     constant REG_DAQ_OH4_STATUS_EVENT_FIFO_HAD_OFLOW_BIT    : integer := 10;
 
-    constant REG_DAQ_OH4_STATUS_EVT_SIZE_ERR_ADDR    : std_logic_vector(8 downto 0) := '0' & x"50";
+    constant REG_DAQ_OH4_STATUS_EVT_SIZE_ERR_ADDR    : std_logic_vector(8 downto 0) := '0' & x"d0";
     constant REG_DAQ_OH4_STATUS_EVT_SIZE_ERR_BIT    : integer := 11;
 
-    constant REG_DAQ_OH4_STATUS_TTS_STATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"50";
+    constant REG_DAQ_OH4_STATUS_TTS_STATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"d0";
     constant REG_DAQ_OH4_STATUS_TTS_STATE_MSB    : integer := 15;
     constant REG_DAQ_OH4_STATUS_TTS_STATE_LSB     : integer := 12;
 
-    constant REG_DAQ_OH4_STATUS_INPUT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"50";
+    constant REG_DAQ_OH4_STATUS_INPUT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"d0";
     constant REG_DAQ_OH4_STATUS_INPUT_FIFO_IS_UFLOW_BIT    : integer := 24;
 
-    constant REG_DAQ_OH4_STATUS_INPUT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"50";
+    constant REG_DAQ_OH4_STATUS_INPUT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"d0";
     constant REG_DAQ_OH4_STATUS_INPUT_FIFO_IS_FULL_BIT    : integer := 25;
 
-    constant REG_DAQ_OH4_STATUS_INPUT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"50";
+    constant REG_DAQ_OH4_STATUS_INPUT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"d0";
     constant REG_DAQ_OH4_STATUS_INPUT_FIFO_IS_AFULL_BIT    : integer := 26;
 
-    constant REG_DAQ_OH4_STATUS_INPUT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"50";
+    constant REG_DAQ_OH4_STATUS_INPUT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"d0";
     constant REG_DAQ_OH4_STATUS_INPUT_FIFO_IS_EMPTY_BIT    : integer := 27;
 
-    constant REG_DAQ_OH4_STATUS_EVENT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"50";
+    constant REG_DAQ_OH4_STATUS_EVENT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"d0";
     constant REG_DAQ_OH4_STATUS_EVENT_FIFO_IS_UFLOW_BIT    : integer := 28;
 
-    constant REG_DAQ_OH4_STATUS_EVENT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"50";
+    constant REG_DAQ_OH4_STATUS_EVENT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"d0";
     constant REG_DAQ_OH4_STATUS_EVENT_FIFO_IS_FULL_BIT    : integer := 29;
 
-    constant REG_DAQ_OH4_STATUS_EVENT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"50";
+    constant REG_DAQ_OH4_STATUS_EVENT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"d0";
     constant REG_DAQ_OH4_STATUS_EVENT_FIFO_IS_AFULL_BIT    : integer := 30;
 
-    constant REG_DAQ_OH4_STATUS_EVENT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"50";
+    constant REG_DAQ_OH4_STATUS_EVENT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"d0";
     constant REG_DAQ_OH4_STATUS_EVENT_FIFO_IS_EMPTY_BIT    : integer := 31;
 
-    constant REG_DAQ_OH4_COUNTERS_CORRUPT_VFAT_BLK_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"51";
+    constant REG_DAQ_OH4_COUNTERS_CORRUPT_VFAT_BLK_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"d1";
     constant REG_DAQ_OH4_COUNTERS_CORRUPT_VFAT_BLK_CNT_MSB    : integer := 31;
     constant REG_DAQ_OH4_COUNTERS_CORRUPT_VFAT_BLK_CNT_LSB     : integer := 0;
 
-    constant REG_DAQ_OH4_COUNTERS_EVN_ADDR    : std_logic_vector(8 downto 0) := '0' & x"52";
+    constant REG_DAQ_OH4_COUNTERS_EVN_ADDR    : std_logic_vector(8 downto 0) := '0' & x"d2";
     constant REG_DAQ_OH4_COUNTERS_EVN_MSB    : integer := 23;
     constant REG_DAQ_OH4_COUNTERS_EVN_LSB     : integer := 0;
 
-    constant REG_DAQ_OH4_CONTROL_EOE_TIMEOUT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"53";
+    constant REG_DAQ_OH4_CONTROL_EOE_TIMEOUT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"d3";
     constant REG_DAQ_OH4_CONTROL_EOE_TIMEOUT_MSB    : integer := 23;
     constant REG_DAQ_OH4_CONTROL_EOE_TIMEOUT_LSB     : integer := 0;
     constant REG_DAQ_OH4_CONTROL_EOE_TIMEOUT_DEFAULT : std_logic_vector(23 downto 0) := x"000100";
 
-    constant REG_DAQ_OH4_COUNTERS_INPUT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"54";
+    constant REG_DAQ_OH4_COUNTERS_INPUT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"d4";
     constant REG_DAQ_OH4_COUNTERS_INPUT_FIFO_DATA_CNT_MSB    : integer := 11;
     constant REG_DAQ_OH4_COUNTERS_INPUT_FIFO_DATA_CNT_LSB     : integer := 0;
 
-    constant REG_DAQ_OH4_COUNTERS_EVT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"54";
+    constant REG_DAQ_OH4_COUNTERS_EVT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"d4";
     constant REG_DAQ_OH4_COUNTERS_EVT_FIFO_DATA_CNT_MSB    : integer := 27;
     constant REG_DAQ_OH4_COUNTERS_EVT_FIFO_DATA_CNT_LSB     : integer := 16;
 
-    constant REG_DAQ_OH4_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"55";
+    constant REG_DAQ_OH4_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"d5";
     constant REG_DAQ_OH4_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_MSB    : integer := 15;
     constant REG_DAQ_OH4_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_LSB     : integer := 0;
 
-    constant REG_DAQ_OH4_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"55";
+    constant REG_DAQ_OH4_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"d5";
     constant REG_DAQ_OH4_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_MSB    : integer := 31;
     constant REG_DAQ_OH4_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_LSB     : integer := 16;
 
-    constant REG_DAQ_OH4_COUNTERS_VFAT_BLOCK_RATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"56";
+    constant REG_DAQ_OH4_COUNTERS_VFAT_BLOCK_RATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"d6";
     constant REG_DAQ_OH4_COUNTERS_VFAT_BLOCK_RATE_MSB    : integer := 14;
     constant REG_DAQ_OH4_COUNTERS_VFAT_BLOCK_RATE_LSB     : integer := 0;
 
-    constant REG_DAQ_OH4_COUNTERS_EVT_RATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"56";
+    constant REG_DAQ_OH4_COUNTERS_EVT_RATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"d6";
     constant REG_DAQ_OH4_COUNTERS_EVT_RATE_MSB    : integer := 31;
     constant REG_DAQ_OH4_COUNTERS_EVT_RATE_LSB     : integer := 15;
 
-    constant REG_DAQ_OH4_COUNTERS_MAX_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"57";
+    constant REG_DAQ_OH4_COUNTERS_MAX_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"d7";
     constant REG_DAQ_OH4_COUNTERS_MAX_EOE_TIMER_MSB    : integer := 23;
     constant REG_DAQ_OH4_COUNTERS_MAX_EOE_TIMER_LSB     : integer := 0;
 
-    constant REG_DAQ_OH4_COUNTERS_LAST_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"58";
+    constant REG_DAQ_OH4_COUNTERS_LAST_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"d8";
     constant REG_DAQ_OH4_COUNTERS_LAST_EOE_TIMER_MSB    : integer := 23;
     constant REG_DAQ_OH4_COUNTERS_LAST_EOE_TIMER_LSB     : integer := 0;
 
-    constant REG_DAQ_OH4_LASTBLOCK0_ADDR    : std_logic_vector(8 downto 0) := '0' & x"59";
+    constant REG_DAQ_OH4_COUNTERS_LIVE_VFAT_WORDS_64_LAST_ADDR    : std_logic_vector(8 downto 0) := '0' & x"d9";
+    constant REG_DAQ_OH4_COUNTERS_LIVE_VFAT_WORDS_64_LAST_MSB    : integer := 11;
+    constant REG_DAQ_OH4_COUNTERS_LIVE_VFAT_WORDS_64_LAST_LSB     : integer := 0;
+
+    constant REG_DAQ_OH4_COUNTERS_LIVE_VFAT_WORDS_64_MIN_ADDR    : std_logic_vector(8 downto 0) := '0' & x"d9";
+    constant REG_DAQ_OH4_COUNTERS_LIVE_VFAT_WORDS_64_MIN_MSB    : integer := 23;
+    constant REG_DAQ_OH4_COUNTERS_LIVE_VFAT_WORDS_64_MIN_LSB     : integer := 12;
+
+    constant REG_DAQ_OH4_COUNTERS_LIVE_VFAT_WORDS_64_MAX_ADDR    : std_logic_vector(8 downto 0) := '0' & x"da";
+    constant REG_DAQ_OH4_COUNTERS_LIVE_VFAT_WORDS_64_MAX_MSB    : integer := 11;
+    constant REG_DAQ_OH4_COUNTERS_LIVE_VFAT_WORDS_64_MAX_LSB     : integer := 0;
+
+    constant REG_DAQ_OH4_COUNTERS_DAV_TIMEOUT_CONSEC_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"db";
+    constant REG_DAQ_OH4_COUNTERS_DAV_TIMEOUT_CONSEC_CNT_MSB    : integer := 15;
+    constant REG_DAQ_OH4_COUNTERS_DAV_TIMEOUT_CONSEC_CNT_LSB     : integer := 0;
+
+    constant REG_DAQ_OH4_COUNTERS_DAV_TIMEOUT_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"db";
+    constant REG_DAQ_OH4_COUNTERS_DAV_TIMEOUT_CNT_MSB    : integer := 31;
+    constant REG_DAQ_OH4_COUNTERS_DAV_TIMEOUT_CNT_LSB     : integer := 16;
+
+    constant REG_DAQ_OH4_LASTBLOCK0_ADDR    : std_logic_vector(8 downto 0) := '0' & x"e0";
     constant REG_DAQ_OH4_LASTBLOCK0_MSB    : integer := 31;
     constant REG_DAQ_OH4_LASTBLOCK0_LSB     : integer := 0;
 
-    constant REG_DAQ_OH4_LASTBLOCK1_ADDR    : std_logic_vector(8 downto 0) := '0' & x"5a";
+    constant REG_DAQ_OH4_LASTBLOCK1_ADDR    : std_logic_vector(8 downto 0) := '0' & x"e1";
     constant REG_DAQ_OH4_LASTBLOCK1_MSB    : integer := 31;
     constant REG_DAQ_OH4_LASTBLOCK1_LSB     : integer := 0;
 
-    constant REG_DAQ_OH4_LASTBLOCK2_ADDR    : std_logic_vector(8 downto 0) := '0' & x"5b";
+    constant REG_DAQ_OH4_LASTBLOCK2_ADDR    : std_logic_vector(8 downto 0) := '0' & x"e2";
     constant REG_DAQ_OH4_LASTBLOCK2_MSB    : integer := 31;
     constant REG_DAQ_OH4_LASTBLOCK2_LSB     : integer := 0;
 
-    constant REG_DAQ_OH4_LASTBLOCK3_ADDR    : std_logic_vector(8 downto 0) := '0' & x"5c";
+    constant REG_DAQ_OH4_LASTBLOCK3_ADDR    : std_logic_vector(8 downto 0) := '0' & x"e3";
     constant REG_DAQ_OH4_LASTBLOCK3_MSB    : integer := 31;
     constant REG_DAQ_OH4_LASTBLOCK3_LSB     : integer := 0;
 
-    constant REG_DAQ_OH4_LASTBLOCK4_ADDR    : std_logic_vector(8 downto 0) := '0' & x"5d";
+    constant REG_DAQ_OH4_LASTBLOCK4_ADDR    : std_logic_vector(8 downto 0) := '0' & x"e4";
     constant REG_DAQ_OH4_LASTBLOCK4_MSB    : integer := 31;
     constant REG_DAQ_OH4_LASTBLOCK4_LSB     : integer := 0;
 
-    constant REG_DAQ_OH4_LASTBLOCK5_ADDR    : std_logic_vector(8 downto 0) := '0' & x"5e";
+    constant REG_DAQ_OH4_LASTBLOCK5_ADDR    : std_logic_vector(8 downto 0) := '0' & x"e5";
     constant REG_DAQ_OH4_LASTBLOCK5_MSB    : integer := 31;
     constant REG_DAQ_OH4_LASTBLOCK5_LSB     : integer := 0;
 
-    constant REG_DAQ_OH4_LASTBLOCK6_ADDR    : std_logic_vector(8 downto 0) := '0' & x"5f";
+    constant REG_DAQ_OH4_LASTBLOCK6_ADDR    : std_logic_vector(8 downto 0) := '0' & x"e6";
     constant REG_DAQ_OH4_LASTBLOCK6_MSB    : integer := 31;
     constant REG_DAQ_OH4_LASTBLOCK6_LSB     : integer := 0;
 
-    constant REG_DAQ_OH5_STATUS_VFAT_MIXED_EC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"60";
+    constant REG_DAQ_OH5_STATUS_VFAT_MIXED_EC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"f0";
     constant REG_DAQ_OH5_STATUS_VFAT_MIXED_EC_BIT    : integer := 1;
 
-    constant REG_DAQ_OH5_STATUS_VFAT_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"60";
+    constant REG_DAQ_OH5_STATUS_VFAT_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"f0";
     constant REG_DAQ_OH5_STATUS_VFAT_MIXED_BC_BIT    : integer := 2;
 
-    constant REG_DAQ_OH5_STATUS_OH_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"60";
+    constant REG_DAQ_OH5_STATUS_OH_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"f0";
     constant REG_DAQ_OH5_STATUS_OH_MIXED_BC_BIT    : integer := 3;
 
-    constant REG_DAQ_OH5_STATUS_VFAT_TOO_MANY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"60";
+    constant REG_DAQ_OH5_STATUS_VFAT_TOO_MANY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"f0";
     constant REG_DAQ_OH5_STATUS_VFAT_TOO_MANY_BIT    : integer := 4;
 
-    constant REG_DAQ_OH5_STATUS_VFAT_SMALL_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '0' & x"60";
+    constant REG_DAQ_OH5_STATUS_VFAT_SMALL_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '0' & x"f0";
     constant REG_DAQ_OH5_STATUS_VFAT_SMALL_BLOCK_BIT    : integer := 5;
 
-    constant REG_DAQ_OH5_STATUS_VFAT_LARGE_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '0' & x"60";
+    constant REG_DAQ_OH5_STATUS_VFAT_LARGE_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '0' & x"f0";
     constant REG_DAQ_OH5_STATUS_VFAT_LARGE_BLOCK_BIT    : integer := 6;
 
-    constant REG_DAQ_OH5_STATUS_VFAT_NO_MARKER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"60";
+    constant REG_DAQ_OH5_STATUS_VFAT_NO_MARKER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"f0";
     constant REG_DAQ_OH5_STATUS_VFAT_NO_MARKER_BIT    : integer := 7;
 
-    constant REG_DAQ_OH5_STATUS_INPUT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"60";
+    constant REG_DAQ_OH5_STATUS_INPUT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"f0";
     constant REG_DAQ_OH5_STATUS_INPUT_FIFO_HAD_OFLOW_BIT    : integer := 8;
 
-    constant REG_DAQ_OH5_STATUS_INPUT_FIFO_HAD_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"60";
+    constant REG_DAQ_OH5_STATUS_INPUT_FIFO_HAD_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"f0";
     constant REG_DAQ_OH5_STATUS_INPUT_FIFO_HAD_UFLOW_BIT    : integer := 9;
 
-    constant REG_DAQ_OH5_STATUS_EVENT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"60";
+    constant REG_DAQ_OH5_STATUS_EVENT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"f0";
     constant REG_DAQ_OH5_STATUS_EVENT_FIFO_HAD_OFLOW_BIT    : integer := 10;
 
-    constant REG_DAQ_OH5_STATUS_EVT_SIZE_ERR_ADDR    : std_logic_vector(8 downto 0) := '0' & x"60";
+    constant REG_DAQ_OH5_STATUS_EVT_SIZE_ERR_ADDR    : std_logic_vector(8 downto 0) := '0' & x"f0";
     constant REG_DAQ_OH5_STATUS_EVT_SIZE_ERR_BIT    : integer := 11;
 
-    constant REG_DAQ_OH5_STATUS_TTS_STATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"60";
+    constant REG_DAQ_OH5_STATUS_TTS_STATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"f0";
     constant REG_DAQ_OH5_STATUS_TTS_STATE_MSB    : integer := 15;
     constant REG_DAQ_OH5_STATUS_TTS_STATE_LSB     : integer := 12;
 
-    constant REG_DAQ_OH5_STATUS_INPUT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"60";
+    constant REG_DAQ_OH5_STATUS_INPUT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"f0";
     constant REG_DAQ_OH5_STATUS_INPUT_FIFO_IS_UFLOW_BIT    : integer := 24;
 
-    constant REG_DAQ_OH5_STATUS_INPUT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"60";
+    constant REG_DAQ_OH5_STATUS_INPUT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"f0";
     constant REG_DAQ_OH5_STATUS_INPUT_FIFO_IS_FULL_BIT    : integer := 25;
 
-    constant REG_DAQ_OH5_STATUS_INPUT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"60";
+    constant REG_DAQ_OH5_STATUS_INPUT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"f0";
     constant REG_DAQ_OH5_STATUS_INPUT_FIFO_IS_AFULL_BIT    : integer := 26;
 
-    constant REG_DAQ_OH5_STATUS_INPUT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"60";
+    constant REG_DAQ_OH5_STATUS_INPUT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"f0";
     constant REG_DAQ_OH5_STATUS_INPUT_FIFO_IS_EMPTY_BIT    : integer := 27;
 
-    constant REG_DAQ_OH5_STATUS_EVENT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"60";
+    constant REG_DAQ_OH5_STATUS_EVENT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"f0";
     constant REG_DAQ_OH5_STATUS_EVENT_FIFO_IS_UFLOW_BIT    : integer := 28;
 
-    constant REG_DAQ_OH5_STATUS_EVENT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"60";
+    constant REG_DAQ_OH5_STATUS_EVENT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"f0";
     constant REG_DAQ_OH5_STATUS_EVENT_FIFO_IS_FULL_BIT    : integer := 29;
 
-    constant REG_DAQ_OH5_STATUS_EVENT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"60";
+    constant REG_DAQ_OH5_STATUS_EVENT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"f0";
     constant REG_DAQ_OH5_STATUS_EVENT_FIFO_IS_AFULL_BIT    : integer := 30;
 
-    constant REG_DAQ_OH5_STATUS_EVENT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"60";
+    constant REG_DAQ_OH5_STATUS_EVENT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"f0";
     constant REG_DAQ_OH5_STATUS_EVENT_FIFO_IS_EMPTY_BIT    : integer := 31;
 
-    constant REG_DAQ_OH5_COUNTERS_CORRUPT_VFAT_BLK_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"61";
+    constant REG_DAQ_OH5_COUNTERS_CORRUPT_VFAT_BLK_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"f1";
     constant REG_DAQ_OH5_COUNTERS_CORRUPT_VFAT_BLK_CNT_MSB    : integer := 31;
     constant REG_DAQ_OH5_COUNTERS_CORRUPT_VFAT_BLK_CNT_LSB     : integer := 0;
 
-    constant REG_DAQ_OH5_COUNTERS_EVN_ADDR    : std_logic_vector(8 downto 0) := '0' & x"62";
+    constant REG_DAQ_OH5_COUNTERS_EVN_ADDR    : std_logic_vector(8 downto 0) := '0' & x"f2";
     constant REG_DAQ_OH5_COUNTERS_EVN_MSB    : integer := 23;
     constant REG_DAQ_OH5_COUNTERS_EVN_LSB     : integer := 0;
 
-    constant REG_DAQ_OH5_CONTROL_EOE_TIMEOUT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"63";
+    constant REG_DAQ_OH5_CONTROL_EOE_TIMEOUT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"f3";
     constant REG_DAQ_OH5_CONTROL_EOE_TIMEOUT_MSB    : integer := 23;
     constant REG_DAQ_OH5_CONTROL_EOE_TIMEOUT_LSB     : integer := 0;
     constant REG_DAQ_OH5_CONTROL_EOE_TIMEOUT_DEFAULT : std_logic_vector(23 downto 0) := x"000100";
 
-    constant REG_DAQ_OH5_COUNTERS_INPUT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"64";
+    constant REG_DAQ_OH5_COUNTERS_INPUT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"f4";
     constant REG_DAQ_OH5_COUNTERS_INPUT_FIFO_DATA_CNT_MSB    : integer := 11;
     constant REG_DAQ_OH5_COUNTERS_INPUT_FIFO_DATA_CNT_LSB     : integer := 0;
 
-    constant REG_DAQ_OH5_COUNTERS_EVT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"64";
+    constant REG_DAQ_OH5_COUNTERS_EVT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"f4";
     constant REG_DAQ_OH5_COUNTERS_EVT_FIFO_DATA_CNT_MSB    : integer := 27;
     constant REG_DAQ_OH5_COUNTERS_EVT_FIFO_DATA_CNT_LSB     : integer := 16;
 
-    constant REG_DAQ_OH5_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"65";
+    constant REG_DAQ_OH5_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"f5";
     constant REG_DAQ_OH5_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_MSB    : integer := 15;
     constant REG_DAQ_OH5_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_LSB     : integer := 0;
 
-    constant REG_DAQ_OH5_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"65";
+    constant REG_DAQ_OH5_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"f5";
     constant REG_DAQ_OH5_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_MSB    : integer := 31;
     constant REG_DAQ_OH5_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_LSB     : integer := 16;
 
-    constant REG_DAQ_OH5_COUNTERS_VFAT_BLOCK_RATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"66";
+    constant REG_DAQ_OH5_COUNTERS_VFAT_BLOCK_RATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"f6";
     constant REG_DAQ_OH5_COUNTERS_VFAT_BLOCK_RATE_MSB    : integer := 14;
     constant REG_DAQ_OH5_COUNTERS_VFAT_BLOCK_RATE_LSB     : integer := 0;
 
-    constant REG_DAQ_OH5_COUNTERS_EVT_RATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"66";
+    constant REG_DAQ_OH5_COUNTERS_EVT_RATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"f6";
     constant REG_DAQ_OH5_COUNTERS_EVT_RATE_MSB    : integer := 31;
     constant REG_DAQ_OH5_COUNTERS_EVT_RATE_LSB     : integer := 15;
 
-    constant REG_DAQ_OH5_COUNTERS_MAX_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"67";
+    constant REG_DAQ_OH5_COUNTERS_MAX_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"f7";
     constant REG_DAQ_OH5_COUNTERS_MAX_EOE_TIMER_MSB    : integer := 23;
     constant REG_DAQ_OH5_COUNTERS_MAX_EOE_TIMER_LSB     : integer := 0;
 
-    constant REG_DAQ_OH5_COUNTERS_LAST_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"68";
+    constant REG_DAQ_OH5_COUNTERS_LAST_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"f8";
     constant REG_DAQ_OH5_COUNTERS_LAST_EOE_TIMER_MSB    : integer := 23;
     constant REG_DAQ_OH5_COUNTERS_LAST_EOE_TIMER_LSB     : integer := 0;
 
-    constant REG_DAQ_OH5_LASTBLOCK0_ADDR    : std_logic_vector(8 downto 0) := '0' & x"69";
+    constant REG_DAQ_OH5_COUNTERS_LIVE_VFAT_WORDS_64_LAST_ADDR    : std_logic_vector(8 downto 0) := '0' & x"f9";
+    constant REG_DAQ_OH5_COUNTERS_LIVE_VFAT_WORDS_64_LAST_MSB    : integer := 11;
+    constant REG_DAQ_OH5_COUNTERS_LIVE_VFAT_WORDS_64_LAST_LSB     : integer := 0;
+
+    constant REG_DAQ_OH5_COUNTERS_LIVE_VFAT_WORDS_64_MIN_ADDR    : std_logic_vector(8 downto 0) := '0' & x"f9";
+    constant REG_DAQ_OH5_COUNTERS_LIVE_VFAT_WORDS_64_MIN_MSB    : integer := 23;
+    constant REG_DAQ_OH5_COUNTERS_LIVE_VFAT_WORDS_64_MIN_LSB     : integer := 12;
+
+    constant REG_DAQ_OH5_COUNTERS_LIVE_VFAT_WORDS_64_MAX_ADDR    : std_logic_vector(8 downto 0) := '0' & x"fa";
+    constant REG_DAQ_OH5_COUNTERS_LIVE_VFAT_WORDS_64_MAX_MSB    : integer := 11;
+    constant REG_DAQ_OH5_COUNTERS_LIVE_VFAT_WORDS_64_MAX_LSB     : integer := 0;
+
+    constant REG_DAQ_OH5_COUNTERS_DAV_TIMEOUT_CONSEC_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"fb";
+    constant REG_DAQ_OH5_COUNTERS_DAV_TIMEOUT_CONSEC_CNT_MSB    : integer := 15;
+    constant REG_DAQ_OH5_COUNTERS_DAV_TIMEOUT_CONSEC_CNT_LSB     : integer := 0;
+
+    constant REG_DAQ_OH5_COUNTERS_DAV_TIMEOUT_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"fb";
+    constant REG_DAQ_OH5_COUNTERS_DAV_TIMEOUT_CNT_MSB    : integer := 31;
+    constant REG_DAQ_OH5_COUNTERS_DAV_TIMEOUT_CNT_LSB     : integer := 16;
+
+    constant REG_DAQ_OH5_LASTBLOCK0_ADDR    : std_logic_vector(8 downto 0) := '1' & x"00";
     constant REG_DAQ_OH5_LASTBLOCK0_MSB    : integer := 31;
     constant REG_DAQ_OH5_LASTBLOCK0_LSB     : integer := 0;
 
-    constant REG_DAQ_OH5_LASTBLOCK1_ADDR    : std_logic_vector(8 downto 0) := '0' & x"6a";
+    constant REG_DAQ_OH5_LASTBLOCK1_ADDR    : std_logic_vector(8 downto 0) := '1' & x"01";
     constant REG_DAQ_OH5_LASTBLOCK1_MSB    : integer := 31;
     constant REG_DAQ_OH5_LASTBLOCK1_LSB     : integer := 0;
 
-    constant REG_DAQ_OH5_LASTBLOCK2_ADDR    : std_logic_vector(8 downto 0) := '0' & x"6b";
+    constant REG_DAQ_OH5_LASTBLOCK2_ADDR    : std_logic_vector(8 downto 0) := '1' & x"02";
     constant REG_DAQ_OH5_LASTBLOCK2_MSB    : integer := 31;
     constant REG_DAQ_OH5_LASTBLOCK2_LSB     : integer := 0;
 
-    constant REG_DAQ_OH5_LASTBLOCK3_ADDR    : std_logic_vector(8 downto 0) := '0' & x"6c";
+    constant REG_DAQ_OH5_LASTBLOCK3_ADDR    : std_logic_vector(8 downto 0) := '1' & x"03";
     constant REG_DAQ_OH5_LASTBLOCK3_MSB    : integer := 31;
     constant REG_DAQ_OH5_LASTBLOCK3_LSB     : integer := 0;
 
-    constant REG_DAQ_OH5_LASTBLOCK4_ADDR    : std_logic_vector(8 downto 0) := '0' & x"6d";
+    constant REG_DAQ_OH5_LASTBLOCK4_ADDR    : std_logic_vector(8 downto 0) := '1' & x"04";
     constant REG_DAQ_OH5_LASTBLOCK4_MSB    : integer := 31;
     constant REG_DAQ_OH5_LASTBLOCK4_LSB     : integer := 0;
 
-    constant REG_DAQ_OH5_LASTBLOCK5_ADDR    : std_logic_vector(8 downto 0) := '0' & x"6e";
+    constant REG_DAQ_OH5_LASTBLOCK5_ADDR    : std_logic_vector(8 downto 0) := '1' & x"05";
     constant REG_DAQ_OH5_LASTBLOCK5_MSB    : integer := 31;
     constant REG_DAQ_OH5_LASTBLOCK5_LSB     : integer := 0;
 
-    constant REG_DAQ_OH5_LASTBLOCK6_ADDR    : std_logic_vector(8 downto 0) := '0' & x"6f";
+    constant REG_DAQ_OH5_LASTBLOCK6_ADDR    : std_logic_vector(8 downto 0) := '1' & x"06";
     constant REG_DAQ_OH5_LASTBLOCK6_MSB    : integer := 31;
     constant REG_DAQ_OH5_LASTBLOCK6_LSB     : integer := 0;
 
-    constant REG_DAQ_OH6_STATUS_VFAT_MIXED_EC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"70";
+    constant REG_DAQ_OH6_STATUS_VFAT_MIXED_EC_ADDR    : std_logic_vector(8 downto 0) := '1' & x"10";
     constant REG_DAQ_OH6_STATUS_VFAT_MIXED_EC_BIT    : integer := 1;
 
-    constant REG_DAQ_OH6_STATUS_VFAT_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"70";
+    constant REG_DAQ_OH6_STATUS_VFAT_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '1' & x"10";
     constant REG_DAQ_OH6_STATUS_VFAT_MIXED_BC_BIT    : integer := 2;
 
-    constant REG_DAQ_OH6_STATUS_OH_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"70";
+    constant REG_DAQ_OH6_STATUS_OH_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '1' & x"10";
     constant REG_DAQ_OH6_STATUS_OH_MIXED_BC_BIT    : integer := 3;
 
-    constant REG_DAQ_OH6_STATUS_VFAT_TOO_MANY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"70";
+    constant REG_DAQ_OH6_STATUS_VFAT_TOO_MANY_ADDR    : std_logic_vector(8 downto 0) := '1' & x"10";
     constant REG_DAQ_OH6_STATUS_VFAT_TOO_MANY_BIT    : integer := 4;
 
-    constant REG_DAQ_OH6_STATUS_VFAT_SMALL_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '0' & x"70";
+    constant REG_DAQ_OH6_STATUS_VFAT_SMALL_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '1' & x"10";
     constant REG_DAQ_OH6_STATUS_VFAT_SMALL_BLOCK_BIT    : integer := 5;
 
-    constant REG_DAQ_OH6_STATUS_VFAT_LARGE_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '0' & x"70";
+    constant REG_DAQ_OH6_STATUS_VFAT_LARGE_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '1' & x"10";
     constant REG_DAQ_OH6_STATUS_VFAT_LARGE_BLOCK_BIT    : integer := 6;
 
-    constant REG_DAQ_OH6_STATUS_VFAT_NO_MARKER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"70";
+    constant REG_DAQ_OH6_STATUS_VFAT_NO_MARKER_ADDR    : std_logic_vector(8 downto 0) := '1' & x"10";
     constant REG_DAQ_OH6_STATUS_VFAT_NO_MARKER_BIT    : integer := 7;
 
-    constant REG_DAQ_OH6_STATUS_INPUT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"70";
+    constant REG_DAQ_OH6_STATUS_INPUT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '1' & x"10";
     constant REG_DAQ_OH6_STATUS_INPUT_FIFO_HAD_OFLOW_BIT    : integer := 8;
 
-    constant REG_DAQ_OH6_STATUS_INPUT_FIFO_HAD_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"70";
+    constant REG_DAQ_OH6_STATUS_INPUT_FIFO_HAD_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '1' & x"10";
     constant REG_DAQ_OH6_STATUS_INPUT_FIFO_HAD_UFLOW_BIT    : integer := 9;
 
-    constant REG_DAQ_OH6_STATUS_EVENT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"70";
+    constant REG_DAQ_OH6_STATUS_EVENT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '1' & x"10";
     constant REG_DAQ_OH6_STATUS_EVENT_FIFO_HAD_OFLOW_BIT    : integer := 10;
 
-    constant REG_DAQ_OH6_STATUS_EVT_SIZE_ERR_ADDR    : std_logic_vector(8 downto 0) := '0' & x"70";
+    constant REG_DAQ_OH6_STATUS_EVT_SIZE_ERR_ADDR    : std_logic_vector(8 downto 0) := '1' & x"10";
     constant REG_DAQ_OH6_STATUS_EVT_SIZE_ERR_BIT    : integer := 11;
 
-    constant REG_DAQ_OH6_STATUS_TTS_STATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"70";
+    constant REG_DAQ_OH6_STATUS_TTS_STATE_ADDR    : std_logic_vector(8 downto 0) := '1' & x"10";
     constant REG_DAQ_OH6_STATUS_TTS_STATE_MSB    : integer := 15;
     constant REG_DAQ_OH6_STATUS_TTS_STATE_LSB     : integer := 12;
 
-    constant REG_DAQ_OH6_STATUS_INPUT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"70";
+    constant REG_DAQ_OH6_STATUS_INPUT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '1' & x"10";
     constant REG_DAQ_OH6_STATUS_INPUT_FIFO_IS_UFLOW_BIT    : integer := 24;
 
-    constant REG_DAQ_OH6_STATUS_INPUT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"70";
+    constant REG_DAQ_OH6_STATUS_INPUT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '1' & x"10";
     constant REG_DAQ_OH6_STATUS_INPUT_FIFO_IS_FULL_BIT    : integer := 25;
 
-    constant REG_DAQ_OH6_STATUS_INPUT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"70";
+    constant REG_DAQ_OH6_STATUS_INPUT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '1' & x"10";
     constant REG_DAQ_OH6_STATUS_INPUT_FIFO_IS_AFULL_BIT    : integer := 26;
 
-    constant REG_DAQ_OH6_STATUS_INPUT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"70";
+    constant REG_DAQ_OH6_STATUS_INPUT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '1' & x"10";
     constant REG_DAQ_OH6_STATUS_INPUT_FIFO_IS_EMPTY_BIT    : integer := 27;
 
-    constant REG_DAQ_OH6_STATUS_EVENT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"70";
+    constant REG_DAQ_OH6_STATUS_EVENT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '1' & x"10";
     constant REG_DAQ_OH6_STATUS_EVENT_FIFO_IS_UFLOW_BIT    : integer := 28;
 
-    constant REG_DAQ_OH6_STATUS_EVENT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"70";
+    constant REG_DAQ_OH6_STATUS_EVENT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '1' & x"10";
     constant REG_DAQ_OH6_STATUS_EVENT_FIFO_IS_FULL_BIT    : integer := 29;
 
-    constant REG_DAQ_OH6_STATUS_EVENT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"70";
+    constant REG_DAQ_OH6_STATUS_EVENT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '1' & x"10";
     constant REG_DAQ_OH6_STATUS_EVENT_FIFO_IS_AFULL_BIT    : integer := 30;
 
-    constant REG_DAQ_OH6_STATUS_EVENT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"70";
+    constant REG_DAQ_OH6_STATUS_EVENT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '1' & x"10";
     constant REG_DAQ_OH6_STATUS_EVENT_FIFO_IS_EMPTY_BIT    : integer := 31;
 
-    constant REG_DAQ_OH6_COUNTERS_CORRUPT_VFAT_BLK_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"71";
+    constant REG_DAQ_OH6_COUNTERS_CORRUPT_VFAT_BLK_CNT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"11";
     constant REG_DAQ_OH6_COUNTERS_CORRUPT_VFAT_BLK_CNT_MSB    : integer := 31;
     constant REG_DAQ_OH6_COUNTERS_CORRUPT_VFAT_BLK_CNT_LSB     : integer := 0;
 
-    constant REG_DAQ_OH6_COUNTERS_EVN_ADDR    : std_logic_vector(8 downto 0) := '0' & x"72";
+    constant REG_DAQ_OH6_COUNTERS_EVN_ADDR    : std_logic_vector(8 downto 0) := '1' & x"12";
     constant REG_DAQ_OH6_COUNTERS_EVN_MSB    : integer := 23;
     constant REG_DAQ_OH6_COUNTERS_EVN_LSB     : integer := 0;
 
-    constant REG_DAQ_OH6_CONTROL_EOE_TIMEOUT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"73";
+    constant REG_DAQ_OH6_CONTROL_EOE_TIMEOUT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"13";
     constant REG_DAQ_OH6_CONTROL_EOE_TIMEOUT_MSB    : integer := 23;
     constant REG_DAQ_OH6_CONTROL_EOE_TIMEOUT_LSB     : integer := 0;
     constant REG_DAQ_OH6_CONTROL_EOE_TIMEOUT_DEFAULT : std_logic_vector(23 downto 0) := x"000100";
 
-    constant REG_DAQ_OH6_COUNTERS_INPUT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"74";
+    constant REG_DAQ_OH6_COUNTERS_INPUT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"14";
     constant REG_DAQ_OH6_COUNTERS_INPUT_FIFO_DATA_CNT_MSB    : integer := 11;
     constant REG_DAQ_OH6_COUNTERS_INPUT_FIFO_DATA_CNT_LSB     : integer := 0;
 
-    constant REG_DAQ_OH6_COUNTERS_EVT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"74";
+    constant REG_DAQ_OH6_COUNTERS_EVT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"14";
     constant REG_DAQ_OH6_COUNTERS_EVT_FIFO_DATA_CNT_MSB    : integer := 27;
     constant REG_DAQ_OH6_COUNTERS_EVT_FIFO_DATA_CNT_LSB     : integer := 16;
 
-    constant REG_DAQ_OH6_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"75";
+    constant REG_DAQ_OH6_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"15";
     constant REG_DAQ_OH6_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_MSB    : integer := 15;
     constant REG_DAQ_OH6_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_LSB     : integer := 0;
 
-    constant REG_DAQ_OH6_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"75";
+    constant REG_DAQ_OH6_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"15";
     constant REG_DAQ_OH6_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_MSB    : integer := 31;
     constant REG_DAQ_OH6_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_LSB     : integer := 16;
 
-    constant REG_DAQ_OH6_COUNTERS_VFAT_BLOCK_RATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"76";
+    constant REG_DAQ_OH6_COUNTERS_VFAT_BLOCK_RATE_ADDR    : std_logic_vector(8 downto 0) := '1' & x"16";
     constant REG_DAQ_OH6_COUNTERS_VFAT_BLOCK_RATE_MSB    : integer := 14;
     constant REG_DAQ_OH6_COUNTERS_VFAT_BLOCK_RATE_LSB     : integer := 0;
 
-    constant REG_DAQ_OH6_COUNTERS_EVT_RATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"76";
+    constant REG_DAQ_OH6_COUNTERS_EVT_RATE_ADDR    : std_logic_vector(8 downto 0) := '1' & x"16";
     constant REG_DAQ_OH6_COUNTERS_EVT_RATE_MSB    : integer := 31;
     constant REG_DAQ_OH6_COUNTERS_EVT_RATE_LSB     : integer := 15;
 
-    constant REG_DAQ_OH6_COUNTERS_MAX_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"77";
+    constant REG_DAQ_OH6_COUNTERS_MAX_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '1' & x"17";
     constant REG_DAQ_OH6_COUNTERS_MAX_EOE_TIMER_MSB    : integer := 23;
     constant REG_DAQ_OH6_COUNTERS_MAX_EOE_TIMER_LSB     : integer := 0;
 
-    constant REG_DAQ_OH6_COUNTERS_LAST_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"78";
+    constant REG_DAQ_OH6_COUNTERS_LAST_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '1' & x"18";
     constant REG_DAQ_OH6_COUNTERS_LAST_EOE_TIMER_MSB    : integer := 23;
     constant REG_DAQ_OH6_COUNTERS_LAST_EOE_TIMER_LSB     : integer := 0;
 
-    constant REG_DAQ_OH6_LASTBLOCK0_ADDR    : std_logic_vector(8 downto 0) := '0' & x"79";
+    constant REG_DAQ_OH6_COUNTERS_LIVE_VFAT_WORDS_64_LAST_ADDR    : std_logic_vector(8 downto 0) := '1' & x"19";
+    constant REG_DAQ_OH6_COUNTERS_LIVE_VFAT_WORDS_64_LAST_MSB    : integer := 11;
+    constant REG_DAQ_OH6_COUNTERS_LIVE_VFAT_WORDS_64_LAST_LSB     : integer := 0;
+
+    constant REG_DAQ_OH6_COUNTERS_LIVE_VFAT_WORDS_64_MIN_ADDR    : std_logic_vector(8 downto 0) := '1' & x"19";
+    constant REG_DAQ_OH6_COUNTERS_LIVE_VFAT_WORDS_64_MIN_MSB    : integer := 23;
+    constant REG_DAQ_OH6_COUNTERS_LIVE_VFAT_WORDS_64_MIN_LSB     : integer := 12;
+
+    constant REG_DAQ_OH6_COUNTERS_LIVE_VFAT_WORDS_64_MAX_ADDR    : std_logic_vector(8 downto 0) := '1' & x"1a";
+    constant REG_DAQ_OH6_COUNTERS_LIVE_VFAT_WORDS_64_MAX_MSB    : integer := 11;
+    constant REG_DAQ_OH6_COUNTERS_LIVE_VFAT_WORDS_64_MAX_LSB     : integer := 0;
+
+    constant REG_DAQ_OH6_COUNTERS_DAV_TIMEOUT_CONSEC_CNT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"1b";
+    constant REG_DAQ_OH6_COUNTERS_DAV_TIMEOUT_CONSEC_CNT_MSB    : integer := 15;
+    constant REG_DAQ_OH6_COUNTERS_DAV_TIMEOUT_CONSEC_CNT_LSB     : integer := 0;
+
+    constant REG_DAQ_OH6_COUNTERS_DAV_TIMEOUT_CNT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"1b";
+    constant REG_DAQ_OH6_COUNTERS_DAV_TIMEOUT_CNT_MSB    : integer := 31;
+    constant REG_DAQ_OH6_COUNTERS_DAV_TIMEOUT_CNT_LSB     : integer := 16;
+
+    constant REG_DAQ_OH6_LASTBLOCK0_ADDR    : std_logic_vector(8 downto 0) := '1' & x"20";
     constant REG_DAQ_OH6_LASTBLOCK0_MSB    : integer := 31;
     constant REG_DAQ_OH6_LASTBLOCK0_LSB     : integer := 0;
 
-    constant REG_DAQ_OH6_LASTBLOCK1_ADDR    : std_logic_vector(8 downto 0) := '0' & x"7a";
+    constant REG_DAQ_OH6_LASTBLOCK1_ADDR    : std_logic_vector(8 downto 0) := '1' & x"21";
     constant REG_DAQ_OH6_LASTBLOCK1_MSB    : integer := 31;
     constant REG_DAQ_OH6_LASTBLOCK1_LSB     : integer := 0;
 
-    constant REG_DAQ_OH6_LASTBLOCK2_ADDR    : std_logic_vector(8 downto 0) := '0' & x"7b";
+    constant REG_DAQ_OH6_LASTBLOCK2_ADDR    : std_logic_vector(8 downto 0) := '1' & x"22";
     constant REG_DAQ_OH6_LASTBLOCK2_MSB    : integer := 31;
     constant REG_DAQ_OH6_LASTBLOCK2_LSB     : integer := 0;
 
-    constant REG_DAQ_OH6_LASTBLOCK3_ADDR    : std_logic_vector(8 downto 0) := '0' & x"7c";
+    constant REG_DAQ_OH6_LASTBLOCK3_ADDR    : std_logic_vector(8 downto 0) := '1' & x"23";
     constant REG_DAQ_OH6_LASTBLOCK3_MSB    : integer := 31;
     constant REG_DAQ_OH6_LASTBLOCK3_LSB     : integer := 0;
 
-    constant REG_DAQ_OH6_LASTBLOCK4_ADDR    : std_logic_vector(8 downto 0) := '0' & x"7d";
+    constant REG_DAQ_OH6_LASTBLOCK4_ADDR    : std_logic_vector(8 downto 0) := '1' & x"24";
     constant REG_DAQ_OH6_LASTBLOCK4_MSB    : integer := 31;
     constant REG_DAQ_OH6_LASTBLOCK4_LSB     : integer := 0;
 
-    constant REG_DAQ_OH6_LASTBLOCK5_ADDR    : std_logic_vector(8 downto 0) := '0' & x"7e";
+    constant REG_DAQ_OH6_LASTBLOCK5_ADDR    : std_logic_vector(8 downto 0) := '1' & x"25";
     constant REG_DAQ_OH6_LASTBLOCK5_MSB    : integer := 31;
     constant REG_DAQ_OH6_LASTBLOCK5_LSB     : integer := 0;
 
-    constant REG_DAQ_OH6_LASTBLOCK6_ADDR    : std_logic_vector(8 downto 0) := '0' & x"7f";
+    constant REG_DAQ_OH6_LASTBLOCK6_ADDR    : std_logic_vector(8 downto 0) := '1' & x"26";
     constant REG_DAQ_OH6_LASTBLOCK6_MSB    : integer := 31;
     constant REG_DAQ_OH6_LASTBLOCK6_LSB     : integer := 0;
 
-    constant REG_DAQ_OH7_STATUS_VFAT_MIXED_EC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"80";
+    constant REG_DAQ_OH7_STATUS_VFAT_MIXED_EC_ADDR    : std_logic_vector(8 downto 0) := '1' & x"30";
     constant REG_DAQ_OH7_STATUS_VFAT_MIXED_EC_BIT    : integer := 1;
 
-    constant REG_DAQ_OH7_STATUS_VFAT_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"80";
+    constant REG_DAQ_OH7_STATUS_VFAT_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '1' & x"30";
     constant REG_DAQ_OH7_STATUS_VFAT_MIXED_BC_BIT    : integer := 2;
 
-    constant REG_DAQ_OH7_STATUS_OH_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"80";
+    constant REG_DAQ_OH7_STATUS_OH_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '1' & x"30";
     constant REG_DAQ_OH7_STATUS_OH_MIXED_BC_BIT    : integer := 3;
 
-    constant REG_DAQ_OH7_STATUS_VFAT_TOO_MANY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"80";
+    constant REG_DAQ_OH7_STATUS_VFAT_TOO_MANY_ADDR    : std_logic_vector(8 downto 0) := '1' & x"30";
     constant REG_DAQ_OH7_STATUS_VFAT_TOO_MANY_BIT    : integer := 4;
 
-    constant REG_DAQ_OH7_STATUS_VFAT_SMALL_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '0' & x"80";
+    constant REG_DAQ_OH7_STATUS_VFAT_SMALL_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '1' & x"30";
     constant REG_DAQ_OH7_STATUS_VFAT_SMALL_BLOCK_BIT    : integer := 5;
 
-    constant REG_DAQ_OH7_STATUS_VFAT_LARGE_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '0' & x"80";
+    constant REG_DAQ_OH7_STATUS_VFAT_LARGE_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '1' & x"30";
     constant REG_DAQ_OH7_STATUS_VFAT_LARGE_BLOCK_BIT    : integer := 6;
 
-    constant REG_DAQ_OH7_STATUS_VFAT_NO_MARKER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"80";
+    constant REG_DAQ_OH7_STATUS_VFAT_NO_MARKER_ADDR    : std_logic_vector(8 downto 0) := '1' & x"30";
     constant REG_DAQ_OH7_STATUS_VFAT_NO_MARKER_BIT    : integer := 7;
 
-    constant REG_DAQ_OH7_STATUS_INPUT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"80";
+    constant REG_DAQ_OH7_STATUS_INPUT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '1' & x"30";
     constant REG_DAQ_OH7_STATUS_INPUT_FIFO_HAD_OFLOW_BIT    : integer := 8;
 
-    constant REG_DAQ_OH7_STATUS_INPUT_FIFO_HAD_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"80";
+    constant REG_DAQ_OH7_STATUS_INPUT_FIFO_HAD_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '1' & x"30";
     constant REG_DAQ_OH7_STATUS_INPUT_FIFO_HAD_UFLOW_BIT    : integer := 9;
 
-    constant REG_DAQ_OH7_STATUS_EVENT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"80";
+    constant REG_DAQ_OH7_STATUS_EVENT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '1' & x"30";
     constant REG_DAQ_OH7_STATUS_EVENT_FIFO_HAD_OFLOW_BIT    : integer := 10;
 
-    constant REG_DAQ_OH7_STATUS_EVT_SIZE_ERR_ADDR    : std_logic_vector(8 downto 0) := '0' & x"80";
+    constant REG_DAQ_OH7_STATUS_EVT_SIZE_ERR_ADDR    : std_logic_vector(8 downto 0) := '1' & x"30";
     constant REG_DAQ_OH7_STATUS_EVT_SIZE_ERR_BIT    : integer := 11;
 
-    constant REG_DAQ_OH7_STATUS_TTS_STATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"80";
+    constant REG_DAQ_OH7_STATUS_TTS_STATE_ADDR    : std_logic_vector(8 downto 0) := '1' & x"30";
     constant REG_DAQ_OH7_STATUS_TTS_STATE_MSB    : integer := 15;
     constant REG_DAQ_OH7_STATUS_TTS_STATE_LSB     : integer := 12;
 
-    constant REG_DAQ_OH7_STATUS_INPUT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"80";
+    constant REG_DAQ_OH7_STATUS_INPUT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '1' & x"30";
     constant REG_DAQ_OH7_STATUS_INPUT_FIFO_IS_UFLOW_BIT    : integer := 24;
 
-    constant REG_DAQ_OH7_STATUS_INPUT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"80";
+    constant REG_DAQ_OH7_STATUS_INPUT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '1' & x"30";
     constant REG_DAQ_OH7_STATUS_INPUT_FIFO_IS_FULL_BIT    : integer := 25;
 
-    constant REG_DAQ_OH7_STATUS_INPUT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"80";
+    constant REG_DAQ_OH7_STATUS_INPUT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '1' & x"30";
     constant REG_DAQ_OH7_STATUS_INPUT_FIFO_IS_AFULL_BIT    : integer := 26;
 
-    constant REG_DAQ_OH7_STATUS_INPUT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"80";
+    constant REG_DAQ_OH7_STATUS_INPUT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '1' & x"30";
     constant REG_DAQ_OH7_STATUS_INPUT_FIFO_IS_EMPTY_BIT    : integer := 27;
 
-    constant REG_DAQ_OH7_STATUS_EVENT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"80";
+    constant REG_DAQ_OH7_STATUS_EVENT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '1' & x"30";
     constant REG_DAQ_OH7_STATUS_EVENT_FIFO_IS_UFLOW_BIT    : integer := 28;
 
-    constant REG_DAQ_OH7_STATUS_EVENT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"80";
+    constant REG_DAQ_OH7_STATUS_EVENT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '1' & x"30";
     constant REG_DAQ_OH7_STATUS_EVENT_FIFO_IS_FULL_BIT    : integer := 29;
 
-    constant REG_DAQ_OH7_STATUS_EVENT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"80";
+    constant REG_DAQ_OH7_STATUS_EVENT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '1' & x"30";
     constant REG_DAQ_OH7_STATUS_EVENT_FIFO_IS_AFULL_BIT    : integer := 30;
 
-    constant REG_DAQ_OH7_STATUS_EVENT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"80";
+    constant REG_DAQ_OH7_STATUS_EVENT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '1' & x"30";
     constant REG_DAQ_OH7_STATUS_EVENT_FIFO_IS_EMPTY_BIT    : integer := 31;
 
-    constant REG_DAQ_OH7_COUNTERS_CORRUPT_VFAT_BLK_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"81";
+    constant REG_DAQ_OH7_COUNTERS_CORRUPT_VFAT_BLK_CNT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"31";
     constant REG_DAQ_OH7_COUNTERS_CORRUPT_VFAT_BLK_CNT_MSB    : integer := 31;
     constant REG_DAQ_OH7_COUNTERS_CORRUPT_VFAT_BLK_CNT_LSB     : integer := 0;
 
-    constant REG_DAQ_OH7_COUNTERS_EVN_ADDR    : std_logic_vector(8 downto 0) := '0' & x"82";
+    constant REG_DAQ_OH7_COUNTERS_EVN_ADDR    : std_logic_vector(8 downto 0) := '1' & x"32";
     constant REG_DAQ_OH7_COUNTERS_EVN_MSB    : integer := 23;
     constant REG_DAQ_OH7_COUNTERS_EVN_LSB     : integer := 0;
 
-    constant REG_DAQ_OH7_CONTROL_EOE_TIMEOUT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"83";
+    constant REG_DAQ_OH7_CONTROL_EOE_TIMEOUT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"33";
     constant REG_DAQ_OH7_CONTROL_EOE_TIMEOUT_MSB    : integer := 23;
     constant REG_DAQ_OH7_CONTROL_EOE_TIMEOUT_LSB     : integer := 0;
     constant REG_DAQ_OH7_CONTROL_EOE_TIMEOUT_DEFAULT : std_logic_vector(23 downto 0) := x"000100";
 
-    constant REG_DAQ_OH7_COUNTERS_INPUT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"84";
+    constant REG_DAQ_OH7_COUNTERS_INPUT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"34";
     constant REG_DAQ_OH7_COUNTERS_INPUT_FIFO_DATA_CNT_MSB    : integer := 11;
     constant REG_DAQ_OH7_COUNTERS_INPUT_FIFO_DATA_CNT_LSB     : integer := 0;
 
-    constant REG_DAQ_OH7_COUNTERS_EVT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"84";
+    constant REG_DAQ_OH7_COUNTERS_EVT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"34";
     constant REG_DAQ_OH7_COUNTERS_EVT_FIFO_DATA_CNT_MSB    : integer := 27;
     constant REG_DAQ_OH7_COUNTERS_EVT_FIFO_DATA_CNT_LSB     : integer := 16;
 
-    constant REG_DAQ_OH7_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"85";
+    constant REG_DAQ_OH7_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"35";
     constant REG_DAQ_OH7_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_MSB    : integer := 15;
     constant REG_DAQ_OH7_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_LSB     : integer := 0;
 
-    constant REG_DAQ_OH7_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"85";
+    constant REG_DAQ_OH7_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"35";
     constant REG_DAQ_OH7_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_MSB    : integer := 31;
     constant REG_DAQ_OH7_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_LSB     : integer := 16;
 
-    constant REG_DAQ_OH7_COUNTERS_VFAT_BLOCK_RATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"86";
+    constant REG_DAQ_OH7_COUNTERS_VFAT_BLOCK_RATE_ADDR    : std_logic_vector(8 downto 0) := '1' & x"36";
     constant REG_DAQ_OH7_COUNTERS_VFAT_BLOCK_RATE_MSB    : integer := 14;
     constant REG_DAQ_OH7_COUNTERS_VFAT_BLOCK_RATE_LSB     : integer := 0;
 
-    constant REG_DAQ_OH7_COUNTERS_EVT_RATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"86";
+    constant REG_DAQ_OH7_COUNTERS_EVT_RATE_ADDR    : std_logic_vector(8 downto 0) := '1' & x"36";
     constant REG_DAQ_OH7_COUNTERS_EVT_RATE_MSB    : integer := 31;
     constant REG_DAQ_OH7_COUNTERS_EVT_RATE_LSB     : integer := 15;
 
-    constant REG_DAQ_OH7_COUNTERS_MAX_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"87";
+    constant REG_DAQ_OH7_COUNTERS_MAX_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '1' & x"37";
     constant REG_DAQ_OH7_COUNTERS_MAX_EOE_TIMER_MSB    : integer := 23;
     constant REG_DAQ_OH7_COUNTERS_MAX_EOE_TIMER_LSB     : integer := 0;
 
-    constant REG_DAQ_OH7_COUNTERS_LAST_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"88";
+    constant REG_DAQ_OH7_COUNTERS_LAST_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '1' & x"38";
     constant REG_DAQ_OH7_COUNTERS_LAST_EOE_TIMER_MSB    : integer := 23;
     constant REG_DAQ_OH7_COUNTERS_LAST_EOE_TIMER_LSB     : integer := 0;
 
-    constant REG_DAQ_OH7_LASTBLOCK0_ADDR    : std_logic_vector(8 downto 0) := '0' & x"89";
+    constant REG_DAQ_OH7_COUNTERS_LIVE_VFAT_WORDS_64_LAST_ADDR    : std_logic_vector(8 downto 0) := '1' & x"39";
+    constant REG_DAQ_OH7_COUNTERS_LIVE_VFAT_WORDS_64_LAST_MSB    : integer := 11;
+    constant REG_DAQ_OH7_COUNTERS_LIVE_VFAT_WORDS_64_LAST_LSB     : integer := 0;
+
+    constant REG_DAQ_OH7_COUNTERS_LIVE_VFAT_WORDS_64_MIN_ADDR    : std_logic_vector(8 downto 0) := '1' & x"39";
+    constant REG_DAQ_OH7_COUNTERS_LIVE_VFAT_WORDS_64_MIN_MSB    : integer := 23;
+    constant REG_DAQ_OH7_COUNTERS_LIVE_VFAT_WORDS_64_MIN_LSB     : integer := 12;
+
+    constant REG_DAQ_OH7_COUNTERS_LIVE_VFAT_WORDS_64_MAX_ADDR    : std_logic_vector(8 downto 0) := '1' & x"3a";
+    constant REG_DAQ_OH7_COUNTERS_LIVE_VFAT_WORDS_64_MAX_MSB    : integer := 11;
+    constant REG_DAQ_OH7_COUNTERS_LIVE_VFAT_WORDS_64_MAX_LSB     : integer := 0;
+
+    constant REG_DAQ_OH7_COUNTERS_DAV_TIMEOUT_CONSEC_CNT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"3b";
+    constant REG_DAQ_OH7_COUNTERS_DAV_TIMEOUT_CONSEC_CNT_MSB    : integer := 15;
+    constant REG_DAQ_OH7_COUNTERS_DAV_TIMEOUT_CONSEC_CNT_LSB     : integer := 0;
+
+    constant REG_DAQ_OH7_COUNTERS_DAV_TIMEOUT_CNT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"3b";
+    constant REG_DAQ_OH7_COUNTERS_DAV_TIMEOUT_CNT_MSB    : integer := 31;
+    constant REG_DAQ_OH7_COUNTERS_DAV_TIMEOUT_CNT_LSB     : integer := 16;
+
+    constant REG_DAQ_OH7_LASTBLOCK0_ADDR    : std_logic_vector(8 downto 0) := '1' & x"40";
     constant REG_DAQ_OH7_LASTBLOCK0_MSB    : integer := 31;
     constant REG_DAQ_OH7_LASTBLOCK0_LSB     : integer := 0;
 
-    constant REG_DAQ_OH7_LASTBLOCK1_ADDR    : std_logic_vector(8 downto 0) := '0' & x"8a";
+    constant REG_DAQ_OH7_LASTBLOCK1_ADDR    : std_logic_vector(8 downto 0) := '1' & x"41";
     constant REG_DAQ_OH7_LASTBLOCK1_MSB    : integer := 31;
     constant REG_DAQ_OH7_LASTBLOCK1_LSB     : integer := 0;
 
-    constant REG_DAQ_OH7_LASTBLOCK2_ADDR    : std_logic_vector(8 downto 0) := '0' & x"8b";
+    constant REG_DAQ_OH7_LASTBLOCK2_ADDR    : std_logic_vector(8 downto 0) := '1' & x"42";
     constant REG_DAQ_OH7_LASTBLOCK2_MSB    : integer := 31;
     constant REG_DAQ_OH7_LASTBLOCK2_LSB     : integer := 0;
 
-    constant REG_DAQ_OH7_LASTBLOCK3_ADDR    : std_logic_vector(8 downto 0) := '0' & x"8c";
+    constant REG_DAQ_OH7_LASTBLOCK3_ADDR    : std_logic_vector(8 downto 0) := '1' & x"43";
     constant REG_DAQ_OH7_LASTBLOCK3_MSB    : integer := 31;
     constant REG_DAQ_OH7_LASTBLOCK3_LSB     : integer := 0;
 
-    constant REG_DAQ_OH7_LASTBLOCK4_ADDR    : std_logic_vector(8 downto 0) := '0' & x"8d";
+    constant REG_DAQ_OH7_LASTBLOCK4_ADDR    : std_logic_vector(8 downto 0) := '1' & x"44";
     constant REG_DAQ_OH7_LASTBLOCK4_MSB    : integer := 31;
     constant REG_DAQ_OH7_LASTBLOCK4_LSB     : integer := 0;
 
-    constant REG_DAQ_OH7_LASTBLOCK5_ADDR    : std_logic_vector(8 downto 0) := '0' & x"8e";
+    constant REG_DAQ_OH7_LASTBLOCK5_ADDR    : std_logic_vector(8 downto 0) := '1' & x"45";
     constant REG_DAQ_OH7_LASTBLOCK5_MSB    : integer := 31;
     constant REG_DAQ_OH7_LASTBLOCK5_LSB     : integer := 0;
 
-    constant REG_DAQ_OH7_LASTBLOCK6_ADDR    : std_logic_vector(8 downto 0) := '0' & x"8f";
+    constant REG_DAQ_OH7_LASTBLOCK6_ADDR    : std_logic_vector(8 downto 0) := '1' & x"46";
     constant REG_DAQ_OH7_LASTBLOCK6_MSB    : integer := 31;
     constant REG_DAQ_OH7_LASTBLOCK6_LSB     : integer := 0;
 
-    constant REG_DAQ_OH8_STATUS_VFAT_MIXED_EC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"90";
+    constant REG_DAQ_OH8_STATUS_VFAT_MIXED_EC_ADDR    : std_logic_vector(8 downto 0) := '1' & x"50";
     constant REG_DAQ_OH8_STATUS_VFAT_MIXED_EC_BIT    : integer := 1;
 
-    constant REG_DAQ_OH8_STATUS_VFAT_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"90";
+    constant REG_DAQ_OH8_STATUS_VFAT_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '1' & x"50";
     constant REG_DAQ_OH8_STATUS_VFAT_MIXED_BC_BIT    : integer := 2;
 
-    constant REG_DAQ_OH8_STATUS_OH_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"90";
+    constant REG_DAQ_OH8_STATUS_OH_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '1' & x"50";
     constant REG_DAQ_OH8_STATUS_OH_MIXED_BC_BIT    : integer := 3;
 
-    constant REG_DAQ_OH8_STATUS_VFAT_TOO_MANY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"90";
+    constant REG_DAQ_OH8_STATUS_VFAT_TOO_MANY_ADDR    : std_logic_vector(8 downto 0) := '1' & x"50";
     constant REG_DAQ_OH8_STATUS_VFAT_TOO_MANY_BIT    : integer := 4;
 
-    constant REG_DAQ_OH8_STATUS_VFAT_SMALL_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '0' & x"90";
+    constant REG_DAQ_OH8_STATUS_VFAT_SMALL_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '1' & x"50";
     constant REG_DAQ_OH8_STATUS_VFAT_SMALL_BLOCK_BIT    : integer := 5;
 
-    constant REG_DAQ_OH8_STATUS_VFAT_LARGE_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '0' & x"90";
+    constant REG_DAQ_OH8_STATUS_VFAT_LARGE_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '1' & x"50";
     constant REG_DAQ_OH8_STATUS_VFAT_LARGE_BLOCK_BIT    : integer := 6;
 
-    constant REG_DAQ_OH8_STATUS_VFAT_NO_MARKER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"90";
+    constant REG_DAQ_OH8_STATUS_VFAT_NO_MARKER_ADDR    : std_logic_vector(8 downto 0) := '1' & x"50";
     constant REG_DAQ_OH8_STATUS_VFAT_NO_MARKER_BIT    : integer := 7;
 
-    constant REG_DAQ_OH8_STATUS_INPUT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"90";
+    constant REG_DAQ_OH8_STATUS_INPUT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '1' & x"50";
     constant REG_DAQ_OH8_STATUS_INPUT_FIFO_HAD_OFLOW_BIT    : integer := 8;
 
-    constant REG_DAQ_OH8_STATUS_INPUT_FIFO_HAD_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"90";
+    constant REG_DAQ_OH8_STATUS_INPUT_FIFO_HAD_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '1' & x"50";
     constant REG_DAQ_OH8_STATUS_INPUT_FIFO_HAD_UFLOW_BIT    : integer := 9;
 
-    constant REG_DAQ_OH8_STATUS_EVENT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"90";
+    constant REG_DAQ_OH8_STATUS_EVENT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '1' & x"50";
     constant REG_DAQ_OH8_STATUS_EVENT_FIFO_HAD_OFLOW_BIT    : integer := 10;
 
-    constant REG_DAQ_OH8_STATUS_EVT_SIZE_ERR_ADDR    : std_logic_vector(8 downto 0) := '0' & x"90";
+    constant REG_DAQ_OH8_STATUS_EVT_SIZE_ERR_ADDR    : std_logic_vector(8 downto 0) := '1' & x"50";
     constant REG_DAQ_OH8_STATUS_EVT_SIZE_ERR_BIT    : integer := 11;
 
-    constant REG_DAQ_OH8_STATUS_TTS_STATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"90";
+    constant REG_DAQ_OH8_STATUS_TTS_STATE_ADDR    : std_logic_vector(8 downto 0) := '1' & x"50";
     constant REG_DAQ_OH8_STATUS_TTS_STATE_MSB    : integer := 15;
     constant REG_DAQ_OH8_STATUS_TTS_STATE_LSB     : integer := 12;
 
-    constant REG_DAQ_OH8_STATUS_INPUT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"90";
+    constant REG_DAQ_OH8_STATUS_INPUT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '1' & x"50";
     constant REG_DAQ_OH8_STATUS_INPUT_FIFO_IS_UFLOW_BIT    : integer := 24;
 
-    constant REG_DAQ_OH8_STATUS_INPUT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"90";
+    constant REG_DAQ_OH8_STATUS_INPUT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '1' & x"50";
     constant REG_DAQ_OH8_STATUS_INPUT_FIFO_IS_FULL_BIT    : integer := 25;
 
-    constant REG_DAQ_OH8_STATUS_INPUT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"90";
+    constant REG_DAQ_OH8_STATUS_INPUT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '1' & x"50";
     constant REG_DAQ_OH8_STATUS_INPUT_FIFO_IS_AFULL_BIT    : integer := 26;
 
-    constant REG_DAQ_OH8_STATUS_INPUT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"90";
+    constant REG_DAQ_OH8_STATUS_INPUT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '1' & x"50";
     constant REG_DAQ_OH8_STATUS_INPUT_FIFO_IS_EMPTY_BIT    : integer := 27;
 
-    constant REG_DAQ_OH8_STATUS_EVENT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"90";
+    constant REG_DAQ_OH8_STATUS_EVENT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '1' & x"50";
     constant REG_DAQ_OH8_STATUS_EVENT_FIFO_IS_UFLOW_BIT    : integer := 28;
 
-    constant REG_DAQ_OH8_STATUS_EVENT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"90";
+    constant REG_DAQ_OH8_STATUS_EVENT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '1' & x"50";
     constant REG_DAQ_OH8_STATUS_EVENT_FIFO_IS_FULL_BIT    : integer := 29;
 
-    constant REG_DAQ_OH8_STATUS_EVENT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"90";
+    constant REG_DAQ_OH8_STATUS_EVENT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '1' & x"50";
     constant REG_DAQ_OH8_STATUS_EVENT_FIFO_IS_AFULL_BIT    : integer := 30;
 
-    constant REG_DAQ_OH8_STATUS_EVENT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"90";
+    constant REG_DAQ_OH8_STATUS_EVENT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '1' & x"50";
     constant REG_DAQ_OH8_STATUS_EVENT_FIFO_IS_EMPTY_BIT    : integer := 31;
 
-    constant REG_DAQ_OH8_COUNTERS_CORRUPT_VFAT_BLK_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"91";
+    constant REG_DAQ_OH8_COUNTERS_CORRUPT_VFAT_BLK_CNT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"51";
     constant REG_DAQ_OH8_COUNTERS_CORRUPT_VFAT_BLK_CNT_MSB    : integer := 31;
     constant REG_DAQ_OH8_COUNTERS_CORRUPT_VFAT_BLK_CNT_LSB     : integer := 0;
 
-    constant REG_DAQ_OH8_COUNTERS_EVN_ADDR    : std_logic_vector(8 downto 0) := '0' & x"92";
+    constant REG_DAQ_OH8_COUNTERS_EVN_ADDR    : std_logic_vector(8 downto 0) := '1' & x"52";
     constant REG_DAQ_OH8_COUNTERS_EVN_MSB    : integer := 23;
     constant REG_DAQ_OH8_COUNTERS_EVN_LSB     : integer := 0;
 
-    constant REG_DAQ_OH8_CONTROL_EOE_TIMEOUT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"93";
+    constant REG_DAQ_OH8_CONTROL_EOE_TIMEOUT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"53";
     constant REG_DAQ_OH8_CONTROL_EOE_TIMEOUT_MSB    : integer := 23;
     constant REG_DAQ_OH8_CONTROL_EOE_TIMEOUT_LSB     : integer := 0;
     constant REG_DAQ_OH8_CONTROL_EOE_TIMEOUT_DEFAULT : std_logic_vector(23 downto 0) := x"000100";
 
-    constant REG_DAQ_OH8_COUNTERS_INPUT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"94";
+    constant REG_DAQ_OH8_COUNTERS_INPUT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"54";
     constant REG_DAQ_OH8_COUNTERS_INPUT_FIFO_DATA_CNT_MSB    : integer := 11;
     constant REG_DAQ_OH8_COUNTERS_INPUT_FIFO_DATA_CNT_LSB     : integer := 0;
 
-    constant REG_DAQ_OH8_COUNTERS_EVT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"94";
+    constant REG_DAQ_OH8_COUNTERS_EVT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"54";
     constant REG_DAQ_OH8_COUNTERS_EVT_FIFO_DATA_CNT_MSB    : integer := 27;
     constant REG_DAQ_OH8_COUNTERS_EVT_FIFO_DATA_CNT_LSB     : integer := 16;
 
-    constant REG_DAQ_OH8_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"95";
+    constant REG_DAQ_OH8_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"55";
     constant REG_DAQ_OH8_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_MSB    : integer := 15;
     constant REG_DAQ_OH8_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_LSB     : integer := 0;
 
-    constant REG_DAQ_OH8_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"95";
+    constant REG_DAQ_OH8_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"55";
     constant REG_DAQ_OH8_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_MSB    : integer := 31;
     constant REG_DAQ_OH8_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_LSB     : integer := 16;
 
-    constant REG_DAQ_OH8_COUNTERS_VFAT_BLOCK_RATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"96";
+    constant REG_DAQ_OH8_COUNTERS_VFAT_BLOCK_RATE_ADDR    : std_logic_vector(8 downto 0) := '1' & x"56";
     constant REG_DAQ_OH8_COUNTERS_VFAT_BLOCK_RATE_MSB    : integer := 14;
     constant REG_DAQ_OH8_COUNTERS_VFAT_BLOCK_RATE_LSB     : integer := 0;
 
-    constant REG_DAQ_OH8_COUNTERS_EVT_RATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"96";
+    constant REG_DAQ_OH8_COUNTERS_EVT_RATE_ADDR    : std_logic_vector(8 downto 0) := '1' & x"56";
     constant REG_DAQ_OH8_COUNTERS_EVT_RATE_MSB    : integer := 31;
     constant REG_DAQ_OH8_COUNTERS_EVT_RATE_LSB     : integer := 15;
 
-    constant REG_DAQ_OH8_COUNTERS_MAX_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"97";
+    constant REG_DAQ_OH8_COUNTERS_MAX_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '1' & x"57";
     constant REG_DAQ_OH8_COUNTERS_MAX_EOE_TIMER_MSB    : integer := 23;
     constant REG_DAQ_OH8_COUNTERS_MAX_EOE_TIMER_LSB     : integer := 0;
 
-    constant REG_DAQ_OH8_COUNTERS_LAST_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"98";
+    constant REG_DAQ_OH8_COUNTERS_LAST_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '1' & x"58";
     constant REG_DAQ_OH8_COUNTERS_LAST_EOE_TIMER_MSB    : integer := 23;
     constant REG_DAQ_OH8_COUNTERS_LAST_EOE_TIMER_LSB     : integer := 0;
 
-    constant REG_DAQ_OH8_LASTBLOCK0_ADDR    : std_logic_vector(8 downto 0) := '0' & x"99";
+    constant REG_DAQ_OH8_COUNTERS_LIVE_VFAT_WORDS_64_LAST_ADDR    : std_logic_vector(8 downto 0) := '1' & x"59";
+    constant REG_DAQ_OH8_COUNTERS_LIVE_VFAT_WORDS_64_LAST_MSB    : integer := 11;
+    constant REG_DAQ_OH8_COUNTERS_LIVE_VFAT_WORDS_64_LAST_LSB     : integer := 0;
+
+    constant REG_DAQ_OH8_COUNTERS_LIVE_VFAT_WORDS_64_MIN_ADDR    : std_logic_vector(8 downto 0) := '1' & x"59";
+    constant REG_DAQ_OH8_COUNTERS_LIVE_VFAT_WORDS_64_MIN_MSB    : integer := 23;
+    constant REG_DAQ_OH8_COUNTERS_LIVE_VFAT_WORDS_64_MIN_LSB     : integer := 12;
+
+    constant REG_DAQ_OH8_COUNTERS_LIVE_VFAT_WORDS_64_MAX_ADDR    : std_logic_vector(8 downto 0) := '1' & x"5a";
+    constant REG_DAQ_OH8_COUNTERS_LIVE_VFAT_WORDS_64_MAX_MSB    : integer := 11;
+    constant REG_DAQ_OH8_COUNTERS_LIVE_VFAT_WORDS_64_MAX_LSB     : integer := 0;
+
+    constant REG_DAQ_OH8_COUNTERS_DAV_TIMEOUT_CONSEC_CNT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"5b";
+    constant REG_DAQ_OH8_COUNTERS_DAV_TIMEOUT_CONSEC_CNT_MSB    : integer := 15;
+    constant REG_DAQ_OH8_COUNTERS_DAV_TIMEOUT_CONSEC_CNT_LSB     : integer := 0;
+
+    constant REG_DAQ_OH8_COUNTERS_DAV_TIMEOUT_CNT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"5b";
+    constant REG_DAQ_OH8_COUNTERS_DAV_TIMEOUT_CNT_MSB    : integer := 31;
+    constant REG_DAQ_OH8_COUNTERS_DAV_TIMEOUT_CNT_LSB     : integer := 16;
+
+    constant REG_DAQ_OH8_LASTBLOCK0_ADDR    : std_logic_vector(8 downto 0) := '1' & x"60";
     constant REG_DAQ_OH8_LASTBLOCK0_MSB    : integer := 31;
     constant REG_DAQ_OH8_LASTBLOCK0_LSB     : integer := 0;
 
-    constant REG_DAQ_OH8_LASTBLOCK1_ADDR    : std_logic_vector(8 downto 0) := '0' & x"9a";
+    constant REG_DAQ_OH8_LASTBLOCK1_ADDR    : std_logic_vector(8 downto 0) := '1' & x"61";
     constant REG_DAQ_OH8_LASTBLOCK1_MSB    : integer := 31;
     constant REG_DAQ_OH8_LASTBLOCK1_LSB     : integer := 0;
 
-    constant REG_DAQ_OH8_LASTBLOCK2_ADDR    : std_logic_vector(8 downto 0) := '0' & x"9b";
+    constant REG_DAQ_OH8_LASTBLOCK2_ADDR    : std_logic_vector(8 downto 0) := '1' & x"62";
     constant REG_DAQ_OH8_LASTBLOCK2_MSB    : integer := 31;
     constant REG_DAQ_OH8_LASTBLOCK2_LSB     : integer := 0;
 
-    constant REG_DAQ_OH8_LASTBLOCK3_ADDR    : std_logic_vector(8 downto 0) := '0' & x"9c";
+    constant REG_DAQ_OH8_LASTBLOCK3_ADDR    : std_logic_vector(8 downto 0) := '1' & x"63";
     constant REG_DAQ_OH8_LASTBLOCK3_MSB    : integer := 31;
     constant REG_DAQ_OH8_LASTBLOCK3_LSB     : integer := 0;
 
-    constant REG_DAQ_OH8_LASTBLOCK4_ADDR    : std_logic_vector(8 downto 0) := '0' & x"9d";
+    constant REG_DAQ_OH8_LASTBLOCK4_ADDR    : std_logic_vector(8 downto 0) := '1' & x"64";
     constant REG_DAQ_OH8_LASTBLOCK4_MSB    : integer := 31;
     constant REG_DAQ_OH8_LASTBLOCK4_LSB     : integer := 0;
 
-    constant REG_DAQ_OH8_LASTBLOCK5_ADDR    : std_logic_vector(8 downto 0) := '0' & x"9e";
+    constant REG_DAQ_OH8_LASTBLOCK5_ADDR    : std_logic_vector(8 downto 0) := '1' & x"65";
     constant REG_DAQ_OH8_LASTBLOCK5_MSB    : integer := 31;
     constant REG_DAQ_OH8_LASTBLOCK5_LSB     : integer := 0;
 
-    constant REG_DAQ_OH8_LASTBLOCK6_ADDR    : std_logic_vector(8 downto 0) := '0' & x"9f";
+    constant REG_DAQ_OH8_LASTBLOCK6_ADDR    : std_logic_vector(8 downto 0) := '1' & x"66";
     constant REG_DAQ_OH8_LASTBLOCK6_MSB    : integer := 31;
     constant REG_DAQ_OH8_LASTBLOCK6_LSB     : integer := 0;
 
-    constant REG_DAQ_OH9_STATUS_VFAT_MIXED_EC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"a0";
+    constant REG_DAQ_OH9_STATUS_VFAT_MIXED_EC_ADDR    : std_logic_vector(8 downto 0) := '1' & x"70";
     constant REG_DAQ_OH9_STATUS_VFAT_MIXED_EC_BIT    : integer := 1;
 
-    constant REG_DAQ_OH9_STATUS_VFAT_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"a0";
+    constant REG_DAQ_OH9_STATUS_VFAT_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '1' & x"70";
     constant REG_DAQ_OH9_STATUS_VFAT_MIXED_BC_BIT    : integer := 2;
 
-    constant REG_DAQ_OH9_STATUS_OH_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"a0";
+    constant REG_DAQ_OH9_STATUS_OH_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '1' & x"70";
     constant REG_DAQ_OH9_STATUS_OH_MIXED_BC_BIT    : integer := 3;
 
-    constant REG_DAQ_OH9_STATUS_VFAT_TOO_MANY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"a0";
+    constant REG_DAQ_OH9_STATUS_VFAT_TOO_MANY_ADDR    : std_logic_vector(8 downto 0) := '1' & x"70";
     constant REG_DAQ_OH9_STATUS_VFAT_TOO_MANY_BIT    : integer := 4;
 
-    constant REG_DAQ_OH9_STATUS_VFAT_SMALL_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '0' & x"a0";
+    constant REG_DAQ_OH9_STATUS_VFAT_SMALL_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '1' & x"70";
     constant REG_DAQ_OH9_STATUS_VFAT_SMALL_BLOCK_BIT    : integer := 5;
 
-    constant REG_DAQ_OH9_STATUS_VFAT_LARGE_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '0' & x"a0";
+    constant REG_DAQ_OH9_STATUS_VFAT_LARGE_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '1' & x"70";
     constant REG_DAQ_OH9_STATUS_VFAT_LARGE_BLOCK_BIT    : integer := 6;
 
-    constant REG_DAQ_OH9_STATUS_VFAT_NO_MARKER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"a0";
+    constant REG_DAQ_OH9_STATUS_VFAT_NO_MARKER_ADDR    : std_logic_vector(8 downto 0) := '1' & x"70";
     constant REG_DAQ_OH9_STATUS_VFAT_NO_MARKER_BIT    : integer := 7;
 
-    constant REG_DAQ_OH9_STATUS_INPUT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"a0";
+    constant REG_DAQ_OH9_STATUS_INPUT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '1' & x"70";
     constant REG_DAQ_OH9_STATUS_INPUT_FIFO_HAD_OFLOW_BIT    : integer := 8;
 
-    constant REG_DAQ_OH9_STATUS_INPUT_FIFO_HAD_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"a0";
+    constant REG_DAQ_OH9_STATUS_INPUT_FIFO_HAD_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '1' & x"70";
     constant REG_DAQ_OH9_STATUS_INPUT_FIFO_HAD_UFLOW_BIT    : integer := 9;
 
-    constant REG_DAQ_OH9_STATUS_EVENT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"a0";
+    constant REG_DAQ_OH9_STATUS_EVENT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '1' & x"70";
     constant REG_DAQ_OH9_STATUS_EVENT_FIFO_HAD_OFLOW_BIT    : integer := 10;
 
-    constant REG_DAQ_OH9_STATUS_EVT_SIZE_ERR_ADDR    : std_logic_vector(8 downto 0) := '0' & x"a0";
+    constant REG_DAQ_OH9_STATUS_EVT_SIZE_ERR_ADDR    : std_logic_vector(8 downto 0) := '1' & x"70";
     constant REG_DAQ_OH9_STATUS_EVT_SIZE_ERR_BIT    : integer := 11;
 
-    constant REG_DAQ_OH9_STATUS_TTS_STATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"a0";
+    constant REG_DAQ_OH9_STATUS_TTS_STATE_ADDR    : std_logic_vector(8 downto 0) := '1' & x"70";
     constant REG_DAQ_OH9_STATUS_TTS_STATE_MSB    : integer := 15;
     constant REG_DAQ_OH9_STATUS_TTS_STATE_LSB     : integer := 12;
 
-    constant REG_DAQ_OH9_STATUS_INPUT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"a0";
+    constant REG_DAQ_OH9_STATUS_INPUT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '1' & x"70";
     constant REG_DAQ_OH9_STATUS_INPUT_FIFO_IS_UFLOW_BIT    : integer := 24;
 
-    constant REG_DAQ_OH9_STATUS_INPUT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"a0";
+    constant REG_DAQ_OH9_STATUS_INPUT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '1' & x"70";
     constant REG_DAQ_OH9_STATUS_INPUT_FIFO_IS_FULL_BIT    : integer := 25;
 
-    constant REG_DAQ_OH9_STATUS_INPUT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"a0";
+    constant REG_DAQ_OH9_STATUS_INPUT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '1' & x"70";
     constant REG_DAQ_OH9_STATUS_INPUT_FIFO_IS_AFULL_BIT    : integer := 26;
 
-    constant REG_DAQ_OH9_STATUS_INPUT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"a0";
+    constant REG_DAQ_OH9_STATUS_INPUT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '1' & x"70";
     constant REG_DAQ_OH9_STATUS_INPUT_FIFO_IS_EMPTY_BIT    : integer := 27;
 
-    constant REG_DAQ_OH9_STATUS_EVENT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"a0";
+    constant REG_DAQ_OH9_STATUS_EVENT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '1' & x"70";
     constant REG_DAQ_OH9_STATUS_EVENT_FIFO_IS_UFLOW_BIT    : integer := 28;
 
-    constant REG_DAQ_OH9_STATUS_EVENT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"a0";
+    constant REG_DAQ_OH9_STATUS_EVENT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '1' & x"70";
     constant REG_DAQ_OH9_STATUS_EVENT_FIFO_IS_FULL_BIT    : integer := 29;
 
-    constant REG_DAQ_OH9_STATUS_EVENT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"a0";
+    constant REG_DAQ_OH9_STATUS_EVENT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '1' & x"70";
     constant REG_DAQ_OH9_STATUS_EVENT_FIFO_IS_AFULL_BIT    : integer := 30;
 
-    constant REG_DAQ_OH9_STATUS_EVENT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"a0";
+    constant REG_DAQ_OH9_STATUS_EVENT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '1' & x"70";
     constant REG_DAQ_OH9_STATUS_EVENT_FIFO_IS_EMPTY_BIT    : integer := 31;
 
-    constant REG_DAQ_OH9_COUNTERS_CORRUPT_VFAT_BLK_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"a1";
+    constant REG_DAQ_OH9_COUNTERS_CORRUPT_VFAT_BLK_CNT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"71";
     constant REG_DAQ_OH9_COUNTERS_CORRUPT_VFAT_BLK_CNT_MSB    : integer := 31;
     constant REG_DAQ_OH9_COUNTERS_CORRUPT_VFAT_BLK_CNT_LSB     : integer := 0;
 
-    constant REG_DAQ_OH9_COUNTERS_EVN_ADDR    : std_logic_vector(8 downto 0) := '0' & x"a2";
+    constant REG_DAQ_OH9_COUNTERS_EVN_ADDR    : std_logic_vector(8 downto 0) := '1' & x"72";
     constant REG_DAQ_OH9_COUNTERS_EVN_MSB    : integer := 23;
     constant REG_DAQ_OH9_COUNTERS_EVN_LSB     : integer := 0;
 
-    constant REG_DAQ_OH9_CONTROL_EOE_TIMEOUT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"a3";
+    constant REG_DAQ_OH9_CONTROL_EOE_TIMEOUT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"73";
     constant REG_DAQ_OH9_CONTROL_EOE_TIMEOUT_MSB    : integer := 23;
     constant REG_DAQ_OH9_CONTROL_EOE_TIMEOUT_LSB     : integer := 0;
     constant REG_DAQ_OH9_CONTROL_EOE_TIMEOUT_DEFAULT : std_logic_vector(23 downto 0) := x"000100";
 
-    constant REG_DAQ_OH9_COUNTERS_INPUT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"a4";
+    constant REG_DAQ_OH9_COUNTERS_INPUT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"74";
     constant REG_DAQ_OH9_COUNTERS_INPUT_FIFO_DATA_CNT_MSB    : integer := 11;
     constant REG_DAQ_OH9_COUNTERS_INPUT_FIFO_DATA_CNT_LSB     : integer := 0;
 
-    constant REG_DAQ_OH9_COUNTERS_EVT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"a4";
+    constant REG_DAQ_OH9_COUNTERS_EVT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"74";
     constant REG_DAQ_OH9_COUNTERS_EVT_FIFO_DATA_CNT_MSB    : integer := 27;
     constant REG_DAQ_OH9_COUNTERS_EVT_FIFO_DATA_CNT_LSB     : integer := 16;
 
-    constant REG_DAQ_OH9_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"a5";
+    constant REG_DAQ_OH9_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"75";
     constant REG_DAQ_OH9_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_MSB    : integer := 15;
     constant REG_DAQ_OH9_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_LSB     : integer := 0;
 
-    constant REG_DAQ_OH9_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"a5";
+    constant REG_DAQ_OH9_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"75";
     constant REG_DAQ_OH9_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_MSB    : integer := 31;
     constant REG_DAQ_OH9_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_LSB     : integer := 16;
 
-    constant REG_DAQ_OH9_COUNTERS_VFAT_BLOCK_RATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"a6";
+    constant REG_DAQ_OH9_COUNTERS_VFAT_BLOCK_RATE_ADDR    : std_logic_vector(8 downto 0) := '1' & x"76";
     constant REG_DAQ_OH9_COUNTERS_VFAT_BLOCK_RATE_MSB    : integer := 14;
     constant REG_DAQ_OH9_COUNTERS_VFAT_BLOCK_RATE_LSB     : integer := 0;
 
-    constant REG_DAQ_OH9_COUNTERS_EVT_RATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"a6";
+    constant REG_DAQ_OH9_COUNTERS_EVT_RATE_ADDR    : std_logic_vector(8 downto 0) := '1' & x"76";
     constant REG_DAQ_OH9_COUNTERS_EVT_RATE_MSB    : integer := 31;
     constant REG_DAQ_OH9_COUNTERS_EVT_RATE_LSB     : integer := 15;
 
-    constant REG_DAQ_OH9_COUNTERS_MAX_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"a7";
+    constant REG_DAQ_OH9_COUNTERS_MAX_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '1' & x"77";
     constant REG_DAQ_OH9_COUNTERS_MAX_EOE_TIMER_MSB    : integer := 23;
     constant REG_DAQ_OH9_COUNTERS_MAX_EOE_TIMER_LSB     : integer := 0;
 
-    constant REG_DAQ_OH9_COUNTERS_LAST_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"a8";
+    constant REG_DAQ_OH9_COUNTERS_LAST_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '1' & x"78";
     constant REG_DAQ_OH9_COUNTERS_LAST_EOE_TIMER_MSB    : integer := 23;
     constant REG_DAQ_OH9_COUNTERS_LAST_EOE_TIMER_LSB     : integer := 0;
 
-    constant REG_DAQ_OH9_LASTBLOCK0_ADDR    : std_logic_vector(8 downto 0) := '0' & x"a9";
+    constant REG_DAQ_OH9_COUNTERS_LIVE_VFAT_WORDS_64_LAST_ADDR    : std_logic_vector(8 downto 0) := '1' & x"79";
+    constant REG_DAQ_OH9_COUNTERS_LIVE_VFAT_WORDS_64_LAST_MSB    : integer := 11;
+    constant REG_DAQ_OH9_COUNTERS_LIVE_VFAT_WORDS_64_LAST_LSB     : integer := 0;
+
+    constant REG_DAQ_OH9_COUNTERS_LIVE_VFAT_WORDS_64_MIN_ADDR    : std_logic_vector(8 downto 0) := '1' & x"79";
+    constant REG_DAQ_OH9_COUNTERS_LIVE_VFAT_WORDS_64_MIN_MSB    : integer := 23;
+    constant REG_DAQ_OH9_COUNTERS_LIVE_VFAT_WORDS_64_MIN_LSB     : integer := 12;
+
+    constant REG_DAQ_OH9_COUNTERS_LIVE_VFAT_WORDS_64_MAX_ADDR    : std_logic_vector(8 downto 0) := '1' & x"7a";
+    constant REG_DAQ_OH9_COUNTERS_LIVE_VFAT_WORDS_64_MAX_MSB    : integer := 11;
+    constant REG_DAQ_OH9_COUNTERS_LIVE_VFAT_WORDS_64_MAX_LSB     : integer := 0;
+
+    constant REG_DAQ_OH9_COUNTERS_DAV_TIMEOUT_CONSEC_CNT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"7b";
+    constant REG_DAQ_OH9_COUNTERS_DAV_TIMEOUT_CONSEC_CNT_MSB    : integer := 15;
+    constant REG_DAQ_OH9_COUNTERS_DAV_TIMEOUT_CONSEC_CNT_LSB     : integer := 0;
+
+    constant REG_DAQ_OH9_COUNTERS_DAV_TIMEOUT_CNT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"7b";
+    constant REG_DAQ_OH9_COUNTERS_DAV_TIMEOUT_CNT_MSB    : integer := 31;
+    constant REG_DAQ_OH9_COUNTERS_DAV_TIMEOUT_CNT_LSB     : integer := 16;
+
+    constant REG_DAQ_OH9_LASTBLOCK0_ADDR    : std_logic_vector(8 downto 0) := '1' & x"80";
     constant REG_DAQ_OH9_LASTBLOCK0_MSB    : integer := 31;
     constant REG_DAQ_OH9_LASTBLOCK0_LSB     : integer := 0;
 
-    constant REG_DAQ_OH9_LASTBLOCK1_ADDR    : std_logic_vector(8 downto 0) := '0' & x"aa";
+    constant REG_DAQ_OH9_LASTBLOCK1_ADDR    : std_logic_vector(8 downto 0) := '1' & x"81";
     constant REG_DAQ_OH9_LASTBLOCK1_MSB    : integer := 31;
     constant REG_DAQ_OH9_LASTBLOCK1_LSB     : integer := 0;
 
-    constant REG_DAQ_OH9_LASTBLOCK2_ADDR    : std_logic_vector(8 downto 0) := '0' & x"ab";
+    constant REG_DAQ_OH9_LASTBLOCK2_ADDR    : std_logic_vector(8 downto 0) := '1' & x"82";
     constant REG_DAQ_OH9_LASTBLOCK2_MSB    : integer := 31;
     constant REG_DAQ_OH9_LASTBLOCK2_LSB     : integer := 0;
 
-    constant REG_DAQ_OH9_LASTBLOCK3_ADDR    : std_logic_vector(8 downto 0) := '0' & x"ac";
+    constant REG_DAQ_OH9_LASTBLOCK3_ADDR    : std_logic_vector(8 downto 0) := '1' & x"83";
     constant REG_DAQ_OH9_LASTBLOCK3_MSB    : integer := 31;
     constant REG_DAQ_OH9_LASTBLOCK3_LSB     : integer := 0;
 
-    constant REG_DAQ_OH9_LASTBLOCK4_ADDR    : std_logic_vector(8 downto 0) := '0' & x"ad";
+    constant REG_DAQ_OH9_LASTBLOCK4_ADDR    : std_logic_vector(8 downto 0) := '1' & x"84";
     constant REG_DAQ_OH9_LASTBLOCK4_MSB    : integer := 31;
     constant REG_DAQ_OH9_LASTBLOCK4_LSB     : integer := 0;
 
-    constant REG_DAQ_OH9_LASTBLOCK5_ADDR    : std_logic_vector(8 downto 0) := '0' & x"ae";
+    constant REG_DAQ_OH9_LASTBLOCK5_ADDR    : std_logic_vector(8 downto 0) := '1' & x"85";
     constant REG_DAQ_OH9_LASTBLOCK5_MSB    : integer := 31;
     constant REG_DAQ_OH9_LASTBLOCK5_LSB     : integer := 0;
 
-    constant REG_DAQ_OH9_LASTBLOCK6_ADDR    : std_logic_vector(8 downto 0) := '0' & x"af";
+    constant REG_DAQ_OH9_LASTBLOCK6_ADDR    : std_logic_vector(8 downto 0) := '1' & x"86";
     constant REG_DAQ_OH9_LASTBLOCK6_MSB    : integer := 31;
     constant REG_DAQ_OH9_LASTBLOCK6_LSB     : integer := 0;
 
-    constant REG_DAQ_OH10_STATUS_VFAT_MIXED_EC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b0";
+    constant REG_DAQ_OH10_STATUS_VFAT_MIXED_EC_ADDR    : std_logic_vector(8 downto 0) := '1' & x"90";
     constant REG_DAQ_OH10_STATUS_VFAT_MIXED_EC_BIT    : integer := 1;
 
-    constant REG_DAQ_OH10_STATUS_VFAT_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b0";
+    constant REG_DAQ_OH10_STATUS_VFAT_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '1' & x"90";
     constant REG_DAQ_OH10_STATUS_VFAT_MIXED_BC_BIT    : integer := 2;
 
-    constant REG_DAQ_OH10_STATUS_OH_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b0";
+    constant REG_DAQ_OH10_STATUS_OH_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '1' & x"90";
     constant REG_DAQ_OH10_STATUS_OH_MIXED_BC_BIT    : integer := 3;
 
-    constant REG_DAQ_OH10_STATUS_VFAT_TOO_MANY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b0";
+    constant REG_DAQ_OH10_STATUS_VFAT_TOO_MANY_ADDR    : std_logic_vector(8 downto 0) := '1' & x"90";
     constant REG_DAQ_OH10_STATUS_VFAT_TOO_MANY_BIT    : integer := 4;
 
-    constant REG_DAQ_OH10_STATUS_VFAT_SMALL_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b0";
+    constant REG_DAQ_OH10_STATUS_VFAT_SMALL_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '1' & x"90";
     constant REG_DAQ_OH10_STATUS_VFAT_SMALL_BLOCK_BIT    : integer := 5;
 
-    constant REG_DAQ_OH10_STATUS_VFAT_LARGE_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b0";
+    constant REG_DAQ_OH10_STATUS_VFAT_LARGE_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '1' & x"90";
     constant REG_DAQ_OH10_STATUS_VFAT_LARGE_BLOCK_BIT    : integer := 6;
 
-    constant REG_DAQ_OH10_STATUS_VFAT_NO_MARKER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b0";
+    constant REG_DAQ_OH10_STATUS_VFAT_NO_MARKER_ADDR    : std_logic_vector(8 downto 0) := '1' & x"90";
     constant REG_DAQ_OH10_STATUS_VFAT_NO_MARKER_BIT    : integer := 7;
 
-    constant REG_DAQ_OH10_STATUS_INPUT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b0";
+    constant REG_DAQ_OH10_STATUS_INPUT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '1' & x"90";
     constant REG_DAQ_OH10_STATUS_INPUT_FIFO_HAD_OFLOW_BIT    : integer := 8;
 
-    constant REG_DAQ_OH10_STATUS_INPUT_FIFO_HAD_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b0";
+    constant REG_DAQ_OH10_STATUS_INPUT_FIFO_HAD_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '1' & x"90";
     constant REG_DAQ_OH10_STATUS_INPUT_FIFO_HAD_UFLOW_BIT    : integer := 9;
 
-    constant REG_DAQ_OH10_STATUS_EVENT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b0";
+    constant REG_DAQ_OH10_STATUS_EVENT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '1' & x"90";
     constant REG_DAQ_OH10_STATUS_EVENT_FIFO_HAD_OFLOW_BIT    : integer := 10;
 
-    constant REG_DAQ_OH10_STATUS_EVT_SIZE_ERR_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b0";
+    constant REG_DAQ_OH10_STATUS_EVT_SIZE_ERR_ADDR    : std_logic_vector(8 downto 0) := '1' & x"90";
     constant REG_DAQ_OH10_STATUS_EVT_SIZE_ERR_BIT    : integer := 11;
 
-    constant REG_DAQ_OH10_STATUS_TTS_STATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b0";
+    constant REG_DAQ_OH10_STATUS_TTS_STATE_ADDR    : std_logic_vector(8 downto 0) := '1' & x"90";
     constant REG_DAQ_OH10_STATUS_TTS_STATE_MSB    : integer := 15;
     constant REG_DAQ_OH10_STATUS_TTS_STATE_LSB     : integer := 12;
 
-    constant REG_DAQ_OH10_STATUS_INPUT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b0";
+    constant REG_DAQ_OH10_STATUS_INPUT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '1' & x"90";
     constant REG_DAQ_OH10_STATUS_INPUT_FIFO_IS_UFLOW_BIT    : integer := 24;
 
-    constant REG_DAQ_OH10_STATUS_INPUT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b0";
+    constant REG_DAQ_OH10_STATUS_INPUT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '1' & x"90";
     constant REG_DAQ_OH10_STATUS_INPUT_FIFO_IS_FULL_BIT    : integer := 25;
 
-    constant REG_DAQ_OH10_STATUS_INPUT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b0";
+    constant REG_DAQ_OH10_STATUS_INPUT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '1' & x"90";
     constant REG_DAQ_OH10_STATUS_INPUT_FIFO_IS_AFULL_BIT    : integer := 26;
 
-    constant REG_DAQ_OH10_STATUS_INPUT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b0";
+    constant REG_DAQ_OH10_STATUS_INPUT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '1' & x"90";
     constant REG_DAQ_OH10_STATUS_INPUT_FIFO_IS_EMPTY_BIT    : integer := 27;
 
-    constant REG_DAQ_OH10_STATUS_EVENT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b0";
+    constant REG_DAQ_OH10_STATUS_EVENT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '1' & x"90";
     constant REG_DAQ_OH10_STATUS_EVENT_FIFO_IS_UFLOW_BIT    : integer := 28;
 
-    constant REG_DAQ_OH10_STATUS_EVENT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b0";
+    constant REG_DAQ_OH10_STATUS_EVENT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '1' & x"90";
     constant REG_DAQ_OH10_STATUS_EVENT_FIFO_IS_FULL_BIT    : integer := 29;
 
-    constant REG_DAQ_OH10_STATUS_EVENT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b0";
+    constant REG_DAQ_OH10_STATUS_EVENT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '1' & x"90";
     constant REG_DAQ_OH10_STATUS_EVENT_FIFO_IS_AFULL_BIT    : integer := 30;
 
-    constant REG_DAQ_OH10_STATUS_EVENT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b0";
+    constant REG_DAQ_OH10_STATUS_EVENT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '1' & x"90";
     constant REG_DAQ_OH10_STATUS_EVENT_FIFO_IS_EMPTY_BIT    : integer := 31;
 
-    constant REG_DAQ_OH10_COUNTERS_CORRUPT_VFAT_BLK_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b1";
+    constant REG_DAQ_OH10_COUNTERS_CORRUPT_VFAT_BLK_CNT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"91";
     constant REG_DAQ_OH10_COUNTERS_CORRUPT_VFAT_BLK_CNT_MSB    : integer := 31;
     constant REG_DAQ_OH10_COUNTERS_CORRUPT_VFAT_BLK_CNT_LSB     : integer := 0;
 
-    constant REG_DAQ_OH10_COUNTERS_EVN_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b2";
+    constant REG_DAQ_OH10_COUNTERS_EVN_ADDR    : std_logic_vector(8 downto 0) := '1' & x"92";
     constant REG_DAQ_OH10_COUNTERS_EVN_MSB    : integer := 23;
     constant REG_DAQ_OH10_COUNTERS_EVN_LSB     : integer := 0;
 
-    constant REG_DAQ_OH10_CONTROL_EOE_TIMEOUT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b3";
+    constant REG_DAQ_OH10_CONTROL_EOE_TIMEOUT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"93";
     constant REG_DAQ_OH10_CONTROL_EOE_TIMEOUT_MSB    : integer := 23;
     constant REG_DAQ_OH10_CONTROL_EOE_TIMEOUT_LSB     : integer := 0;
     constant REG_DAQ_OH10_CONTROL_EOE_TIMEOUT_DEFAULT : std_logic_vector(23 downto 0) := x"000100";
 
-    constant REG_DAQ_OH10_COUNTERS_INPUT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b4";
+    constant REG_DAQ_OH10_COUNTERS_INPUT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"94";
     constant REG_DAQ_OH10_COUNTERS_INPUT_FIFO_DATA_CNT_MSB    : integer := 11;
     constant REG_DAQ_OH10_COUNTERS_INPUT_FIFO_DATA_CNT_LSB     : integer := 0;
 
-    constant REG_DAQ_OH10_COUNTERS_EVT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b4";
+    constant REG_DAQ_OH10_COUNTERS_EVT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"94";
     constant REG_DAQ_OH10_COUNTERS_EVT_FIFO_DATA_CNT_MSB    : integer := 27;
     constant REG_DAQ_OH10_COUNTERS_EVT_FIFO_DATA_CNT_LSB     : integer := 16;
 
-    constant REG_DAQ_OH10_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b5";
+    constant REG_DAQ_OH10_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"95";
     constant REG_DAQ_OH10_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_MSB    : integer := 15;
     constant REG_DAQ_OH10_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_LSB     : integer := 0;
 
-    constant REG_DAQ_OH10_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b5";
+    constant REG_DAQ_OH10_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"95";
     constant REG_DAQ_OH10_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_MSB    : integer := 31;
     constant REG_DAQ_OH10_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_LSB     : integer := 16;
 
-    constant REG_DAQ_OH10_COUNTERS_VFAT_BLOCK_RATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b6";
+    constant REG_DAQ_OH10_COUNTERS_VFAT_BLOCK_RATE_ADDR    : std_logic_vector(8 downto 0) := '1' & x"96";
     constant REG_DAQ_OH10_COUNTERS_VFAT_BLOCK_RATE_MSB    : integer := 14;
     constant REG_DAQ_OH10_COUNTERS_VFAT_BLOCK_RATE_LSB     : integer := 0;
 
-    constant REG_DAQ_OH10_COUNTERS_EVT_RATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b6";
+    constant REG_DAQ_OH10_COUNTERS_EVT_RATE_ADDR    : std_logic_vector(8 downto 0) := '1' & x"96";
     constant REG_DAQ_OH10_COUNTERS_EVT_RATE_MSB    : integer := 31;
     constant REG_DAQ_OH10_COUNTERS_EVT_RATE_LSB     : integer := 15;
 
-    constant REG_DAQ_OH10_COUNTERS_MAX_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b7";
+    constant REG_DAQ_OH10_COUNTERS_MAX_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '1' & x"97";
     constant REG_DAQ_OH10_COUNTERS_MAX_EOE_TIMER_MSB    : integer := 23;
     constant REG_DAQ_OH10_COUNTERS_MAX_EOE_TIMER_LSB     : integer := 0;
 
-    constant REG_DAQ_OH10_COUNTERS_LAST_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b8";
+    constant REG_DAQ_OH10_COUNTERS_LAST_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '1' & x"98";
     constant REG_DAQ_OH10_COUNTERS_LAST_EOE_TIMER_MSB    : integer := 23;
     constant REG_DAQ_OH10_COUNTERS_LAST_EOE_TIMER_LSB     : integer := 0;
 
-    constant REG_DAQ_OH10_LASTBLOCK0_ADDR    : std_logic_vector(8 downto 0) := '0' & x"b9";
+    constant REG_DAQ_OH10_COUNTERS_LIVE_VFAT_WORDS_64_LAST_ADDR    : std_logic_vector(8 downto 0) := '1' & x"99";
+    constant REG_DAQ_OH10_COUNTERS_LIVE_VFAT_WORDS_64_LAST_MSB    : integer := 11;
+    constant REG_DAQ_OH10_COUNTERS_LIVE_VFAT_WORDS_64_LAST_LSB     : integer := 0;
+
+    constant REG_DAQ_OH10_COUNTERS_LIVE_VFAT_WORDS_64_MIN_ADDR    : std_logic_vector(8 downto 0) := '1' & x"99";
+    constant REG_DAQ_OH10_COUNTERS_LIVE_VFAT_WORDS_64_MIN_MSB    : integer := 23;
+    constant REG_DAQ_OH10_COUNTERS_LIVE_VFAT_WORDS_64_MIN_LSB     : integer := 12;
+
+    constant REG_DAQ_OH10_COUNTERS_LIVE_VFAT_WORDS_64_MAX_ADDR    : std_logic_vector(8 downto 0) := '1' & x"9a";
+    constant REG_DAQ_OH10_COUNTERS_LIVE_VFAT_WORDS_64_MAX_MSB    : integer := 11;
+    constant REG_DAQ_OH10_COUNTERS_LIVE_VFAT_WORDS_64_MAX_LSB     : integer := 0;
+
+    constant REG_DAQ_OH10_COUNTERS_DAV_TIMEOUT_CONSEC_CNT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"9b";
+    constant REG_DAQ_OH10_COUNTERS_DAV_TIMEOUT_CONSEC_CNT_MSB    : integer := 15;
+    constant REG_DAQ_OH10_COUNTERS_DAV_TIMEOUT_CONSEC_CNT_LSB     : integer := 0;
+
+    constant REG_DAQ_OH10_COUNTERS_DAV_TIMEOUT_CNT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"9b";
+    constant REG_DAQ_OH10_COUNTERS_DAV_TIMEOUT_CNT_MSB    : integer := 31;
+    constant REG_DAQ_OH10_COUNTERS_DAV_TIMEOUT_CNT_LSB     : integer := 16;
+
+    constant REG_DAQ_OH10_LASTBLOCK0_ADDR    : std_logic_vector(8 downto 0) := '1' & x"a0";
     constant REG_DAQ_OH10_LASTBLOCK0_MSB    : integer := 31;
     constant REG_DAQ_OH10_LASTBLOCK0_LSB     : integer := 0;
 
-    constant REG_DAQ_OH10_LASTBLOCK1_ADDR    : std_logic_vector(8 downto 0) := '0' & x"ba";
+    constant REG_DAQ_OH10_LASTBLOCK1_ADDR    : std_logic_vector(8 downto 0) := '1' & x"a1";
     constant REG_DAQ_OH10_LASTBLOCK1_MSB    : integer := 31;
     constant REG_DAQ_OH10_LASTBLOCK1_LSB     : integer := 0;
 
-    constant REG_DAQ_OH10_LASTBLOCK2_ADDR    : std_logic_vector(8 downto 0) := '0' & x"bb";
+    constant REG_DAQ_OH10_LASTBLOCK2_ADDR    : std_logic_vector(8 downto 0) := '1' & x"a2";
     constant REG_DAQ_OH10_LASTBLOCK2_MSB    : integer := 31;
     constant REG_DAQ_OH10_LASTBLOCK2_LSB     : integer := 0;
 
-    constant REG_DAQ_OH10_LASTBLOCK3_ADDR    : std_logic_vector(8 downto 0) := '0' & x"bc";
+    constant REG_DAQ_OH10_LASTBLOCK3_ADDR    : std_logic_vector(8 downto 0) := '1' & x"a3";
     constant REG_DAQ_OH10_LASTBLOCK3_MSB    : integer := 31;
     constant REG_DAQ_OH10_LASTBLOCK3_LSB     : integer := 0;
 
-    constant REG_DAQ_OH10_LASTBLOCK4_ADDR    : std_logic_vector(8 downto 0) := '0' & x"bd";
+    constant REG_DAQ_OH10_LASTBLOCK4_ADDR    : std_logic_vector(8 downto 0) := '1' & x"a4";
     constant REG_DAQ_OH10_LASTBLOCK4_MSB    : integer := 31;
     constant REG_DAQ_OH10_LASTBLOCK4_LSB     : integer := 0;
 
-    constant REG_DAQ_OH10_LASTBLOCK5_ADDR    : std_logic_vector(8 downto 0) := '0' & x"be";
+    constant REG_DAQ_OH10_LASTBLOCK5_ADDR    : std_logic_vector(8 downto 0) := '1' & x"a5";
     constant REG_DAQ_OH10_LASTBLOCK5_MSB    : integer := 31;
     constant REG_DAQ_OH10_LASTBLOCK5_LSB     : integer := 0;
 
-    constant REG_DAQ_OH10_LASTBLOCK6_ADDR    : std_logic_vector(8 downto 0) := '0' & x"bf";
+    constant REG_DAQ_OH10_LASTBLOCK6_ADDR    : std_logic_vector(8 downto 0) := '1' & x"a6";
     constant REG_DAQ_OH10_LASTBLOCK6_MSB    : integer := 31;
     constant REG_DAQ_OH10_LASTBLOCK6_LSB     : integer := 0;
 
-    constant REG_DAQ_OH11_STATUS_VFAT_MIXED_EC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"c0";
+    constant REG_DAQ_OH11_STATUS_VFAT_MIXED_EC_ADDR    : std_logic_vector(8 downto 0) := '1' & x"b0";
     constant REG_DAQ_OH11_STATUS_VFAT_MIXED_EC_BIT    : integer := 1;
 
-    constant REG_DAQ_OH11_STATUS_VFAT_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"c0";
+    constant REG_DAQ_OH11_STATUS_VFAT_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '1' & x"b0";
     constant REG_DAQ_OH11_STATUS_VFAT_MIXED_BC_BIT    : integer := 2;
 
-    constant REG_DAQ_OH11_STATUS_OH_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '0' & x"c0";
+    constant REG_DAQ_OH11_STATUS_OH_MIXED_BC_ADDR    : std_logic_vector(8 downto 0) := '1' & x"b0";
     constant REG_DAQ_OH11_STATUS_OH_MIXED_BC_BIT    : integer := 3;
 
-    constant REG_DAQ_OH11_STATUS_VFAT_TOO_MANY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"c0";
+    constant REG_DAQ_OH11_STATUS_VFAT_TOO_MANY_ADDR    : std_logic_vector(8 downto 0) := '1' & x"b0";
     constant REG_DAQ_OH11_STATUS_VFAT_TOO_MANY_BIT    : integer := 4;
 
-    constant REG_DAQ_OH11_STATUS_VFAT_SMALL_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '0' & x"c0";
+    constant REG_DAQ_OH11_STATUS_VFAT_SMALL_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '1' & x"b0";
     constant REG_DAQ_OH11_STATUS_VFAT_SMALL_BLOCK_BIT    : integer := 5;
 
-    constant REG_DAQ_OH11_STATUS_VFAT_LARGE_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '0' & x"c0";
+    constant REG_DAQ_OH11_STATUS_VFAT_LARGE_BLOCK_ADDR    : std_logic_vector(8 downto 0) := '1' & x"b0";
     constant REG_DAQ_OH11_STATUS_VFAT_LARGE_BLOCK_BIT    : integer := 6;
 
-    constant REG_DAQ_OH11_STATUS_VFAT_NO_MARKER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"c0";
+    constant REG_DAQ_OH11_STATUS_VFAT_NO_MARKER_ADDR    : std_logic_vector(8 downto 0) := '1' & x"b0";
     constant REG_DAQ_OH11_STATUS_VFAT_NO_MARKER_BIT    : integer := 7;
 
-    constant REG_DAQ_OH11_STATUS_INPUT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"c0";
+    constant REG_DAQ_OH11_STATUS_INPUT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '1' & x"b0";
     constant REG_DAQ_OH11_STATUS_INPUT_FIFO_HAD_OFLOW_BIT    : integer := 8;
 
-    constant REG_DAQ_OH11_STATUS_INPUT_FIFO_HAD_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"c0";
+    constant REG_DAQ_OH11_STATUS_INPUT_FIFO_HAD_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '1' & x"b0";
     constant REG_DAQ_OH11_STATUS_INPUT_FIFO_HAD_UFLOW_BIT    : integer := 9;
 
-    constant REG_DAQ_OH11_STATUS_EVENT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"c0";
+    constant REG_DAQ_OH11_STATUS_EVENT_FIFO_HAD_OFLOW_ADDR    : std_logic_vector(8 downto 0) := '1' & x"b0";
     constant REG_DAQ_OH11_STATUS_EVENT_FIFO_HAD_OFLOW_BIT    : integer := 10;
 
-    constant REG_DAQ_OH11_STATUS_EVT_SIZE_ERR_ADDR    : std_logic_vector(8 downto 0) := '0' & x"c0";
+    constant REG_DAQ_OH11_STATUS_EVT_SIZE_ERR_ADDR    : std_logic_vector(8 downto 0) := '1' & x"b0";
     constant REG_DAQ_OH11_STATUS_EVT_SIZE_ERR_BIT    : integer := 11;
 
-    constant REG_DAQ_OH11_STATUS_TTS_STATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"c0";
+    constant REG_DAQ_OH11_STATUS_TTS_STATE_ADDR    : std_logic_vector(8 downto 0) := '1' & x"b0";
     constant REG_DAQ_OH11_STATUS_TTS_STATE_MSB    : integer := 15;
     constant REG_DAQ_OH11_STATUS_TTS_STATE_LSB     : integer := 12;
 
-    constant REG_DAQ_OH11_STATUS_INPUT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"c0";
+    constant REG_DAQ_OH11_STATUS_INPUT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '1' & x"b0";
     constant REG_DAQ_OH11_STATUS_INPUT_FIFO_IS_UFLOW_BIT    : integer := 24;
 
-    constant REG_DAQ_OH11_STATUS_INPUT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"c0";
+    constant REG_DAQ_OH11_STATUS_INPUT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '1' & x"b0";
     constant REG_DAQ_OH11_STATUS_INPUT_FIFO_IS_FULL_BIT    : integer := 25;
 
-    constant REG_DAQ_OH11_STATUS_INPUT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"c0";
+    constant REG_DAQ_OH11_STATUS_INPUT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '1' & x"b0";
     constant REG_DAQ_OH11_STATUS_INPUT_FIFO_IS_AFULL_BIT    : integer := 26;
 
-    constant REG_DAQ_OH11_STATUS_INPUT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"c0";
+    constant REG_DAQ_OH11_STATUS_INPUT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '1' & x"b0";
     constant REG_DAQ_OH11_STATUS_INPUT_FIFO_IS_EMPTY_BIT    : integer := 27;
 
-    constant REG_DAQ_OH11_STATUS_EVENT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '0' & x"c0";
+    constant REG_DAQ_OH11_STATUS_EVENT_FIFO_IS_UFLOW_ADDR    : std_logic_vector(8 downto 0) := '1' & x"b0";
     constant REG_DAQ_OH11_STATUS_EVENT_FIFO_IS_UFLOW_BIT    : integer := 28;
 
-    constant REG_DAQ_OH11_STATUS_EVENT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"c0";
+    constant REG_DAQ_OH11_STATUS_EVENT_FIFO_IS_FULL_ADDR    : std_logic_vector(8 downto 0) := '1' & x"b0";
     constant REG_DAQ_OH11_STATUS_EVENT_FIFO_IS_FULL_BIT    : integer := 29;
 
-    constant REG_DAQ_OH11_STATUS_EVENT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '0' & x"c0";
+    constant REG_DAQ_OH11_STATUS_EVENT_FIFO_IS_AFULL_ADDR    : std_logic_vector(8 downto 0) := '1' & x"b0";
     constant REG_DAQ_OH11_STATUS_EVENT_FIFO_IS_AFULL_BIT    : integer := 30;
 
-    constant REG_DAQ_OH11_STATUS_EVENT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '0' & x"c0";
+    constant REG_DAQ_OH11_STATUS_EVENT_FIFO_IS_EMPTY_ADDR    : std_logic_vector(8 downto 0) := '1' & x"b0";
     constant REG_DAQ_OH11_STATUS_EVENT_FIFO_IS_EMPTY_BIT    : integer := 31;
 
-    constant REG_DAQ_OH11_COUNTERS_CORRUPT_VFAT_BLK_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"c1";
+    constant REG_DAQ_OH11_COUNTERS_CORRUPT_VFAT_BLK_CNT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"b1";
     constant REG_DAQ_OH11_COUNTERS_CORRUPT_VFAT_BLK_CNT_MSB    : integer := 31;
     constant REG_DAQ_OH11_COUNTERS_CORRUPT_VFAT_BLK_CNT_LSB     : integer := 0;
 
-    constant REG_DAQ_OH11_COUNTERS_EVN_ADDR    : std_logic_vector(8 downto 0) := '0' & x"c2";
+    constant REG_DAQ_OH11_COUNTERS_EVN_ADDR    : std_logic_vector(8 downto 0) := '1' & x"b2";
     constant REG_DAQ_OH11_COUNTERS_EVN_MSB    : integer := 23;
     constant REG_DAQ_OH11_COUNTERS_EVN_LSB     : integer := 0;
 
-    constant REG_DAQ_OH11_CONTROL_EOE_TIMEOUT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"c3";
+    constant REG_DAQ_OH11_CONTROL_EOE_TIMEOUT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"b3";
     constant REG_DAQ_OH11_CONTROL_EOE_TIMEOUT_MSB    : integer := 23;
     constant REG_DAQ_OH11_CONTROL_EOE_TIMEOUT_LSB     : integer := 0;
     constant REG_DAQ_OH11_CONTROL_EOE_TIMEOUT_DEFAULT : std_logic_vector(23 downto 0) := x"000100";
 
-    constant REG_DAQ_OH11_COUNTERS_INPUT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"c4";
+    constant REG_DAQ_OH11_COUNTERS_INPUT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"b4";
     constant REG_DAQ_OH11_COUNTERS_INPUT_FIFO_DATA_CNT_MSB    : integer := 11;
     constant REG_DAQ_OH11_COUNTERS_INPUT_FIFO_DATA_CNT_LSB     : integer := 0;
 
-    constant REG_DAQ_OH11_COUNTERS_EVT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"c4";
+    constant REG_DAQ_OH11_COUNTERS_EVT_FIFO_DATA_CNT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"b4";
     constant REG_DAQ_OH11_COUNTERS_EVT_FIFO_DATA_CNT_MSB    : integer := 27;
     constant REG_DAQ_OH11_COUNTERS_EVT_FIFO_DATA_CNT_LSB     : integer := 16;
 
-    constant REG_DAQ_OH11_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"c5";
+    constant REG_DAQ_OH11_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"b5";
     constant REG_DAQ_OH11_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_MSB    : integer := 15;
     constant REG_DAQ_OH11_COUNTERS_INPUT_FIFO_NEAR_FULL_CNT_LSB     : integer := 0;
 
-    constant REG_DAQ_OH11_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '0' & x"c5";
+    constant REG_DAQ_OH11_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"b5";
     constant REG_DAQ_OH11_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_MSB    : integer := 31;
     constant REG_DAQ_OH11_COUNTERS_EVT_FIFO_NEAR_FULL_CNT_LSB     : integer := 16;
 
-    constant REG_DAQ_OH11_COUNTERS_VFAT_BLOCK_RATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"c6";
+    constant REG_DAQ_OH11_COUNTERS_VFAT_BLOCK_RATE_ADDR    : std_logic_vector(8 downto 0) := '1' & x"b6";
     constant REG_DAQ_OH11_COUNTERS_VFAT_BLOCK_RATE_MSB    : integer := 14;
     constant REG_DAQ_OH11_COUNTERS_VFAT_BLOCK_RATE_LSB     : integer := 0;
 
-    constant REG_DAQ_OH11_COUNTERS_EVT_RATE_ADDR    : std_logic_vector(8 downto 0) := '0' & x"c6";
+    constant REG_DAQ_OH11_COUNTERS_EVT_RATE_ADDR    : std_logic_vector(8 downto 0) := '1' & x"b6";
     constant REG_DAQ_OH11_COUNTERS_EVT_RATE_MSB    : integer := 31;
     constant REG_DAQ_OH11_COUNTERS_EVT_RATE_LSB     : integer := 15;
 
-    constant REG_DAQ_OH11_COUNTERS_MAX_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"c7";
+    constant REG_DAQ_OH11_COUNTERS_MAX_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '1' & x"b7";
     constant REG_DAQ_OH11_COUNTERS_MAX_EOE_TIMER_MSB    : integer := 23;
     constant REG_DAQ_OH11_COUNTERS_MAX_EOE_TIMER_LSB     : integer := 0;
 
-    constant REG_DAQ_OH11_COUNTERS_LAST_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '0' & x"c8";
+    constant REG_DAQ_OH11_COUNTERS_LAST_EOE_TIMER_ADDR    : std_logic_vector(8 downto 0) := '1' & x"b8";
     constant REG_DAQ_OH11_COUNTERS_LAST_EOE_TIMER_MSB    : integer := 23;
     constant REG_DAQ_OH11_COUNTERS_LAST_EOE_TIMER_LSB     : integer := 0;
 
-    constant REG_DAQ_OH11_LASTBLOCK0_ADDR    : std_logic_vector(8 downto 0) := '0' & x"c9";
+    constant REG_DAQ_OH11_COUNTERS_LIVE_VFAT_WORDS_64_LAST_ADDR    : std_logic_vector(8 downto 0) := '1' & x"b9";
+    constant REG_DAQ_OH11_COUNTERS_LIVE_VFAT_WORDS_64_LAST_MSB    : integer := 11;
+    constant REG_DAQ_OH11_COUNTERS_LIVE_VFAT_WORDS_64_LAST_LSB     : integer := 0;
+
+    constant REG_DAQ_OH11_COUNTERS_LIVE_VFAT_WORDS_64_MIN_ADDR    : std_logic_vector(8 downto 0) := '1' & x"b9";
+    constant REG_DAQ_OH11_COUNTERS_LIVE_VFAT_WORDS_64_MIN_MSB    : integer := 23;
+    constant REG_DAQ_OH11_COUNTERS_LIVE_VFAT_WORDS_64_MIN_LSB     : integer := 12;
+
+    constant REG_DAQ_OH11_COUNTERS_LIVE_VFAT_WORDS_64_MAX_ADDR    : std_logic_vector(8 downto 0) := '1' & x"ba";
+    constant REG_DAQ_OH11_COUNTERS_LIVE_VFAT_WORDS_64_MAX_MSB    : integer := 11;
+    constant REG_DAQ_OH11_COUNTERS_LIVE_VFAT_WORDS_64_MAX_LSB     : integer := 0;
+
+    constant REG_DAQ_OH11_COUNTERS_DAV_TIMEOUT_CONSEC_CNT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"bb";
+    constant REG_DAQ_OH11_COUNTERS_DAV_TIMEOUT_CONSEC_CNT_MSB    : integer := 15;
+    constant REG_DAQ_OH11_COUNTERS_DAV_TIMEOUT_CONSEC_CNT_LSB     : integer := 0;
+
+    constant REG_DAQ_OH11_COUNTERS_DAV_TIMEOUT_CNT_ADDR    : std_logic_vector(8 downto 0) := '1' & x"bb";
+    constant REG_DAQ_OH11_COUNTERS_DAV_TIMEOUT_CNT_MSB    : integer := 31;
+    constant REG_DAQ_OH11_COUNTERS_DAV_TIMEOUT_CNT_LSB     : integer := 16;
+
+    constant REG_DAQ_OH11_LASTBLOCK0_ADDR    : std_logic_vector(8 downto 0) := '1' & x"c0";
     constant REG_DAQ_OH11_LASTBLOCK0_MSB    : integer := 31;
     constant REG_DAQ_OH11_LASTBLOCK0_LSB     : integer := 0;
 
-    constant REG_DAQ_OH11_LASTBLOCK1_ADDR    : std_logic_vector(8 downto 0) := '0' & x"ca";
+    constant REG_DAQ_OH11_LASTBLOCK1_ADDR    : std_logic_vector(8 downto 0) := '1' & x"c1";
     constant REG_DAQ_OH11_LASTBLOCK1_MSB    : integer := 31;
     constant REG_DAQ_OH11_LASTBLOCK1_LSB     : integer := 0;
 
-    constant REG_DAQ_OH11_LASTBLOCK2_ADDR    : std_logic_vector(8 downto 0) := '0' & x"cb";
+    constant REG_DAQ_OH11_LASTBLOCK2_ADDR    : std_logic_vector(8 downto 0) := '1' & x"c2";
     constant REG_DAQ_OH11_LASTBLOCK2_MSB    : integer := 31;
     constant REG_DAQ_OH11_LASTBLOCK2_LSB     : integer := 0;
 
-    constant REG_DAQ_OH11_LASTBLOCK3_ADDR    : std_logic_vector(8 downto 0) := '0' & x"cc";
+    constant REG_DAQ_OH11_LASTBLOCK3_ADDR    : std_logic_vector(8 downto 0) := '1' & x"c3";
     constant REG_DAQ_OH11_LASTBLOCK3_MSB    : integer := 31;
     constant REG_DAQ_OH11_LASTBLOCK3_LSB     : integer := 0;
 
-    constant REG_DAQ_OH11_LASTBLOCK4_ADDR    : std_logic_vector(8 downto 0) := '0' & x"cd";
+    constant REG_DAQ_OH11_LASTBLOCK4_ADDR    : std_logic_vector(8 downto 0) := '1' & x"c4";
     constant REG_DAQ_OH11_LASTBLOCK4_MSB    : integer := 31;
     constant REG_DAQ_OH11_LASTBLOCK4_LSB     : integer := 0;
 
-    constant REG_DAQ_OH11_LASTBLOCK5_ADDR    : std_logic_vector(8 downto 0) := '0' & x"ce";
+    constant REG_DAQ_OH11_LASTBLOCK5_ADDR    : std_logic_vector(8 downto 0) := '1' & x"c5";
     constant REG_DAQ_OH11_LASTBLOCK5_MSB    : integer := 31;
     constant REG_DAQ_OH11_LASTBLOCK5_LSB     : integer := 0;
 
-    constant REG_DAQ_OH11_LASTBLOCK6_ADDR    : std_logic_vector(8 downto 0) := '0' & x"cf";
+    constant REG_DAQ_OH11_LASTBLOCK6_ADDR    : std_logic_vector(8 downto 0) := '1' & x"c6";
     constant REG_DAQ_OH11_LASTBLOCK6_MSB    : integer := 31;
     constant REG_DAQ_OH11_LASTBLOCK6_LSB     : integer := 0;
 

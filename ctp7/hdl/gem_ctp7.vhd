@@ -50,10 +50,10 @@ entity gem_ctp7 is
 
         LEDs                           : out std_logic_vector(1 downto 0);
 
-        axi_c2c_v7_to_zynq_data        : out std_logic_vector(14 downto 0);
+        axi_c2c_v7_to_zynq_data        : out std_logic_vector(16 downto 0);
         axi_c2c_v7_to_zynq_clk         : out std_logic;
         axi_c2c_zynq_to_v7_clk         : in  std_logic;
-        axi_c2c_zynq_to_v7_data        : in  std_logic_vector(14 downto 0);
+        axi_c2c_zynq_to_v7_data        : in  std_logic_vector(16 downto 0);
         axi_c2c_v7_to_zynq_link_status : out std_logic;
         axi_c2c_zynq_to_v7_reset       : in  std_logic;
 

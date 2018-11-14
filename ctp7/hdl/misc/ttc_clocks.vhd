@@ -92,16 +92,23 @@ END COMPONENT  ;
     signal ttc_clocks_bufg          : t_ttc_clks;
     
     ----------------- phase alignment ------------------
-    constant MMCM_PS_DONE_TIMEOUT : unsigned(7 downto 0) := x"9f"; -- datasheet says MMCM should complete a phase shift in 12 clocks, but we check it with some margin, just in case
+    constant MMCM_PS_DONE_TIMEOUT : unsigned(15 downto 0) := x"ffff"; -- datasheet says MMCM should complete a phase shift in 12 clocks, but we check it with some margin, just in case
     type pa_state_t is (IDLE, CHECK_FOR_LOCK, SHIFT_PHASE, WAIT_SHIFT_DONE, CHECK_FOR_UNLOCK, SHIFT_BACK, SYNC_DONE, DEAD);
+
+    constant MMCM_PS_EN_GTH_COMB : std_logic_vector(39 downto 0) := "0010000010000010000100000100000100000100";
 
     signal mmcm_ps_clk              : std_logic;
     signal mmcm_ps_en               : std_logic;
     signal mmcm_ps_incdec           : std_logic;
     signal mmcm_ps_done             : std_logic;
+    signal mmcm_ps_done_seen        : std_logic;
     signal mmcm_locked_raw          : std_logic;
     signal mmcm_locked              : std_logic;
     signal mmcm_reset               : std_logic;
+    signal mmcm_ps_en_manual        : std_logic;
+    signal mmcm_ps_en_manual_comb120: std_logic := '0';
+    signal mmcm_ps_en_manual_combdly: std_logic := '0';
+    signal mmcm_ps_en_manual_comb   : std_logic := '0';
 
     signal pll_locked_raw           : std_logic;
     signal pll_locked               : std_logic;
@@ -117,10 +124,11 @@ END COMPONENT  ;
     signal shift_back_cnt           : unsigned(15 downto 0) := (others => '0');
     signal pll_lock_wait_timer      : unsigned(23 downto 0) := (others => '0');
     signal pll_lock_window          : unsigned(15 downto 0) := (others => '0');
-    signal mmcm_ps_done_timer       : unsigned(7 downto 0)  := (others => '0');
+    signal mmcm_ps_done_timer       : unsigned(15 downto 0)  := (others => '0');
     signal unlock_cnt               : unsigned(15 downto 0) := (others => '0');
     signal mmcm_unlock_cnt          : unsigned(15 downto 0) := (others => '0');
     signal pll_unlock_cnt           : unsigned(15 downto 0) := (others => '0');
+    signal manual_shift_cnt         : unsigned(15 downto 0) := (others => '0');
     
     signal mmcm_lock_stable_cnt     : integer range 0 to 127 := 0;
     signal pll_lock_stable_cnt      : integer range 0 to 127 := 0;
@@ -160,14 +168,23 @@ END COMPONENT  ;
     signal gth_shift_req_dly        : std_logic := '0';
     signal gth_shift_ack            : std_logic := '0';
     signal gth_shift_dir            : std_logic := '0';
-    signal gth_shift_error          : std_logic := '0';
+    signal gth_shift_error          : std_logic_vector(3 downto 0) := (others => '0');
     signal gth_shift_cnt            : unsigned(2 downto 0) := (others => '0');
     signal gth_reset_done           : std_logic := '0';
+    signal gth_reset_cnt            : std_logic_vector(15 downto 0);
     signal gth_txphalign_sync       : std_logic := '0';
     signal gth_txphalign_sync_prev  : std_logic := '0';
-    signal gth_tx_pippm_ctrl        : t_gth_tx_pippm_ctrl := (enable => '0', direction => '0', step_size => (others => '0'));
+--    signal gth_tx_pippm_ctrl        : t_gth_tx_pippm_ctrl := (enable => '0', direction => '0', step_size => (others => '0'), sel => '0', txdlybypass => '0');
     signal gth_shift_en_timer       : unsigned(1 downto 0) := (others => '0');
     signal gth_shift_cnt_global     : unsigned(15 downto 0) := (others => '0');
+    signal gth_pippm_auto_sel       : std_logic;
+    signal gth_pippm_auto_dir       : std_logic;
+    signal gth_pippm_auto_step      : std_logic_vector(3 downto 0);
+    signal gth_pippm_auto_en        : std_logic;
+    signal gth_pippm_manual_en_tmp  : std_logic;
+    signal gth_pippm_manual_en      : std_logic;
+    signal gth_pippm_manual_shift_cnt: unsigned(15 downto 0);
+    
         
     -- debug counters
     signal shift_back_fail_cnt      : unsigned(7 downto 0) := (others => '0');
@@ -180,7 +197,12 @@ begin
     mmcm_reset <= ctrl_i.reset_mmcm;
     fsm_reset <= ctrl_i.reset_sync_fsm;
 
-    gth_tx_pippm_ctrl_o <= gth_tx_pippm_ctrl;
+    gth_tx_pippm_ctrl_o.txdlybypass <= ctrl_i.gth_txdlybypass;
+    gth_tx_pippm_ctrl_o.sel <= gth_pippm_auto_sel or ctrl_i.gth_sel_ovrd;
+    gth_tx_pippm_ctrl_o.direction <= gth_pippm_auto_dir when ctrl_i.pa_manual_gth_shift_ovrd = '0' else ctrl_i.pa_manual_gth_shift_dir;
+    gth_tx_pippm_ctrl_o.step_size <= gth_pippm_auto_step when ctrl_i.pa_manual_gth_shift_ovrd = '0' else ctrl_i.pa_manual_gth_shift_step;
+    gth_tx_pippm_ctrl_o.enable <= gth_pippm_auto_en when ctrl_i.pa_manual_gth_shift_ovrd = '0' else gth_pippm_manual_en;
+    
 
     -- Input buffering
     --------------------------------------
@@ -262,8 +284,8 @@ begin
             DWE          => '0',
             -- Ports for dynamic phase shift
             PSCLK        => mmcm_ps_clk,
-            PSEN         => mmcm_ps_en,
-            PSINCDEC     => mmcm_ps_incdec,
+            PSEN         => (mmcm_ps_en and not ctrl_i.pa_manual_shift_ovrd) or ((mmcm_ps_en_manual or (mmcm_ps_en_manual_comb and ctrl_i.pa_manual_combined)) and ctrl_i.pa_manual_shift_ovrd),
+            PSINCDEC     => (mmcm_ps_incdec and not ctrl_i.pa_manual_shift_ovrd) or (ctrl_i.pa_manual_shift_dir and ctrl_i.pa_manual_shift_ovrd and not ctrl_i.pa_manual_combined) or (not ctrl_i.pa_manual_gth_shift_dir and ctrl_i.pa_manual_shift_ovrd and ctrl_i.pa_manual_combined),
             PSDONE       => mmcm_ps_done,
             -- Other control and status signals
             LOCKED       => mmcm_locked_raw,
@@ -300,6 +322,8 @@ begin
             I => clk_120
         );
 
+    ttc_clocks_bufg.clk_40_backplane <= clk_40_ttc_bufg;
+
     clocks_o <= ttc_clocks_bufg;
 
     ----------------------------------------------------------
@@ -321,6 +345,7 @@ begin
     status_o.pa_fsm_state <= std_logic_vector(to_unsigned(pa_state_t'pos(pa_state), 3));
     status_o.sync_done_time <= sync_done_time;
     status_o.phase_unlock_time <= phase_unlock_time;
+    status_o.pa_manual_shift_cnt <= std_logic_vector(manual_shift_cnt);
       
     -- using this PLL to check phase alignment between the MMCM 120 output and TTC 120
     i_phase_monitor_pll : PLLE2_BASE
@@ -356,7 +381,7 @@ begin
             CLKFBIN  => ttc_clocks_bufg.clk_40,
             CLKIN1   => clk_40_ttc_bufg,
             PWRDWN   => '0',
-            RST      => pll_reset
+            RST      => (pll_reset and not ctrl_i.force_sync_done) or ctrl_i.reset_pll
         );  
 
     -- detect stable MMCM and PLL lock signals 
@@ -370,7 +395,7 @@ begin
                 mmcm_locked <= '0';
             end if;
             
-            if ((pll_lock_stable_cnt = LOCK_STABLE_TIMEOUT) and (pll_locked_raw = '1') and (pll_reset = '0')) then
+            if ((pll_lock_stable_cnt = LOCK_STABLE_TIMEOUT) and (pll_locked_raw = '1') and (pll_reset = '0' or ctrl_i.force_sync_done = '1') and (ctrl_i.reset_pll = '0')) then
                 pll_locked <= '1';
             else
                 pll_locked <= '0';
@@ -394,13 +419,13 @@ begin
                 mmcm_lock_stable_cnt <= mmcm_lock_stable_cnt + 1;
             end if;
 
-            if ((pll_locked_raw = '0') or (pll_reset = '1')) then
+            if ((pll_locked_raw = '0') or (pll_reset = '1' and ctrl_i.force_sync_done = '0') or (ctrl_i.reset_pll = '1')) then
                 pll_lock_stable_cnt <= 0;
             elsif (pll_lock_stable_cnt < LOCK_STABLE_TIMEOUT) then
                 pll_lock_stable_cnt <= pll_lock_stable_cnt + 1;
             end if;
 
-            if ((pll_locked_raw = '1') or (pll_reset = '1')) then
+            if ((pll_locked_raw = '1') or (pll_reset = '1' and ctrl_i.force_sync_done = '0') or (ctrl_i.reset_pll = '1')) then
                 pll_unlock_stable_cnt <= 0;
             elsif (pll_unlock_stable_cnt < UNLOCK_STABLE_TIMEOUT + 1) then
                 pll_unlock_stable_cnt <= pll_unlock_stable_cnt + 1;
@@ -445,6 +470,7 @@ begin
             if ((mmcm_reset = '1') or (fsm_reset = '1') or (ctrl_i.force_sync_done = '1')) then
                 pll_reset <= '1';
                 mmcm_ps_en <= '0';
+                mmcm_ps_done_seen <= '0';
                 pll_lock_wait_timer <= (others => '0'); 
                 mmcm_ps_done_timer <= (others => '0');
                 searching_for_unlock <= '0';
@@ -504,6 +530,7 @@ begin
                         
                     when SHIFT_PHASE =>
                         mmcm_ps_en <= '1';
+                        mmcm_ps_done_seen <= '0';
                         pa_state <= WAIT_SHIFT_DONE;
                         pll_reset <= '1';
                         mmcm_ps_done_timer <= (others => '0');
@@ -512,11 +539,15 @@ begin
                         mmcm_ps_en <= '0';
                         pll_reset <= '1';
 
-                        if ((mmcm_ps_done = '1') and (shifting_back = '1')) then
+                        if (mmcm_ps_done = '1') then
+                            mmcm_ps_done_seen <= '1';
+                        end if;
+
+                        if ((mmcm_ps_done_seen = '1') and (shifting_back = '1') and (mmcm_ps_done_timer = unsigned(ctrl_i.pa_shift_wait_time))) then
                             pa_state <= SHIFT_BACK;
-                        elsif ((mmcm_ps_done = '1') and (searching_for_unlock = '1')) then
+                        elsif ((mmcm_ps_done_seen = '1') and (searching_for_unlock = '1') and (mmcm_ps_done_timer = unsigned(ctrl_i.pa_shift_wait_time))) then
                             pa_state <= CHECK_FOR_UNLOCK;
-                        elsif ((mmcm_ps_done = '1') and (mmcm_locked = '1')) then
+                        elsif ((mmcm_ps_done_seen = '1') and (mmcm_locked = '1') and (mmcm_ps_done_timer = unsigned(ctrl_i.pa_shift_wait_time))) then
                             pa_state <= CHECK_FOR_LOCK;
                         else
                             -- datasheet says MMCM should lock in 12 clock cycles and assert mmcm_ps_done for one clock period, but we have a timeout just in case
@@ -585,6 +616,7 @@ begin
                             shift_back_cnt <= shift_back_cnt - 1;
                             pa_state <= WAIT_SHIFT_DONE;
                             mmcm_ps_en <= '1';
+                            mmcm_ps_done_seen <= '0';
                             pll_reset <= '1';
                             mmcm_ps_done_timer <= (others => '0');
                             shift_cnt <= shift_cnt - 1;
@@ -631,6 +663,130 @@ begin
             seconds_o => sync_done_time
         );    
 
+    -------------- Manual MMCM shifting -------------
+    
+    i_mmcm_ps_en_manual_oneshot : entity work.oneshot_cross_domain
+        port map(
+            reset_i       => mmcm_reset,
+            input_clk_i   => ttc_clocks_bufg.clk_40,
+            oneshot_clk_i => mmcm_ps_clk,
+            input_i       => ctrl_i.pa_manual_shift_en,
+            oneshot_o     => mmcm_ps_en_manual
+        );
+
+    process (mmcm_ps_clk)
+    begin
+        if (rising_edge(mmcm_ps_clk)) then
+            if (ctrl_i.reset_cnt = '1') then
+                manual_shift_cnt <= (others => '0');
+            else
+                if (ctrl_i.pa_manual_combined = '0') then
+                    if ((mmcm_ps_en_manual and ctrl_i.pa_manual_shift_ovrd) = '1') then
+                        if (ctrl_i.pa_manual_shift_dir = '1') then
+                            manual_shift_cnt <= manual_shift_cnt + 1;
+                        else
+                            manual_shift_cnt <= manual_shift_cnt - 1;
+                        end if;
+                    end if;
+                else
+                    if ((mmcm_ps_en_manual_comb and ctrl_i.pa_manual_shift_ovrd) = '1') then
+                        if (ctrl_i.pa_manual_gth_shift_dir = '0') then
+                            manual_shift_cnt <= manual_shift_cnt + 1;
+                        else
+                            manual_shift_cnt <= manual_shift_cnt - 1;
+                        end if;
+                    end if;
+                end if;
+            end if;
+        end if;
+    end process;
+
+    -------------- Manual GTH PIPPM shifting -------------
+    
+    i_gth_ps_en_manual_oneshot : entity work.oneshot_cross_domain
+        port map(
+            reset_i       => mmcm_reset,
+            input_clk_i   => ttc_clocks_bufg.clk_40,
+            oneshot_clk_i => ttc_clocks_bufg.clk_120,
+            input_i       => ctrl_i.pa_manual_gth_shift_en,
+            oneshot_o     => gth_pippm_manual_en_tmp
+        );
+
+    i_gth_ps_en_extend : entity work.pulse_extend
+        generic map(
+            DELAY_CNT_LENGTH => 2
+        )
+        port map(
+            clk_i          => ttc_clocks_bufg.clk_120,
+            rst_i          => mmcm_reset,
+            pulse_length_i => "10",
+            pulse_i        => gth_pippm_manual_en_tmp,
+            pulse_o        => gth_pippm_manual_en
+        );
+
+    process (ttc_clocks_bufg.clk_120)
+    begin
+        if (rising_edge(ttc_clocks_bufg.clk_120)) then
+            if (gth_reset_done = '1') then
+                gth_pippm_manual_shift_cnt <= (others => '0');
+            else
+                if ((gth_pippm_manual_en_tmp and ctrl_i.pa_manual_gth_shift_ovrd) = '1') then
+                    if (ctrl_i.pa_manual_gth_shift_dir = '0' and gth_pippm_manual_shift_cnt = x"0027") then
+                        gth_pippm_manual_shift_cnt <= (others => '0');
+                    elsif (ctrl_i.pa_manual_gth_shift_dir = '0') then
+                        gth_pippm_manual_shift_cnt <= gth_pippm_manual_shift_cnt + 1;
+                    elsif (ctrl_i.pa_manual_gth_shift_dir = '1' and gth_pippm_manual_shift_cnt = x"0000") then
+                        gth_pippm_manual_shift_cnt <= x"0027";
+                    else
+                        gth_pippm_manual_shift_cnt <= gth_pippm_manual_shift_cnt - 1;
+                    end if;
+                end if;
+            end if;
+        end if;
+    end process;
+
+    -------------- Combined GTH and MMCM manual shifting --------------
+    
+    process (ttc_clocks_bufg.clk_120)
+    begin
+        if (rising_edge(ttc_clocks_bufg.clk_120)) then
+            if (ctrl_i.pa_manual_gth_shift_ovrd = '0') then
+                mmcm_ps_en_manual_comb120 <= '0';
+            else
+                if (gth_pippm_manual_en_tmp = '1') then
+                    if (gth_pippm_manual_shift_cnt = x"0000" and ctrl_i.pa_manual_gth_shift_dir = '1') then
+                        mmcm_ps_en_manual_comb120 <= MMCM_PS_EN_GTH_COMB(39); 
+                    elsif (ctrl_i.pa_manual_gth_shift_dir = '1') then
+                        mmcm_ps_en_manual_comb120 <= MMCM_PS_EN_GTH_COMB(to_integer(gth_pippm_manual_shift_cnt - 1));
+                    else
+                        mmcm_ps_en_manual_comb120 <= MMCM_PS_EN_GTH_COMB(to_integer(gth_pippm_manual_shift_cnt));
+                    end if;
+                else
+                    mmcm_ps_en_manual_comb120 <= '0';
+                end if;
+            end if;
+        end if;
+    end process;
+
+    i_mmcm_ps_en_manual_combined_delay : entity work.synchronizer
+        generic map(
+            N_STAGES => 5
+        )
+        port map(
+            async_i => mmcm_ps_en_manual_comb120,
+            clk_i   => ttc_clocks_bufg.clk_120,
+            sync_o  => mmcm_ps_en_manual_combdly
+        );
+
+    i_mmcm_ps_en_manual_combined_oneshot : entity work.oneshot_cross_domain
+        port map(
+            reset_i       => mmcm_reset,
+            input_clk_i   => ttc_clocks_bufg.clk_120,
+            oneshot_clk_i => mmcm_ps_clk,
+            input_i       => mmcm_ps_en_manual_combdly,
+            oneshot_o     => mmcm_ps_en_manual_comb
+        );
+        
     -------------- GTH PI PPM shifting --------------
     
     -- transfer the mmcm_ps_en and mmcm_ps_incdec from mmcm_ps_clk to TXUSRCLK (ttc_clocks_bufg.clk_120) domain
@@ -640,24 +796,28 @@ begin
             if ((fsm_reset = '1') or (ctrl_i.force_sync_done = '1')) then
                 gth_shift_req <= '0';
                 gth_shift_dir <= '0';
-                gth_shift_error <= '0';
+                gth_shift_error <= (others => '0');
                 gth_shift_req_dly <= '0';
             else
                 gth_shift_req_dly <= gth_shift_req;
                 
                 if (gth_shift_req = '0') then
-                    if (mmcm_ps_en = '1') then
+                    if ((mmcm_ps_en and not ctrl_i.pa_manual_shift_ovrd) or (mmcm_ps_en_manual and ctrl_i.pa_manual_shift_ovrd)) = '1' then
                         gth_shift_req <= '1';
-                        gth_shift_dir <= mmcm_ps_incdec;
+                        if (ctrl_i.pa_manual_shift_ovrd = '0') then
+                            gth_shift_dir <= mmcm_ps_incdec;
+                        else
+                            gth_shift_dir <= ctrl_i.pa_manual_shift_dir;
+                        end if;
                     else
                         gth_shift_req <= '0';
                     end if; 
-                    if (gth_shift_ack = '1') then
-                        gth_shift_error <= '1';
-                    end if;
+--                    if (gth_shift_ack = '1') then
+--                        gth_shift_error <= x"1";
+--                    end if;
                 else
-                    if (mmcm_ps_en = '1') then
-                        gth_shift_error <= '1';
+                    if ((mmcm_ps_en and not ctrl_i.pa_manual_shift_ovrd) or (mmcm_ps_en_manual and ctrl_i.pa_manual_shift_ovrd)) = '1' then
+                        gth_shift_error <= x"2";
                     end if;
                     if (gth_shift_ack = '1') then
                         gth_shift_req <= '0';
@@ -689,6 +849,18 @@ begin
         end if;
     end process;
     
+    i_gth_reset_cnt : entity work.counter
+        generic map(
+            g_COUNTER_WIDTH  => 16,
+            g_ALLOW_ROLLOVER => false
+        )
+        port map(
+            ref_clk_i => ttc_clocks_bufg.clk_120,
+            reset_i   => '0',
+            en_i      => gth_reset_done,
+            count_o   => gth_reset_cnt
+        );
+    
     -- control of the GTH TX PIPPM controller
     -- whenever it sees that the MMCM was shifted, it will shift the TX PI in the same direction (by asserting the PIPPM_EN for 2 clock cycles)
     -- the PIPPM shift resolution is different from the MMCM shift resolution. The 4.8Gbs GBT GTH PI shift step in it's current configuration =  6.510416667ps, while this MMCM step is 18.601190476ps
@@ -700,57 +872,65 @@ begin
     process(ttc_clocks_bufg.clk_120)
     begin
         if (rising_edge(ttc_clocks_bufg.clk_120)) then
-            if (gth_reset_done = '1') then
+            if (gth_reset_done = '1' or gth_reset_cnt = x"0000") then
                 gth_shift_ack <= '0';
                 gth_shift_cnt <= (others => '0');
-                gth_tx_pippm_ctrl.enable <= '0';
-                gth_tx_pippm_ctrl.direction <= '0';
-                gth_tx_pippm_ctrl.step_size <= (others => '0');
+                gth_pippm_auto_en <= '0';
+                gth_pippm_auto_dir <= '0';
+                gth_pippm_auto_step <= (others => '0');
+                gth_pippm_auto_sel <= '0';
                 gth_shift_en_timer <= (others => '0');
                 gth_shift_cnt_global <= (others => '0');
             elsif ((fsm_reset = '1') or (ctrl_i.force_sync_done = '1') or (ctrl_i.gth_phalign_disable = '1')) then
                 gth_shift_ack <= '0';
-                gth_tx_pippm_ctrl.enable <= '0';
-                gth_tx_pippm_ctrl.direction <= '0';
-                gth_tx_pippm_ctrl.step_size <= (others => '0');
+                gth_pippm_auto_en <= '0';
+                gth_pippm_auto_dir <= '0';
+                gth_pippm_auto_sel <= '0';
+                gth_pippm_auto_step <= (others => '0');
                 gth_shift_en_timer <= (others => '0');
                 gth_shift_cnt_global <= (others => '0');
             else
 
+                gth_pippm_auto_sel <= ctrl_i.gth_shift_use_sel;
+
                 if (gth_shift_req_dly = '1' and gth_shift_ack = '0') then
                     gth_shift_ack <= '1';
-                                        
-                    gth_tx_pippm_ctrl.direction <= not gth_shift_dir; -- shifting the MMCM feedback clock forward, actually shifts the outputs backwards.. so in this case we have to shift the PMA clock also backwards..
-                    gth_tx_pippm_ctrl.enable <= '1';
+                    
+                    if (ctrl_i.gth_shift_rev_dir = '0') then
+                        gth_pippm_auto_dir <= not gth_shift_dir; -- shifting the MMCM feedback clock forward, actually shifts the outputs backwards.. so in this case we have to shift the PMA clock also backwards..
+                    else 
+                        gth_pippm_auto_dir <= gth_shift_dir;
+                    end if;
+                    gth_pippm_auto_en <= '1';
                     gth_shift_en_timer <= "01";
                     
                     -- set the GTH PI shift amount (we normally do 3 steps, except in the middle of every 7 shifts we do 2 steps)
                     if (gth_shift_dir = '1') then
                         if (gth_shift_cnt = 2) then
                             gth_shift_cnt <= gth_shift_cnt + 1;
-                            gth_tx_pippm_ctrl.step_size <= x"2";
+                            gth_pippm_auto_step <= x"2";
                             gth_shift_cnt_global <= gth_shift_cnt_global + x"0002";
                         elsif (gth_shift_cnt = 6) then
                             gth_shift_cnt <= (others => '0');
-                            gth_tx_pippm_ctrl.step_size <= x"3";
+                            gth_pippm_auto_step <= x"3";
                             gth_shift_cnt_global <= gth_shift_cnt_global + x"0003";
                         else
                             gth_shift_cnt <= gth_shift_cnt + 1;
-                            gth_tx_pippm_ctrl.step_size <= x"3";
+                            gth_pippm_auto_step <= x"3";
                             gth_shift_cnt_global <= gth_shift_cnt_global + x"0003";
                         end if;
                     else
                         if (gth_shift_cnt = 3) then
                             gth_shift_cnt <= gth_shift_cnt - 1;
-                            gth_tx_pippm_ctrl.step_size <= x"2";
+                            gth_pippm_auto_step <= x"2";
                             gth_shift_cnt_global <= gth_shift_cnt_global - x"0002";
                         elsif (gth_shift_cnt = 0) then
                             gth_shift_cnt <= "110";
-                            gth_tx_pippm_ctrl.step_size <= x"3";
+                            gth_pippm_auto_step <= x"3";
                             gth_shift_cnt_global <= gth_shift_cnt_global - x"0003";
                         else
                             gth_shift_cnt <= gth_shift_cnt - 1;
-                            gth_tx_pippm_ctrl.step_size <= x"3";
+                            gth_pippm_auto_step <= x"3";
                             gth_shift_cnt_global <= gth_shift_cnt_global - x"0003";
                         end if;
                     end if;
@@ -762,10 +942,10 @@ begin
                 end if;
                 
                 -- hold the enable signal high for 2 clock cycles
-                if (gth_tx_pippm_ctrl.enable = '1' and gth_shift_en_timer /= "10") then
+                if (gth_pippm_auto_en = '1' and gth_shift_en_timer /= "10") then
                     gth_shift_en_timer <= gth_shift_en_timer + 1;
                 elsif (gth_shift_en_timer = "10") then
-                    gth_tx_pippm_ctrl.enable <= '0';
+                    gth_pippm_auto_en <= '0';
                 end if;
                 
             end if;
@@ -774,6 +954,8 @@ begin
     
     status_o.gth_pi_shift_error <= gth_shift_error;
     status_o.gth_pi_shift_cnt <= std_logic_vector(gth_shift_cnt_global);
+    status_o.gth_reset_cnt <= gth_reset_cnt;
+    status_o.gth_pi_man_shift_cnt <= std_logic_vector(gth_pippm_manual_shift_cnt);
         
     -------------- Phase monitoring of the TX 40MHz derived from TXOUTCLK vs TTC backplane -------------- 
     
@@ -793,7 +975,7 @@ begin
             PHASE_JUMP_THRESH => x"035" -- 1ns
         )
         port map(
-            reset_i             => (not sync_good) or ctrl_i.reset_cnt,
+            reset_i             => (not sync_good and not ctrl_i.force_sync_done) or ctrl_i.reset_cnt,
             clk1_i              => gth_master_pcs_clk_i,
             clk2_i              => ttc_clocks_bufg.clk_120,
             phase_o             => gth_phase,
@@ -825,9 +1007,9 @@ begin
             PHASE_JUMP_THRESH => x"06c" -- 2ns
         )
         port map(
-            reset_i             => (not sync_good) or ctrl_i.reset_cnt,
-            clk1_i              => clk_40_ttc_bufg,
-            clk2_i              => ttc_clocks_bufg.clk_40,
+            reset_i             => (not sync_good and not ctrl_i.force_sync_done) or ctrl_i.reset_cnt,
+            clk1_i              => ttc_clocks_bufg.clk_40,
+            clk2_i              => clk_40_ttc_bufg,
             phase_o             => ttc_phase,
             phase_mean_o        => ttc_phase_mean,
             phase_min_o         => ttc_phase_min,

@@ -66,7 +66,7 @@ begin
   process(clk_i) is
   begin
     if rising_edge(clk_i) then
-      if s_count_down_cnt /= 0 then
+      if s_count_down_cnt /= to_unsigned(0, DELAY_CNT_LENGTH) then
         pulse_o <= '1';
       else
         pulse_o <= '0';

@@ -42,10 +42,10 @@ entity system is
     clk_200_diff_in_clk_p : in std_logic;
     clk_200_diff_in_clk_n : in std_logic;
 
-    axi_c2c_v7_to_zynq_data        : out std_logic_vector (14 downto 0);
+    axi_c2c_v7_to_zynq_data        : out std_logic_vector (16 downto 0);
     axi_c2c_v7_to_zynq_clk         : out std_logic;
     axi_c2c_zynq_to_v7_clk         : in  std_logic;
-    axi_c2c_zynq_to_v7_data        : in  std_logic_vector (14 downto 0);
+    axi_c2c_zynq_to_v7_data        : in  std_logic_vector (16 downto 0);
     axi_c2c_v7_to_zynq_link_status : out std_logic;
     axi_c2c_zynq_to_v7_reset       : in  std_logic;
 
@@ -131,10 +131,10 @@ architecture system_arch of system is
       BRAM_CTRL_GTH_REG_FILE_we   : out std_logic_vector (3 downto 0);
 
       axi_c2c_zynq_to_v7_clk         : in  std_logic;
-      axi_c2c_zynq_to_v7_data        : in  std_logic_vector (14 downto 0);
+      axi_c2c_zynq_to_v7_data        : in  std_logic_vector (16 downto 0);
       axi_c2c_v7_to_zynq_link_status : out std_logic;
       axi_c2c_v7_to_zynq_clk         : out std_logic;
-      axi_c2c_v7_to_zynq_data        : out std_logic_vector (14 downto 0);
+      axi_c2c_v7_to_zynq_data        : out std_logic_vector (16 downto 0);
       axi_c2c_zynq_to_v7_reset       : in  std_logic;
 
       clk_200_diff_in_clk_n : in std_logic;
@@ -363,10 +363,10 @@ begin
       BRAM_CTRL_GTH_REG_FILE_we(3 downto 0)    => BRAM_CTRL_GTH_REG_FILE_we(3 downto 0),
 
       axi_c2c_v7_to_zynq_clk               => axi_c2c_v7_to_zynq_clk,
-      axi_c2c_v7_to_zynq_data(14 downto 0) => axi_c2c_v7_to_zynq_data(14 downto 0),
+      axi_c2c_v7_to_zynq_data(16 downto 0) => axi_c2c_v7_to_zynq_data(16 downto 0),
       axi_c2c_v7_to_zynq_link_status       => axi_c2c_v7_to_zynq_link_status,
       axi_c2c_zynq_to_v7_clk               => axi_c2c_zynq_to_v7_clk,
-      axi_c2c_zynq_to_v7_data(14 downto 0) => axi_c2c_zynq_to_v7_data(14 downto 0),
+      axi_c2c_zynq_to_v7_data(16 downto 0) => axi_c2c_zynq_to_v7_data(16 downto 0),
       axi_c2c_zynq_to_v7_reset             => axi_c2c_zynq_to_v7_reset,
 
       clk_200_diff_in_clk_n => clk_200_diff_in_clk_n,

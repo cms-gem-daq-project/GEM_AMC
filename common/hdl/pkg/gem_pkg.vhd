@@ -10,10 +10,10 @@ package gem_pkg is
     --==  Firmware version  ==--
     --========================-- 
 
-    constant C_FIRMWARE_DATE    : std_logic_vector(31 downto 0) := x"20180608";
+    constant C_FIRMWARE_DATE    : std_logic_vector(31 downto 0) := x"20181114";
     constant C_FIRMWARE_MAJOR   : integer range 0 to 255        := 1;
-    constant C_FIRMWARE_MINOR   : integer range 0 to 255        := 12;
-    constant C_FIRMWARE_BUILD   : integer range 0 to 255        := 5;
+    constant C_FIRMWARE_MINOR   : integer range 0 to 255        := 16;
+    constant C_FIRMWARE_BUILD   : integer range 0 to 255        := 0;
     
     ------ Change log ------
     -- 1.8.6  no gbt sync procedure with oh
@@ -47,8 +47,40 @@ package gem_pkg is
     -- 1.12.2 Shift out of phase initially after phase alignment reset (can be disabled with a register). Also a running mean of the phase measurement was added.
     -- 1.12.3 GTH PI clock phase adjustment implemented when shifting the MMCM outputs (which affects the TXUSRCLK phase). This should keep the GTH PI and TXUSRCLK reasonably in phase
     -- 1.12.4 Added GTH shift count and GTH shift error registers. Also set TXDLYBYPASS = 1, and TXPIPPMSEL = 1
-    -- 1.12.5 Inverted the GTH shift direction w.r.t. MMCM shift direction, because in MMCM we're shifting the feedback clock, which actually shifts the outputs in the opposite direction.. 
-
+    -- 1.12.5 Inverted the GTH shift direction w.r.t. MMCM shift direction, because in MMCM we're shifting the feedback clock, which actually shifts the outputs in the opposite direction..
+    -- 1.12.6 Set TXDLYBYPASS back to 0, and set TXPIPPMSEL to 1 only when shifting the PI phase and only if PA_GTH_SHIFT_USE_SEL is set to 1 (GTH reset doesn't complete if it's set to 1).
+    --        Also GTH PIPPM shift direction is configurable now. The delay between phase shifts is also configurable.
+    -- 1.12.7 Configurable TXDLYBYPASS, and a possibility to do manual shifts using registers
+    -- 1.12.8 Fixed a bug which previously prevented the GTH PIPPM shifting when doing a manual shift, so only the MMCM would be shifted
+    -- 1.12.9 Fix manual shift pulse length, and add manual shift support for GTH PIPPM only. Also set TXDLYBYPASS to 1 by default, because it really messes up the MMCM shifting
+    -- 1.12.10 Fix a bug in MMCM manual shifting, where a single write to manual shift enable register would sometimes not work or do multiple shifts
+    -- 1.12.11 Added a manual PLL reset control
+    -- 1.12.12 Added a way to do combined shifts: when PA_GTH_MANUAL_COMBINED, PA_GTH_MANUAL_OVERRIDE, and PA_MANUAL_OVERRIDE are set,
+    --         then pulsing the PA_GTH_MANUAL_SHIFT_EN will shift the GTH and also when necessary it will shift the MMCM in a way that keeps the internal GTH phase unchanged, but results in MMCM shift w.r.t. TTC backplane clock
+    --         (the MMCM shift direction is controlled automatically based on selected PA_GTH_MANUAL_SHIFT_DIR)
+    -- 1.12.13 Added flipflops for ipb_mosi inputs in the ipbus_slave.vhd to ease the timing on the ipbus path
+    -- 1.13.0  TTC commands are now latched using the backplane clock and buffered before decoding. The buffer is reset after a TTC module reset or a TTC resync command. This should avoid sampling bad TTC commands if the fabric clock phase shifts w.r.t. the backplane clock phase.
+    --         After a reset the buffer is filled up to a specified amount controlled by the BUF_DEPTH_AFTER_RESET register, which is set to 8 by default (total available buffer depth is 16).
+    --         Whenever the buffer depth exceeds a specified maximum depth (BUF_OOS_MAX_DEPTH, default = 9) or falls below a specified minimum depth level (BUF_OOS_MIN_DEPTH, default = 7), a TTS out-of-sync condition is triggered.
+    --         While the buffer is being filled initially after a reset, a TTS busy state is asserted (this should only last for BUF_DEPTH_AFTER_RESET clock cycles, which is 8 by default).
+    --         There are status registers to monitor the current buffer depth, buffer out of sync condition, and buffer busy condition.
+    --         Note that this introduces additional L1A latency, equal to BUF_DEPTH_AFTER_RESET + 1, so frontend latency should be adjusted accordingly.
+    -- 1.13.1  Wait until the TTC command FIFO has reset before enabling the writing
+    -- 1.13.2  Switched to distributed RAM FIFO for TTC command buffer
+    -- 1.13.3  Delay the check of OOS by 1 clock by starting to read 1 clock before asserting reset_done in the ttc command buffer logic
+    -- 1.13.4  Fixed a few bugs in DAQ: zero suppression was causing event size overflow; the chamber TTS state was not being propagated to top TTS (except for the last chamber); the TTS countdown period after reset was not working (not a problem really)
+    -- 1.14.0  Switched from end-of-event based on VFAT BC to OH EC and BC counters (default is using OH EC BC, but it can be switched back to VFAT BC with a registers). Also added OH EC BC counters to the readout in an unused spot of chamber trailer bits [31:0]
+    -- 1.14.1  In PA phase monitor, the sampling clock source was switched from the backplane clock to the jitter cleaned MMCM clock. This is to check if the spread on the phase measurement would improve.
+    -- 1.15.0  DAQ input processor is now also counting the number of zero suppressed VFAT words and putting that into the datastream, using a spot previously dedicated to per chamber zero suppression flags (bits [51:40] in chamber header). DAQ format version has been changed from 0 to 1 to reflect that.
+    --         Also registers are available to read the current, min, and max "VFAT live word count", which is the number of non-zero-suppressed + zero-suppressed 64bit words (total should be equal to 24 * 3 in normal conditions regardless of zero suppression setting)
+    --         Also this version introduces autokilling of bad links (is enabled by default, but can be disabled). When a given link times out more than a certain number of times in a row (this parameter is configurable, and is set to 100 by default), then this input will be autokilled.
+    --         The autokill mask is reset during each resync. The autokill mask, and the individual link timeout counters (both consecutive and total) can be read with registers.
+    --         Default values of the TTC command buffer min and max for OOS have been set to 2 and 4 respectively (previously these were set at 3 and 3).
+    -- 1.15.1  Minor fixes related to input autokill: when an input is autokilled, also mask its TTS state, and also the consecutive timeout count for the first input had a bug related to resetting which was fixed
+    -- 1.15.2  TTC buffer monitoring counters added: number of OOS instances, number of underflow and overflow instances, number of seconds since last OOS, last and max duration of the OOS state in clock cycles
+    -- 1.15.3  ILA added to check the clocks and fifo signals in the TTC command buffer
+    -- 1.16.0  Updated the Chip2Chip interface to be compatible with the new linux versions that support gemloader 
+    
     --======================--
     --==      General     ==--
     --======================-- 
@@ -63,7 +95,7 @@ package gem_pkg is
     --======================-- 
     
     -- DAQ
-    constant C_DAQ_FORMAT_VERSION     : std_logic_vector(3 downto 0)  := x"0";
+    constant C_DAQ_FORMAT_VERSION     : std_logic_vector(3 downto 0)  := x"1";
 
     --============--
     --== Common ==--
@@ -199,35 +231,38 @@ package gem_pkg is
     --=====================================--
     
     type t_daq_input_status is record
-        evtfifo_empty           : std_logic;
-        evtfifo_near_full       : std_logic;
-        evtfifo_full            : std_logic;
-        evtfifo_underflow       : std_logic;
-        evtfifo_near_full_cnt   : std_logic_vector(15 downto 0);
-        evtfifo_wr_rate         : std_logic_vector(16 downto 0);
-        infifo_empty            : std_logic;
-        infifo_near_full        : std_logic;
-        infifo_full             : std_logic;
-        infifo_underflow        : std_logic;
-        infifo_near_full_cnt    : std_logic_vector(15 downto 0);
-        infifo_wr_rate          : std_logic_vector(14 downto 0);
-        tts_state               : std_logic_vector(3 downto 0);
-        err_event_too_big       : std_logic;
-        err_evtfifo_full        : std_logic;
-        err_infifo_underflow    : std_logic;
-        err_infifo_full         : std_logic;
-        err_corrupted_vfat_data : std_logic;
-        err_vfat_block_too_big  : std_logic;
-        err_vfat_block_too_small: std_logic;
-        err_event_bigger_than_24: std_logic;
-        err_mixed_oh_bc         : std_logic;
-        err_mixed_vfat_bc       : std_logic;
-        err_mixed_vfat_ec       : std_logic;
-        cnt_corrupted_vfat      : std_logic_vector(31 downto 0);
-        eb_event_num            : std_logic_vector(23 downto 0);
-        eb_max_timer            : std_logic_vector(23 downto 0);
-        eb_last_timer           : std_logic_vector(23 downto 0);
-        ep_vfat_block_data      : t_std32_array(6 downto 0);
+        evtfifo_empty               : std_logic;
+        evtfifo_near_full           : std_logic;
+        evtfifo_full                : std_logic;
+        evtfifo_underflow           : std_logic;
+        evtfifo_near_full_cnt       : std_logic_vector(15 downto 0);
+        evtfifo_wr_rate             : std_logic_vector(16 downto 0);
+        infifo_empty                : std_logic;
+        infifo_near_full            : std_logic;
+        infifo_full                 : std_logic;
+        infifo_underflow            : std_logic;
+        infifo_near_full_cnt        : std_logic_vector(15 downto 0);
+        infifo_wr_rate              : std_logic_vector(14 downto 0);
+        tts_state                   : std_logic_vector(3 downto 0);
+        err_event_too_big           : std_logic;
+        err_evtfifo_full            : std_logic;
+        err_infifo_underflow        : std_logic;
+        err_infifo_full             : std_logic;
+        err_corrupted_vfat_data     : std_logic;
+        err_vfat_block_too_big      : std_logic;
+        err_vfat_block_too_small    : std_logic;
+        err_event_bigger_than_24    : std_logic;
+        err_mixed_oh_bc             : std_logic;
+        err_mixed_vfat_bc           : std_logic;
+        err_mixed_vfat_ec           : std_logic;
+        cnt_corrupted_vfat          : std_logic_vector(31 downto 0);
+        eb_event_num                : std_logic_vector(23 downto 0);
+        eb_max_timer                : std_logic_vector(23 downto 0);
+        eb_last_timer               : std_logic_vector(23 downto 0);
+        ep_vfat_block_data          : t_std32_array(6 downto 0);
+        eb_vfat_live_words_64       : std_logic_vector(11 downto 0);
+        eb_vfat_live_words_64_min   : std_logic_vector(11 downto 0);
+        eb_vfat_live_words_64_max   : std_logic_vector(11 downto 0);
     end record;
 
     type t_daq_input_status_arr is array(integer range <>) of t_daq_input_status;
@@ -235,6 +270,7 @@ package gem_pkg is
     type t_daq_input_control is record
         eb_timeout_delay        : std_logic_vector(23 downto 0);
         eb_zero_supression_en   : std_logic;
+        eb_eoe_use_oh_ec_bc     : std_logic;
     end record;
     
     type t_daq_input_control_arr is array(integer range <>) of t_daq_input_control;
@@ -255,7 +291,7 @@ package gem_pkg is
     type t_chamber_infifo_rd_array is array(integer range <>) of t_chamber_infifo_rd;
 
     type t_chamber_evtfifo_rd is record
-        dout          : std_logic_vector(59 downto 0);
+        dout          : std_logic_vector(103 downto 0);
         rd_en         : std_logic;
         empty         : std_logic;
         valid         : std_logic;
