@@ -128,6 +128,14 @@ architecture Behavioral of track_input_processor is
     signal err_mixed_vfat_ec        : std_logic := '0'; -- different VFAT ECs found in one event
     signal err_mixed_oh_bc          : std_logic := '0'; -- different OH BCs found in one event
 
+    -- Input data concatenator
+    signal inconcat_din             : std_logic_vector(191 downto 0) := (others => '0');
+    signal inconcat_bytes           : std_logic_vector(4 downto 0) := "1" & x"8";
+    signal inconcat_valid           : std_logic := '0';
+    signal inconcat_word_cnt        : unsigned(11 downto 0);
+    signal inconcat_word_ovf        : std_logic;
+    signal inconcat_buf_empty       : std_logic;
+
     -- Input FIFO
     signal infifo_din               : std_logic_vector(191 downto 0) := (others => '0');
     signal infifo_wr_en             : std_logic := '0';
@@ -274,6 +282,27 @@ begin
     -- FIFOs
     --================================--
   
+    -- input data concatenator
+    i_input_concatenator : entity work.data_concatenator
+        generic map(
+            g_INPUT_BYTES_SIZE      => 5,
+            g_FIFO_WORD_SIZE_BYTES  => 24,
+            g_FILLER_BIT            => '1'
+        )
+        port map(
+            reset_i          => reset_i,
+            clk_i            => data_processor_clk_i,
+            input_data_i     => inconcat_din,
+            input_bytes_i    => inconcat_bytes,
+            input_valid_i    => inconcat_valid,
+            new_event_i      => ep_end_of_event or eb_timeout_flag,
+            fifo_din_o       => infifo_din,
+            fifo_wr_en_o     => infifo_wr_en,
+            event_word_cnt_o => inconcat_word_cnt,
+            word_cnt_ovf_o   => inconcat_word_ovf,
+            buf_empty_o      => inconcat_buf_empty
+        );
+  
     -- Input FIFO
     i_input_fifo : component daq_input_fifo
     port map(
@@ -397,8 +426,9 @@ begin
                 ep_last_rx_data <= (others => '0');
                 ep_last_rx_data_valid <= '0';
                 err_infifo_full <= '0';
-                infifo_din <= (others => '0');
-                infifo_wr_en <= '0';
+                inconcat_din <= (others => '0');
+                inconcat_bytes <= "1" & x"8";
+                inconcat_valid <= '0';
                 ep_end_of_event <= '0';
                 err_corrupted_vfat_data <= '0';
                 cnt_corrupted_vfat <= (others => '0');
@@ -426,9 +456,17 @@ begin
                     end if;
                     
                     -- push to input FIFO if it's not full and we don't zero suppress it
-                    if ((infifo_full = '0') and (ep_zero_packet = '0' or control_i.eb_zero_supression_en = '0')) then
-                        infifo_din <= ep_vfat_block_data(191 downto 0);
-                        infifo_wr_en <= '1';
+                    if (ep_zero_packet = '0' or control_i.eb_zero_supression_en = '0') then
+                        if (control_i.eb_calib_mode = '0') then
+                            inconcat_din <= ep_vfat_block_data(191 downto 0);
+                            inconcat_valid <= '1';
+                            inconcat_bytes <= "1" & x"8";
+                        else
+                            inconcat_din(7 downto 0) <= ep_vfat_block_data(16 + to_integer(unsigned(control_i.eb_calib_channel))) & ep_vfat_block_data(161 downto 160) & ep_vfat_block_data(188 downto 184);
+                            inconcat_din(191 downto 8) <= (others => '0');
+                            inconcat_valid <= '1';
+                            inconcat_bytes <= "0" & x"1";
+                        end if;
                     end if;
                     
                     -- check the header and the crc error flag. invalid vfat block? if yes, then just attach it to the current event
@@ -458,7 +496,7 @@ begin
                     
                 -- no data
                 else
-                    infifo_wr_en <= '0';
+                    inconcat_valid <= '0';
                 end if;
                 
             end if;
@@ -661,14 +699,6 @@ begin
     status_o.eb_event_num               <= std_logic_vector(eb_event_num);
     status_o.eb_max_timer               <= std_logic_vector(eb_max_timer);
     status_o.eb_last_timer              <= std_logic_vector(eb_last_timer);
-
-    status_o.ep_vfat_block_data(0)      <= ep_vfat_block_data(31 downto 0);
-    status_o.ep_vfat_block_data(1)      <= ep_vfat_block_data(63 downto 32);
-    status_o.ep_vfat_block_data(2)      <= ep_vfat_block_data(95 downto 64);
-    status_o.ep_vfat_block_data(3)      <= ep_vfat_block_data(127 downto 96);
-    status_o.ep_vfat_block_data(4)      <= ep_vfat_block_data(159 downto 128);
-    status_o.ep_vfat_block_data(5)      <= ep_vfat_block_data(191 downto 160);
-    status_o.ep_vfat_block_data(6)      <= (others => '0');
 
     eb_timeout_delay <= unsigned(control_i.eb_timeout_delay);
 

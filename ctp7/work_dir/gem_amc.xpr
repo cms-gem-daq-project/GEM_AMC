@@ -1304,7 +1304,7 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../../common/hdl/daq/variable_input_fifo_driver.vhd">
+      <File Path="$PPRDIR/../../common/hdl/daq/data_concatenator.vhd">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="simulation"/>

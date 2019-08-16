@@ -562,7 +562,7 @@
               description="This is a bitmask telling AMC to enable certain inputs (least
                            significant bit is input 0). Only first is enabled by default"
               fw_signal="input_mask" fw_default="0x1"/>
-        <node id="DAV_TIMEOUT"        address="0x6"  mask="0x00ffffff" permission="rw"
+        <node id="DAV_TIMEOUT"        address="0x1"  mask="0x00ffffff" permission="rw"
               description="This setting controls how long DAQ will wait for individual
                            inputs to report data before calling it timed-out  (if timeout
                            occurs a header and trailer for that chamber will still be
@@ -570,22 +570,38 @@
                            payload will be present). Units = clock cycles @ 25MHz
                            (current DAQLink clk frequency)"
               fw_signal="dav_timeout" fw_default="0x00500"/>
-        <node id="DBG_FANOUT_ENABLE"        address="0x6"  mask="0x01000000" permission="rw"
+        <node id="DBG_FANOUT_ENABLE"        address="0x1"  mask="0x01000000" permission="rw"
               description="This register enables and disables the fanout feature.
                            This feature is used for testing only. When enabled it will
                            take the data input from one OH and fan it out to all DAQ module
                            inputs. The input to be used is controlled by DBG_FANOUT_INPUT reg."
               fw_signal="dbg_fanout_enable" fw_default="0b0"/>
-        <node id="DBG_FANOUT_INPUT"        address="0x6"  mask="0xf0000000" permission="rw"
+        <node id="DBG_FANOUT_INPUT"        address="0x1"  mask="0xf0000000" permission="rw"
               description="Selects the input to be faned out when the fanout feature is enabled (see DBG_FANOUT_ENABLE)."
               fw_signal="dbg_fanout_input" fw_default="0x0"/>
-        <node id="DBG_IGNORE_DAQLINK"        address="0x6"  mask="0x02000000" permission="rw"
+        <node id="DBG_IGNORE_DAQLINK"        address="0x1"  mask="0x02000000" permission="rw"
               description="This register when set to 1 will cause the DAQ module to ignore the DAQLink ready and DAQLink backpressure signals.
                            It can be used for fake datarate testing without involving AMC13."
               fw_signal="dbg_daqlink_ignore" fw_default="0b0"/>
+        <node id="CALIBRATION_MODE_EN"       address="0x2"  mask="0x00000080" permission="rw"
+              description="When set, this enables calibration mode data format, which strips the VFAT payload of most of the data, just leaving 8 bits per VFAT, where [4:0] is the VFAT position, [6:5] is EC, and bit 7 is the chanel information for the channel selected in CALIBRATION_MODE_CHAN (see below)"
+              fw_signal="format_calib_mode" fw_default="0b0"/>
+        <node id="CALIBRATION_MODE_CHAN"       address="0x2"  mask="0x0000007f" permission="rw"
+              description="Channel number for which data will be included in the calibration mode data format (see CALIBRATION_MODE_EN)"
+              fw_signal="format_calib_chan" fw_default="0b0000000"/>
       </node>
 
-      <node id="STATUS"  address="0x1"
+      <node id="EXT_CONTROL"  address="0x40"
+            description="DAQ global extended configuration registers">
+        <node id="RUN_TYPE"       address="0x0"  mask="0x0f000000" permission="rw"
+              description="User settable run type that gets embedded into the AMC header"
+              fw_signal="run_type" fw_default="0x0"/>
+        <node id="RUN_PARAMS"     address="0x0"  mask="0x00ffffff" permission="rw"
+              description="User settable run params that gets embedded into the AMC header"
+              fw_signal="run_params" fw_default="0x000000"/>
+      </node>
+
+      <node id="STATUS"  address="0x50"
             description="DAQ global status registers">
         <node id="DAQ_LINK_RDY"    address="0x0"  mask="0x00000001" permission="r"
               description="When this is 1, it means that AMC is in good communication
@@ -636,7 +652,7 @@
               fw_signal="tts_state"/>
       </node>
 
-      <node id="EXT_STATUS"  address="0x2"
+      <node id="EXT_STATUS"  address="0x80"
             description="DAQ global extended status registers">
         <node id="NOTINTABLE_ERR"  address="0x0"  mask="0x0000ffff" permission="r"
               description="This counter is counting DAQLink GTX/GTH not-in-table errors"
@@ -689,17 +705,7 @@
               sw_monitor_warn_min_threshold="40000"/> <!-- currently running DAQ at 50MHz, which is 3.2Gbs, so warning at 2.5Gbs (could increase to 80MHz to get 5Gbs) -->
       </node>
 
-      <node id="EXT_CONTROL"  address="0xe"
-            description="DAQ global extended configuration registers">
-        <node id="RUN_TYPE"       address="0x1"  mask="0x0f000000" permission="rw"
-              description="User settable run type that gets embedded into the AMC header"
-              fw_signal="run_type" fw_default="0x0"/>
-        <node id="RUN_PARAMS"     address="0x1"  mask="0x00ffffff" permission="rw"
-              description="User settable run params that gets embedded into the AMC header"
-              fw_signal="run_params" fw_default="0x000000"/>
-      </node>
-
-      <node id="OH${OH_IDX}"  address="0x10"
+      <node id="OH${OH_IDX}"  address="0x100"
             description="Link specific registers for OH${OH_IDX}"
             generate="true" generate_size="12" generate_address_step="0x10" generate_idx_var="OH_IDX">
 
@@ -865,11 +871,6 @@
                 fw_signal="input_status_arr(${OH_IDX}).eb_last_timer"/>
         </node>
 
-        <node id="LASTBLOCK${BLOCK_IDX}"  address="0x9" permission="r"
-              description="contains the last 192+32 bits received from the VFAT and OH"
-              generate="true" generate_size="7" generate_address_step="0x1" generate_idx_var="BLOCK_IDX"
-              fw_signal="input_status_arr(${OH_IDX}).ep_vfat_block_data(${BLOCK_IDX})">
-        </node>
       </node>
     </node>
 
@@ -993,7 +994,7 @@
                 description="Writing to this register will trigger OH FPGA hard reset"
                 fw_write_pulse_signal="manual_hard_reset"/>
           <node id="TTC_HARD_RESET_EN" address="0x2" permission="rw"
-                description="This is a bitmask (one bit per OH) that determines whether or not TTC hard reset commands are forwarded to the SCA to reset the OH FPGA"
+                description="This is a bitmask (one bit per OH) that determines whether or not TTC hard reset commands are forwarded to the SCA to reset the OH FPGA (Nth bit set to 1 will enable TTC hard resets to the Nth OH)"
                 fw_signal="sca_ttc_hr_enable" fw_default="0xffffffff"/>
           <node id="SCA_RESET_ENABLE_MASK" address="0x3" mask="0xffffffff" permission="rw"
                 description="This bitmask defines which SCAs will be reset uppon receipt of MODULE_RESET command."

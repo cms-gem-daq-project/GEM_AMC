@@ -10,10 +10,10 @@ package gem_pkg is
     --==  Firmware version  ==--
     --========================-- 
 
-    constant C_FIRMWARE_DATE    : std_logic_vector(31 downto 0) := x"20190702";
+    constant C_FIRMWARE_DATE    : std_logic_vector(31 downto 0) := x"20190705";
     constant C_FIRMWARE_MAJOR   : integer range 0 to 255        := 3;
-    constant C_FIRMWARE_MINOR   : integer range 0 to 255        := 8;
-    constant C_FIRMWARE_BUILD   : integer range 0 to 255        := 6;
+    constant C_FIRMWARE_MINOR   : integer range 0 to 255        := 9;
+    constant C_FIRMWARE_BUILD   : integer range 0 to 255        := 0;
     
     ------ Change log ------
     -- 1.8.6 no gbt sync procedure with oh
@@ -106,7 +106,8 @@ package gem_pkg is
     -- 3.8.3  Fixed the trigger link missed comma counter so that it starts counting errors after 128 clock cycles after reset (previously it would only start counting after the first occurance of good frame marker, which sometimes made a link look good even if it was completely bad)
     -- 3.8.4  Added a possibility to switch to 40MHz promless programming mode; added VFAT-VFAT mixed BC and mixed EC flags in the data format; removed ADC monitoring from the SCA controller; SCA TTC_HARD_RESET_EN is now an OH mask instead of just one bit; BC now starts at 1 instead of 0 to match VFAT BC counting
     -- 3.8.5  Small fix in the TX FSM for the OH FPGA -- during link reset the send_idle and send_header signals were undefined, so could possibly send some false data for OH slow control during reset
-    -- 3.8.6  Small fix in DAQ input processor: previously a condition existed for event word count to be lower by one VFAT if a new event came exactly at the clock cycle when the old one timed out. Hopefully this will solve the EC/BC mismatch problem seen at GE1/1 QC8 cosmic stand  
+    -- 3.8.6  Small fix in DAQ input processor: previously a condition existed for event word count to be lower by one VFAT if a new event came exactly at the clock cycle when the old one timed out. Hopefully this will solve the EC/BC mismatch problem seen at GE1/1 QC8 cosmic stand
+    -- 3.9.0  Calibration mode data format added - it's a very aggressive bandwidth saving mode designed for calibration runs, which drops most of the VFAT data, except for the VFAT position, 2 bits of EC, and just one channel bit for the selected channel number, so each VFAT only takes up 8 bits. Note: addresses of existing DAQ registers have been changed in order to accomodate the new registers, so it's necessary to update the address table for this version
 
     --======================--
     --==      General     ==--
@@ -288,7 +289,6 @@ package gem_pkg is
         eb_event_num            : std_logic_vector(23 downto 0);
         eb_max_timer            : std_logic_vector(23 downto 0);
         eb_last_timer           : std_logic_vector(23 downto 0);
-        ep_vfat_block_data      : t_std32_array(6 downto 0);
     end record;
 
     type t_daq_input_status_arr is array(integer range <>) of t_daq_input_status;
@@ -296,6 +296,8 @@ package gem_pkg is
     type t_daq_input_control is record
         eb_timeout_delay        : std_logic_vector(23 downto 0);
         eb_zero_supression_en   : std_logic;
+        eb_calib_mode           : std_logic;
+        eb_calib_channel        : std_logic_vector(6 downto 0);
     end record;
     
     type t_daq_input_control_arr is array(integer range <>) of t_daq_input_control;
