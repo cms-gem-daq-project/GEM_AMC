@@ -122,11 +122,13 @@ def main():
 
     board_type = "ctp7"
     num_of_oh = 4
+    station = "1"
 
     if len(sys.argv) < 2:
-        print('Usage: generate_registers.py <board_type> [num_of_oh]')
+        print('Usage: generate_registers.py <board_type> [num_of_oh] [gem_station]')
         print('board_type can be: ctp7 or glib')
         print('num_of_oh is optional. if supplied, the script will substitute generate_size with this value when generating registers in the firmware. Note that this is not affecting the uHAL xml file generation.')
+        print('gem_station: 0 for ME0, 1 for GE1/1, and 2 for GE2/1 (set to 1 by default)')
         return
     else:
         if sys.argv[1] != 'ctp7' and sys.argv[1] != 'glib':
@@ -142,13 +144,17 @@ def main():
         elif board_type == 'glib':
             num_of_oh = 2
 
+        if (len(sys.argv) > 3):
+            station = sys.argv[3]
+            print('GEM station = %s' % station)
+
     tree = xml.parse(ADDRESS_TABLE_TOP)
     root = tree.getroot()[0]
 
     modules = []
     vars = {}
 
-    findRegisters(root, '', 0x0, modules, None, vars, False, num_of_oh)
+    findRegisters(root, '', 0x0, modules, None, vars, False, num_of_oh, station)
 
     print('Modules:')
     for module in modules:
@@ -173,12 +179,16 @@ def main():
     elif board_type == 'glib':
         writeUHalAddressTable(modules, UHAL_ADDRESS_TABLE_FILE_GLIB, GLIB_IPB_BASE_ADDRESS, num_of_oh)
 
-def findRegisters(node, baseName, baseAddress, modules, currentModule, vars, isGenerated, num_of_oh):
+def findRegisters(node, baseName, baseAddress, modules, currentModule, vars, isGenerated, num_of_oh, station):
+
+    if node.get('gem_stations') is not None and station not in node.get('gem_stations'):
+        return
+
     if (isGenerated == None or isGenerated == False) and node.get('generate') is not None and node.get('generate') == 'true':
         if node.get('generate_idx_var') == 'OH_IDX':
             generateSize = num_of_oh
         elif node.get('generate_idx_var') == 'GBT_IDX':
-            generateSize = num_of_oh * 3
+            generateSize = num_of_oh * 3 if station == "1" else num_of_oh * 2
         else:
             generateSize = parseInt(node.get('generate_size'))
 
@@ -187,7 +197,7 @@ def findRegisters(node, baseName, baseAddress, modules, currentModule, vars, isG
         for i in range(0, generateSize):
             vars[generateIdxVar] = i
             print('generate base_addr = ' + hex(baseAddress + generateAddressStep * i) + ' for node ' + node.get('id'))
-            findRegisters(node, baseName, baseAddress + generateAddressStep * i, modules, currentModule, vars, True, num_of_oh)
+            findRegisters(node, baseName, baseAddress + generateAddressStep * i, modules, currentModule, vars, True, num_of_oh, station)
         return
 
     isModule = node.get('fw_is_module') is not None and node.get('fw_is_module') == 'true'
@@ -257,7 +267,7 @@ def findRegisters(node, baseName, baseAddress, modules, currentModule, vars, isG
             module.addReg(reg)
 
     for child in node:
-        findRegisters(child, name, address, modules, module, vars, False, num_of_oh)
+        findRegisters(child, name, address, modules, module, vars, False, num_of_oh, station)
 
 def writeConstantsFile(modules, filename):
     f = open(filename, 'w')

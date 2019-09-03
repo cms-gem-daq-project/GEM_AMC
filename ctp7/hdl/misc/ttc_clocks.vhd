@@ -32,7 +32,8 @@ entity ttc_clocks is
     port (
         clk_40_ttc_p_i          : in  std_logic; -- TTC backplane clock signals
         clk_40_ttc_n_i          : in  std_logic;
-        clk_160_ttc_clean_i     : in  std_logic; -- TTC jitter cleaned 160MHz TTC clock (should come from MGT ref)
+        clk_gbt_mgt_txout_i     : in  std_logic; -- TTC jitter cleaned 160MHz or 320MHz TTC clock, should come from MGT ref (160MHz in GBTX case, and 320MHz in LpGBT case)
+        disable_phase_align_i   : in  std_logic; -- completely disables the phase alignment mechanism and just forwards MMCM lock signal to mmcm_locked, instead of the SYNC_DONE. This is useful for setups without AMC13 and running on the local oscilator clock
         mmcm_rst_i              : in  std_logic;
         mmcm_locked_o           : out std_logic;
         clocks_o                : out t_ttc_clks;
@@ -87,9 +88,40 @@ END COMPONENT  ;
     signal clk_40               : std_logic;
     signal clk_80               : std_logic;
     signal clk_160              : std_logic;
-    signal clk_120              : std_logic;
+    signal clk_gbt_mgt_usrclk   : std_logic;
 
     signal ttc_clocks_bufg      : t_ttc_clks;
+    
+    -- this function determines the feedback clock multiplication factor based on whether the station is using LpGBT or GBTX
+    function get_clkfbout_mult(gem_station : integer) return real is
+    begin
+        if gem_station = 0 then
+            return 3.0;
+        elsif gem_station = 1 then
+            return 6.0;
+        elsif gem_station = 2 then
+            return 6.0;
+        else -- hmm whatever, lets say 6.0
+            return 6.0;  
+        end if;
+    end function get_clkfbout_mult;    
+
+    -- this function determines the division factor to get the MGT user clk based on whether the station is using LpGBT or GBTX
+    function get_gbt_mgt_clk_divide(gem_station : integer) return integer is
+    begin
+        if gem_station = 0 then
+            return 3;
+        elsif gem_station = 1 then
+            return 8;
+        elsif gem_station = 2 then
+            return 8;
+        else -- hmm whatever, lets say 8
+            return 8;  
+        end if;
+    end function get_gbt_mgt_clk_divide;    
+
+    constant CLKFBOUT_MULT : real := get_clkfbout_mult(CFG_GEM_STATION);
+    constant GBT_MGT_CLK_DIVIDE : integer := get_gbt_mgt_clk_divide(CFG_GEM_STATION);
     
     ----------------- phase alignment ------------------
     constant MMCM_PS_DONE_TIMEOUT : unsigned(7 downto 0) := x"9f"; -- datasheet says MMCM should complete a phase shift in 12 clocks, but we check it with some margin, just in case
@@ -157,7 +189,7 @@ begin
             COMPENSATION         => "ZHOLD",
             STARTUP_WAIT         => false,
             DIVCLK_DIVIDE        => 1,
-            CLKFBOUT_MULT_F      => 6.000,
+            CLKFBOUT_MULT_F      => CLKFBOUT_MULT,
             CLKFBOUT_PHASE       => 0.000,
             CLKFBOUT_USE_FINE_PS => true,
             CLKOUT0_DIVIDE_F     => 24.000,
@@ -168,7 +200,7 @@ begin
             CLKOUT1_PHASE        => 0.000,
             CLKOUT1_DUTY_CYCLE   => 0.500,
             CLKOUT1_USE_FINE_PS  => false,
-            CLKOUT2_DIVIDE       => 8,
+            CLKOUT2_DIVIDE       => GBT_MGT_CLK_DIVIDE,
             CLKOUT2_PHASE        => 0.000,
             CLKOUT2_DUTY_CYCLE   => 0.500,
             CLKOUT2_USE_FINE_PS  => false,
@@ -190,7 +222,7 @@ begin
             CLKOUT0B     => open,
             CLKOUT1      => clk_80,
             CLKOUT1B     => open,
-            CLKOUT2      => clk_120,
+            CLKOUT2      => clk_gbt_mgt_usrclk,
             CLKOUT2B     => open,
             CLKOUT3      => clk_160,
             CLKOUT3B     => open,
@@ -199,7 +231,7 @@ begin
             CLKOUT6      => open,
             -- Input clock control
             CLKFBIN      => clkfb,
-            CLKIN1       => clk_160_ttc_clean_i,
+            CLKIN1       => clk_gbt_mgt_txout_i,
             CLKIN2       => '0',
             -- Tied to always select the primary input clock
             CLKINSEL     => '1',
@@ -248,8 +280,8 @@ begin
 
     i_bufg_clk_120 : BUFG
         port map(
-            O => ttc_clocks_bufg.clk_120,
-            I => clk_120
+            O => ttc_clocks_bufg.clk_gbt_mgt_usrclk,
+            I => clk_gbt_mgt_usrclk
         );
 
     clocks_o <= ttc_clocks_bufg;
@@ -258,18 +290,10 @@ begin
     --------- Phase Alignment to TTC backplane clock ---------
     ----------------------------------------------------------
   
-    gen_use_backplane_ref:
-    if not CFG_DISABLE_TTC_PHASE_LOCKING generate
-        fsm_reset <= '0';
-        mmcm_locked_o <= '1' when pa_state = SYNC_DONE else '0';
-    end generate;
-    gen_no_backplane_ref:
-    if CFG_DISABLE_TTC_PHASE_LOCKING generate
-        fsm_reset <= '1';
-        mmcm_locked_o <= mmcm_locked_raw;
-    end generate;
+    fsm_reset <= disable_phase_align_i;
+    mmcm_locked_o <= mmcm_locked_raw when disable_phase_align_i = '1' else '1' when pa_state = SYNC_DONE else '0';
     
-    mmcm_ps_clk <= clk_160_ttc_clean_i;
+    mmcm_ps_clk <= clk_gbt_mgt_txout_i;
     pll_lock_time_o <= std_logic_vector(pll_lock_wait_timer);
     pll_lock_window_o <= std_logic_vector(pll_lock_window);
     unlock_cnt_o <= std_logic_vector(unlock_cnt);

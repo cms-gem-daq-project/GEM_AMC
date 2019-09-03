@@ -91,8 +91,18 @@ begin
                         buf <= (others => g_FILLER_BIT);
                     end if;
                 
-                    event_word_cnt <= (others => '0');
-                    word_cnt_ovf <= '0';
+                    if (new_event_i = '1') then
+                        event_word_cnt <= (others => '0');
+                        word_cnt_ovf <= '0';
+                    elsif (pos_byte = g_FIFO_WORD_SIZE_BYTES) then
+                        event_word_cnt <= event_word_cnt;
+                        word_cnt_ovf <= word_cnt_ovf;
+                    elsif (event_word_cnt /= x"fff") then
+                        event_word_cnt <= event_word_cnt + 1;
+                    else
+                        event_word_cnt <= x"fff";
+                        word_cnt_ovf <= '1';
+                    end if;
                 
                 -- the new_word_i is low, so handle any incoming data as usual - record to the buffer, and push it out when filled up, with data overflow to a new buffer
                 elsif (input_valid_i = '1') then

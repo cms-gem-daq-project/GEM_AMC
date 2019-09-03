@@ -1,3 +1,13 @@
+------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Company: TAMU
+-- Engineer: Evaldas Juska (evaldas.juska@cern.ch, evka85@gmail.com)
+-- 
+-- Create Date:    23:45:21 2016-04-20
+-- Module Name:    GBT 
+-- Description:    GBTX wrapper: this is a modified version of the original GBT-FPGA top level, but supports arbitrary number of GBT and is not tied to MGT quads.
+--                 In fact MGT instantiation and related clocking code has been removed completely, and is instead done in the system layer as usual.  
+------------------------------------------------------------------------------------------------------------------------------------------------------
+
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -176,7 +186,7 @@ begin                                   --========####   Architecture Body   ###
         
         i_rx_sync_fifo : component sync_fifo_gth_40
             port map(
-                rst       => reset_i and not mgt_rx_rdy_arr_i(i),
+                rst       => reset_i or not mgt_rx_rdy_arr_i(i),
                 wr_clk    => rx_word_clk_arr_i(i),
                 rd_clk    => rx_common_word_clk,
                 din       => rx_wordNbit_from_mgt(i),

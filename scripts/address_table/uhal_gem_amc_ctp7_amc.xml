@@ -477,22 +477,19 @@
         <node id="CNT_RESET" address="0x0" permission="w" />
         <node id="LINK_RESET" address="0x1" permission="w" />
       </node>
-      <node id="TK_LINK_RX_POLARITY" address="0x0" permission="rw" mask="0xffffff" />
-      <node id="TK_LINK_TX_POLARITY" address="0x1" permission="rw" mask="0xffffff" />
       <node id="BOARD_ID" address="0x2" permission="rw" mask="0xffff" />
       <node id="BOARD_TYPE" address="0x2" permission="r" mask="0xf0000" />
       <node id="RELEASE" address="0x3" >
         <node id="MAJOR" address="0x0" permission="r" mask="0xff0000" />
         <node id="MINOR" address="0x0" permission="r" mask="0xff00" />
         <node id="BUILD" address="0x0" permission="r" mask="0xff" />
+        <node id="GEM_STATION" address="0x0" permission="r" mask="0x3000000" />
         <node id="DATE" address="0x1" permission="r" />
       </node>
       <node id="CONFIG" address="0x5" >
         <node id="NUM_OF_OH" address="0x0" permission="r" mask="0x1f" />
-        <node id="USE_TRIG_LINKS" address="0x0" permission="r" mask="0x200" />
       </node>
       <node id="VFAT3" address="0x10" >
-        <node id="USE_OH_VFAT3_SLOTS" address="0x1" permission="rw" mask="0x1" />
         <node id="SC_ONLY_MODE" address="0x1" permission="rw" mask="0x2" />
         <node id="USE_OH_V3B_MAPPING" address="0x1" permission="rw" mask="0x4" />
       </node>
@@ -819,64 +816,525 @@
         <node id="RUN_TYPE" address="0x0" permission="rw" mask="0xf000000" />
         <node id="RUN_PARAMS" address="0x0" permission="rw" mask="0xffffff" />
       </node>
+      <node id="STATUS" address="0x50" >
+        <node id="DAQ_LINK_RDY" address="0x0" permission="r" mask="0x1" />
+        <node id="DAQ_CLK_LOCKED" address="0x0" permission="r" mask="0x2" />
+        <node id="TTC_RDY" address="0x0" permission="r" mask="0x4" />
+        <node id="DAQ_LINK_AFULL" address="0x0" permission="r" mask="0x8" />
+        <node id="DAQ_OUTPUT_FIFO_HAD_OVERFLOW" address="0x0" permission="r" mask="0x10" />
+        <node id="TTC_BC0_LOCKED" address="0x0" permission="r" mask="0x20" />
+        <node id="L1A_FIFO_HAD_OVERFLOW" address="0x0" permission="r" mask="0x800000" />
+        <node id="L1A_FIFO_IS_UNDERFLOW" address="0x0" permission="r" mask="0x1000000" />
+        <node id="L1A_FIFO_IS_FULL" address="0x0" permission="r" mask="0x2000000" />
+        <node id="L1A_FIFO_IS_NEAR_FULL" address="0x0" permission="r" mask="0x4000000" />
+        <node id="L1A_FIFO_IS_EMPTY" address="0x0" permission="r" mask="0x8000000" />
+        <node id="TTS_STATE" address="0x0" permission="r" mask="0xf0000000" />
+      </node>
+      <node id="EXT_STATUS" address="0x80" >
+        <node id="NOTINTABLE_ERR" address="0x0" permission="r" mask="0xffff" />
+        <node id="DISPER_ERR" address="0x1" permission="r" mask="0xffff" />
+        <node id="L1AID" address="0x2" permission="r" mask="0xffffff" />
+        <node id="EVT_SENT" address="0x3" permission="r" />
+        <node id="MAX_DAV_TIMER" address="0x5" permission="r" mask="0xffffff" />
+        <node id="LAST_DAV_TIMER" address="0x6" permission="r" mask="0xffffff" />
+        <node id="L1A_FIFO_DATA_CNT" address="0x7" permission="r" mask="0x1fff" />
+        <node id="DAQ_FIFO_DATA_CNT" address="0x7" permission="r" mask="0x1fff0000" />
+        <node id="L1A_FIFO_NEAR_FULL_CNT" address="0x8" permission="r" mask="0xffff" />
+        <node id="DAQ_FIFO_NEAR_FULL_CNT" address="0x8" permission="r" mask="0xffff0000" />
+        <node id="DAQ_ALMOST_FULL_CNT" address="0x9" permission="r" mask="0xffff" />
+        <node id="TTS_WARN_CNT" address="0x9" permission="r" mask="0xffff0000" />
+        <node id="DAQ_WORD_RATE" address="0xa" permission="r" />
+      </node>
       <node id="OH0" address="0x100" >
         <node id="CONTROL" address="0x0" >
           <node id="EOE_TIMEOUT" address="0x3" permission="rw" mask="0xffffff" />
+        </node>
+        <node id="STATUS" address="0x0" >
+          <node id="VFAT_MIXED_EC" address="0x0" permission="r" mask="0x2" />
+          <node id="VFAT_MIXED_BC" address="0x0" permission="r" mask="0x4" />
+          <node id="OH_MIXED_BC" address="0x0" permission="r" mask="0x8" />
+          <node id="VFAT_TOO_MANY" address="0x0" permission="r" mask="0x10" />
+          <node id="VFAT_SMALL_BLOCK" address="0x0" permission="r" mask="0x20" />
+          <node id="VFAT_LARGE_BLOCK" address="0x0" permission="r" mask="0x40" />
+          <node id="VFAT_NO_MARKER" address="0x0" permission="r" mask="0x80" />
+          <node id="INPUT_FIFO_HAD_OFLOW" address="0x0" permission="r" mask="0x100" />
+          <node id="INPUT_FIFO_HAD_UFLOW" address="0x0" permission="r" mask="0x200" />
+          <node id="EVENT_FIFO_HAD_OFLOW" address="0x0" permission="r" mask="0x400" />
+          <node id="EVT_SIZE_ERR" address="0x0" permission="r" mask="0x800" />
+          <node id="VFAT_INPUT_HAD_OVF" address="0x0" permission="r" mask="0x10000" />
+          <node id="VFAT_INPUT_HAD_UNF" address="0x0" permission="r" mask="0x20000" />
+          <node id="TTS_STATE" address="0x0" permission="r" mask="0xf000" />
+          <node id="INPUT_FIFO_IS_UFLOW" address="0x0" permission="r" mask="0x1000000" />
+          <node id="INPUT_FIFO_IS_FULL" address="0x0" permission="r" mask="0x2000000" />
+          <node id="INPUT_FIFO_IS_AFULL" address="0x0" permission="r" mask="0x4000000" />
+          <node id="INPUT_FIFO_IS_EMPTY" address="0x0" permission="r" mask="0x8000000" />
+          <node id="EVENT_FIFO_IS_UFLOW" address="0x0" permission="r" mask="0x10000000" />
+          <node id="EVENT_FIFO_IS_FULL" address="0x0" permission="r" mask="0x20000000" />
+          <node id="EVENT_FIFO_IS_AFULL" address="0x0" permission="r" mask="0x40000000" />
+          <node id="EVENT_FIFO_IS_EMPTY" address="0x0" permission="r" mask="0x80000000" />
+        </node>
+        <node id="COUNTERS" address="0x0" >
+          <node id="CORRUPT_VFAT_BLK_CNT" address="0x1" permission="r" />
+          <node id="EVN" address="0x2" permission="r" mask="0xffffff" />
+          <node id="INPUT_FIFO_DATA_CNT" address="0x4" permission="r" mask="0xfff" />
+          <node id="EVT_FIFO_DATA_CNT" address="0x4" permission="r" mask="0xfff0000" />
+          <node id="INPUT_FIFO_NEAR_FULL_CNT" address="0x5" permission="r" mask="0xffff" />
+          <node id="EVT_FIFO_NEAR_FULL_CNT" address="0x5" permission="r" mask="0xffff0000" />
+          <node id="VFAT_BLOCK_RATE" address="0x6" permission="r" mask="0x7fff" />
+          <node id="EVT_RATE" address="0x6" permission="r" mask="0xffff8000" />
+          <node id="MAX_EOE_TIMER" address="0x7" permission="r" mask="0xffffff" />
+          <node id="LAST_EOE_TIMER" address="0x8" permission="r" mask="0xffffff" />
         </node>
       </node>
       <node id="OH1" address="0x110" >
         <node id="CONTROL" address="0x0" >
           <node id="EOE_TIMEOUT" address="0x3" permission="rw" mask="0xffffff" />
         </node>
+        <node id="STATUS" address="0x0" >
+          <node id="VFAT_MIXED_EC" address="0x0" permission="r" mask="0x2" />
+          <node id="VFAT_MIXED_BC" address="0x0" permission="r" mask="0x4" />
+          <node id="OH_MIXED_BC" address="0x0" permission="r" mask="0x8" />
+          <node id="VFAT_TOO_MANY" address="0x0" permission="r" mask="0x10" />
+          <node id="VFAT_SMALL_BLOCK" address="0x0" permission="r" mask="0x20" />
+          <node id="VFAT_LARGE_BLOCK" address="0x0" permission="r" mask="0x40" />
+          <node id="VFAT_NO_MARKER" address="0x0" permission="r" mask="0x80" />
+          <node id="INPUT_FIFO_HAD_OFLOW" address="0x0" permission="r" mask="0x100" />
+          <node id="INPUT_FIFO_HAD_UFLOW" address="0x0" permission="r" mask="0x200" />
+          <node id="EVENT_FIFO_HAD_OFLOW" address="0x0" permission="r" mask="0x400" />
+          <node id="EVT_SIZE_ERR" address="0x0" permission="r" mask="0x800" />
+          <node id="VFAT_INPUT_HAD_OVF" address="0x0" permission="r" mask="0x10000" />
+          <node id="VFAT_INPUT_HAD_UNF" address="0x0" permission="r" mask="0x20000" />
+          <node id="TTS_STATE" address="0x0" permission="r" mask="0xf000" />
+          <node id="INPUT_FIFO_IS_UFLOW" address="0x0" permission="r" mask="0x1000000" />
+          <node id="INPUT_FIFO_IS_FULL" address="0x0" permission="r" mask="0x2000000" />
+          <node id="INPUT_FIFO_IS_AFULL" address="0x0" permission="r" mask="0x4000000" />
+          <node id="INPUT_FIFO_IS_EMPTY" address="0x0" permission="r" mask="0x8000000" />
+          <node id="EVENT_FIFO_IS_UFLOW" address="0x0" permission="r" mask="0x10000000" />
+          <node id="EVENT_FIFO_IS_FULL" address="0x0" permission="r" mask="0x20000000" />
+          <node id="EVENT_FIFO_IS_AFULL" address="0x0" permission="r" mask="0x40000000" />
+          <node id="EVENT_FIFO_IS_EMPTY" address="0x0" permission="r" mask="0x80000000" />
+        </node>
+        <node id="COUNTERS" address="0x0" >
+          <node id="CORRUPT_VFAT_BLK_CNT" address="0x1" permission="r" />
+          <node id="EVN" address="0x2" permission="r" mask="0xffffff" />
+          <node id="INPUT_FIFO_DATA_CNT" address="0x4" permission="r" mask="0xfff" />
+          <node id="EVT_FIFO_DATA_CNT" address="0x4" permission="r" mask="0xfff0000" />
+          <node id="INPUT_FIFO_NEAR_FULL_CNT" address="0x5" permission="r" mask="0xffff" />
+          <node id="EVT_FIFO_NEAR_FULL_CNT" address="0x5" permission="r" mask="0xffff0000" />
+          <node id="VFAT_BLOCK_RATE" address="0x6" permission="r" mask="0x7fff" />
+          <node id="EVT_RATE" address="0x6" permission="r" mask="0xffff8000" />
+          <node id="MAX_EOE_TIMER" address="0x7" permission="r" mask="0xffffff" />
+          <node id="LAST_EOE_TIMER" address="0x8" permission="r" mask="0xffffff" />
+        </node>
       </node>
       <node id="OH2" address="0x120" >
         <node id="CONTROL" address="0x0" >
           <node id="EOE_TIMEOUT" address="0x3" permission="rw" mask="0xffffff" />
+        </node>
+        <node id="STATUS" address="0x0" >
+          <node id="VFAT_MIXED_EC" address="0x0" permission="r" mask="0x2" />
+          <node id="VFAT_MIXED_BC" address="0x0" permission="r" mask="0x4" />
+          <node id="OH_MIXED_BC" address="0x0" permission="r" mask="0x8" />
+          <node id="VFAT_TOO_MANY" address="0x0" permission="r" mask="0x10" />
+          <node id="VFAT_SMALL_BLOCK" address="0x0" permission="r" mask="0x20" />
+          <node id="VFAT_LARGE_BLOCK" address="0x0" permission="r" mask="0x40" />
+          <node id="VFAT_NO_MARKER" address="0x0" permission="r" mask="0x80" />
+          <node id="INPUT_FIFO_HAD_OFLOW" address="0x0" permission="r" mask="0x100" />
+          <node id="INPUT_FIFO_HAD_UFLOW" address="0x0" permission="r" mask="0x200" />
+          <node id="EVENT_FIFO_HAD_OFLOW" address="0x0" permission="r" mask="0x400" />
+          <node id="EVT_SIZE_ERR" address="0x0" permission="r" mask="0x800" />
+          <node id="VFAT_INPUT_HAD_OVF" address="0x0" permission="r" mask="0x10000" />
+          <node id="VFAT_INPUT_HAD_UNF" address="0x0" permission="r" mask="0x20000" />
+          <node id="TTS_STATE" address="0x0" permission="r" mask="0xf000" />
+          <node id="INPUT_FIFO_IS_UFLOW" address="0x0" permission="r" mask="0x1000000" />
+          <node id="INPUT_FIFO_IS_FULL" address="0x0" permission="r" mask="0x2000000" />
+          <node id="INPUT_FIFO_IS_AFULL" address="0x0" permission="r" mask="0x4000000" />
+          <node id="INPUT_FIFO_IS_EMPTY" address="0x0" permission="r" mask="0x8000000" />
+          <node id="EVENT_FIFO_IS_UFLOW" address="0x0" permission="r" mask="0x10000000" />
+          <node id="EVENT_FIFO_IS_FULL" address="0x0" permission="r" mask="0x20000000" />
+          <node id="EVENT_FIFO_IS_AFULL" address="0x0" permission="r" mask="0x40000000" />
+          <node id="EVENT_FIFO_IS_EMPTY" address="0x0" permission="r" mask="0x80000000" />
+        </node>
+        <node id="COUNTERS" address="0x0" >
+          <node id="CORRUPT_VFAT_BLK_CNT" address="0x1" permission="r" />
+          <node id="EVN" address="0x2" permission="r" mask="0xffffff" />
+          <node id="INPUT_FIFO_DATA_CNT" address="0x4" permission="r" mask="0xfff" />
+          <node id="EVT_FIFO_DATA_CNT" address="0x4" permission="r" mask="0xfff0000" />
+          <node id="INPUT_FIFO_NEAR_FULL_CNT" address="0x5" permission="r" mask="0xffff" />
+          <node id="EVT_FIFO_NEAR_FULL_CNT" address="0x5" permission="r" mask="0xffff0000" />
+          <node id="VFAT_BLOCK_RATE" address="0x6" permission="r" mask="0x7fff" />
+          <node id="EVT_RATE" address="0x6" permission="r" mask="0xffff8000" />
+          <node id="MAX_EOE_TIMER" address="0x7" permission="r" mask="0xffffff" />
+          <node id="LAST_EOE_TIMER" address="0x8" permission="r" mask="0xffffff" />
         </node>
       </node>
       <node id="OH3" address="0x130" >
         <node id="CONTROL" address="0x0" >
           <node id="EOE_TIMEOUT" address="0x3" permission="rw" mask="0xffffff" />
         </node>
+        <node id="STATUS" address="0x0" >
+          <node id="VFAT_MIXED_EC" address="0x0" permission="r" mask="0x2" />
+          <node id="VFAT_MIXED_BC" address="0x0" permission="r" mask="0x4" />
+          <node id="OH_MIXED_BC" address="0x0" permission="r" mask="0x8" />
+          <node id="VFAT_TOO_MANY" address="0x0" permission="r" mask="0x10" />
+          <node id="VFAT_SMALL_BLOCK" address="0x0" permission="r" mask="0x20" />
+          <node id="VFAT_LARGE_BLOCK" address="0x0" permission="r" mask="0x40" />
+          <node id="VFAT_NO_MARKER" address="0x0" permission="r" mask="0x80" />
+          <node id="INPUT_FIFO_HAD_OFLOW" address="0x0" permission="r" mask="0x100" />
+          <node id="INPUT_FIFO_HAD_UFLOW" address="0x0" permission="r" mask="0x200" />
+          <node id="EVENT_FIFO_HAD_OFLOW" address="0x0" permission="r" mask="0x400" />
+          <node id="EVT_SIZE_ERR" address="0x0" permission="r" mask="0x800" />
+          <node id="VFAT_INPUT_HAD_OVF" address="0x0" permission="r" mask="0x10000" />
+          <node id="VFAT_INPUT_HAD_UNF" address="0x0" permission="r" mask="0x20000" />
+          <node id="TTS_STATE" address="0x0" permission="r" mask="0xf000" />
+          <node id="INPUT_FIFO_IS_UFLOW" address="0x0" permission="r" mask="0x1000000" />
+          <node id="INPUT_FIFO_IS_FULL" address="0x0" permission="r" mask="0x2000000" />
+          <node id="INPUT_FIFO_IS_AFULL" address="0x0" permission="r" mask="0x4000000" />
+          <node id="INPUT_FIFO_IS_EMPTY" address="0x0" permission="r" mask="0x8000000" />
+          <node id="EVENT_FIFO_IS_UFLOW" address="0x0" permission="r" mask="0x10000000" />
+          <node id="EVENT_FIFO_IS_FULL" address="0x0" permission="r" mask="0x20000000" />
+          <node id="EVENT_FIFO_IS_AFULL" address="0x0" permission="r" mask="0x40000000" />
+          <node id="EVENT_FIFO_IS_EMPTY" address="0x0" permission="r" mask="0x80000000" />
+        </node>
+        <node id="COUNTERS" address="0x0" >
+          <node id="CORRUPT_VFAT_BLK_CNT" address="0x1" permission="r" />
+          <node id="EVN" address="0x2" permission="r" mask="0xffffff" />
+          <node id="INPUT_FIFO_DATA_CNT" address="0x4" permission="r" mask="0xfff" />
+          <node id="EVT_FIFO_DATA_CNT" address="0x4" permission="r" mask="0xfff0000" />
+          <node id="INPUT_FIFO_NEAR_FULL_CNT" address="0x5" permission="r" mask="0xffff" />
+          <node id="EVT_FIFO_NEAR_FULL_CNT" address="0x5" permission="r" mask="0xffff0000" />
+          <node id="VFAT_BLOCK_RATE" address="0x6" permission="r" mask="0x7fff" />
+          <node id="EVT_RATE" address="0x6" permission="r" mask="0xffff8000" />
+          <node id="MAX_EOE_TIMER" address="0x7" permission="r" mask="0xffffff" />
+          <node id="LAST_EOE_TIMER" address="0x8" permission="r" mask="0xffffff" />
+        </node>
       </node>
       <node id="OH4" address="0x140" >
         <node id="CONTROL" address="0x0" >
           <node id="EOE_TIMEOUT" address="0x3" permission="rw" mask="0xffffff" />
+        </node>
+        <node id="STATUS" address="0x0" >
+          <node id="VFAT_MIXED_EC" address="0x0" permission="r" mask="0x2" />
+          <node id="VFAT_MIXED_BC" address="0x0" permission="r" mask="0x4" />
+          <node id="OH_MIXED_BC" address="0x0" permission="r" mask="0x8" />
+          <node id="VFAT_TOO_MANY" address="0x0" permission="r" mask="0x10" />
+          <node id="VFAT_SMALL_BLOCK" address="0x0" permission="r" mask="0x20" />
+          <node id="VFAT_LARGE_BLOCK" address="0x0" permission="r" mask="0x40" />
+          <node id="VFAT_NO_MARKER" address="0x0" permission="r" mask="0x80" />
+          <node id="INPUT_FIFO_HAD_OFLOW" address="0x0" permission="r" mask="0x100" />
+          <node id="INPUT_FIFO_HAD_UFLOW" address="0x0" permission="r" mask="0x200" />
+          <node id="EVENT_FIFO_HAD_OFLOW" address="0x0" permission="r" mask="0x400" />
+          <node id="EVT_SIZE_ERR" address="0x0" permission="r" mask="0x800" />
+          <node id="VFAT_INPUT_HAD_OVF" address="0x0" permission="r" mask="0x10000" />
+          <node id="VFAT_INPUT_HAD_UNF" address="0x0" permission="r" mask="0x20000" />
+          <node id="TTS_STATE" address="0x0" permission="r" mask="0xf000" />
+          <node id="INPUT_FIFO_IS_UFLOW" address="0x0" permission="r" mask="0x1000000" />
+          <node id="INPUT_FIFO_IS_FULL" address="0x0" permission="r" mask="0x2000000" />
+          <node id="INPUT_FIFO_IS_AFULL" address="0x0" permission="r" mask="0x4000000" />
+          <node id="INPUT_FIFO_IS_EMPTY" address="0x0" permission="r" mask="0x8000000" />
+          <node id="EVENT_FIFO_IS_UFLOW" address="0x0" permission="r" mask="0x10000000" />
+          <node id="EVENT_FIFO_IS_FULL" address="0x0" permission="r" mask="0x20000000" />
+          <node id="EVENT_FIFO_IS_AFULL" address="0x0" permission="r" mask="0x40000000" />
+          <node id="EVENT_FIFO_IS_EMPTY" address="0x0" permission="r" mask="0x80000000" />
+        </node>
+        <node id="COUNTERS" address="0x0" >
+          <node id="CORRUPT_VFAT_BLK_CNT" address="0x1" permission="r" />
+          <node id="EVN" address="0x2" permission="r" mask="0xffffff" />
+          <node id="INPUT_FIFO_DATA_CNT" address="0x4" permission="r" mask="0xfff" />
+          <node id="EVT_FIFO_DATA_CNT" address="0x4" permission="r" mask="0xfff0000" />
+          <node id="INPUT_FIFO_NEAR_FULL_CNT" address="0x5" permission="r" mask="0xffff" />
+          <node id="EVT_FIFO_NEAR_FULL_CNT" address="0x5" permission="r" mask="0xffff0000" />
+          <node id="VFAT_BLOCK_RATE" address="0x6" permission="r" mask="0x7fff" />
+          <node id="EVT_RATE" address="0x6" permission="r" mask="0xffff8000" />
+          <node id="MAX_EOE_TIMER" address="0x7" permission="r" mask="0xffffff" />
+          <node id="LAST_EOE_TIMER" address="0x8" permission="r" mask="0xffffff" />
         </node>
       </node>
       <node id="OH5" address="0x150" >
         <node id="CONTROL" address="0x0" >
           <node id="EOE_TIMEOUT" address="0x3" permission="rw" mask="0xffffff" />
         </node>
+        <node id="STATUS" address="0x0" >
+          <node id="VFAT_MIXED_EC" address="0x0" permission="r" mask="0x2" />
+          <node id="VFAT_MIXED_BC" address="0x0" permission="r" mask="0x4" />
+          <node id="OH_MIXED_BC" address="0x0" permission="r" mask="0x8" />
+          <node id="VFAT_TOO_MANY" address="0x0" permission="r" mask="0x10" />
+          <node id="VFAT_SMALL_BLOCK" address="0x0" permission="r" mask="0x20" />
+          <node id="VFAT_LARGE_BLOCK" address="0x0" permission="r" mask="0x40" />
+          <node id="VFAT_NO_MARKER" address="0x0" permission="r" mask="0x80" />
+          <node id="INPUT_FIFO_HAD_OFLOW" address="0x0" permission="r" mask="0x100" />
+          <node id="INPUT_FIFO_HAD_UFLOW" address="0x0" permission="r" mask="0x200" />
+          <node id="EVENT_FIFO_HAD_OFLOW" address="0x0" permission="r" mask="0x400" />
+          <node id="EVT_SIZE_ERR" address="0x0" permission="r" mask="0x800" />
+          <node id="VFAT_INPUT_HAD_OVF" address="0x0" permission="r" mask="0x10000" />
+          <node id="VFAT_INPUT_HAD_UNF" address="0x0" permission="r" mask="0x20000" />
+          <node id="TTS_STATE" address="0x0" permission="r" mask="0xf000" />
+          <node id="INPUT_FIFO_IS_UFLOW" address="0x0" permission="r" mask="0x1000000" />
+          <node id="INPUT_FIFO_IS_FULL" address="0x0" permission="r" mask="0x2000000" />
+          <node id="INPUT_FIFO_IS_AFULL" address="0x0" permission="r" mask="0x4000000" />
+          <node id="INPUT_FIFO_IS_EMPTY" address="0x0" permission="r" mask="0x8000000" />
+          <node id="EVENT_FIFO_IS_UFLOW" address="0x0" permission="r" mask="0x10000000" />
+          <node id="EVENT_FIFO_IS_FULL" address="0x0" permission="r" mask="0x20000000" />
+          <node id="EVENT_FIFO_IS_AFULL" address="0x0" permission="r" mask="0x40000000" />
+          <node id="EVENT_FIFO_IS_EMPTY" address="0x0" permission="r" mask="0x80000000" />
+        </node>
+        <node id="COUNTERS" address="0x0" >
+          <node id="CORRUPT_VFAT_BLK_CNT" address="0x1" permission="r" />
+          <node id="EVN" address="0x2" permission="r" mask="0xffffff" />
+          <node id="INPUT_FIFO_DATA_CNT" address="0x4" permission="r" mask="0xfff" />
+          <node id="EVT_FIFO_DATA_CNT" address="0x4" permission="r" mask="0xfff0000" />
+          <node id="INPUT_FIFO_NEAR_FULL_CNT" address="0x5" permission="r" mask="0xffff" />
+          <node id="EVT_FIFO_NEAR_FULL_CNT" address="0x5" permission="r" mask="0xffff0000" />
+          <node id="VFAT_BLOCK_RATE" address="0x6" permission="r" mask="0x7fff" />
+          <node id="EVT_RATE" address="0x6" permission="r" mask="0xffff8000" />
+          <node id="MAX_EOE_TIMER" address="0x7" permission="r" mask="0xffffff" />
+          <node id="LAST_EOE_TIMER" address="0x8" permission="r" mask="0xffffff" />
+        </node>
       </node>
       <node id="OH6" address="0x160" >
         <node id="CONTROL" address="0x0" >
           <node id="EOE_TIMEOUT" address="0x3" permission="rw" mask="0xffffff" />
+        </node>
+        <node id="STATUS" address="0x0" >
+          <node id="VFAT_MIXED_EC" address="0x0" permission="r" mask="0x2" />
+          <node id="VFAT_MIXED_BC" address="0x0" permission="r" mask="0x4" />
+          <node id="OH_MIXED_BC" address="0x0" permission="r" mask="0x8" />
+          <node id="VFAT_TOO_MANY" address="0x0" permission="r" mask="0x10" />
+          <node id="VFAT_SMALL_BLOCK" address="0x0" permission="r" mask="0x20" />
+          <node id="VFAT_LARGE_BLOCK" address="0x0" permission="r" mask="0x40" />
+          <node id="VFAT_NO_MARKER" address="0x0" permission="r" mask="0x80" />
+          <node id="INPUT_FIFO_HAD_OFLOW" address="0x0" permission="r" mask="0x100" />
+          <node id="INPUT_FIFO_HAD_UFLOW" address="0x0" permission="r" mask="0x200" />
+          <node id="EVENT_FIFO_HAD_OFLOW" address="0x0" permission="r" mask="0x400" />
+          <node id="EVT_SIZE_ERR" address="0x0" permission="r" mask="0x800" />
+          <node id="VFAT_INPUT_HAD_OVF" address="0x0" permission="r" mask="0x10000" />
+          <node id="VFAT_INPUT_HAD_UNF" address="0x0" permission="r" mask="0x20000" />
+          <node id="TTS_STATE" address="0x0" permission="r" mask="0xf000" />
+          <node id="INPUT_FIFO_IS_UFLOW" address="0x0" permission="r" mask="0x1000000" />
+          <node id="INPUT_FIFO_IS_FULL" address="0x0" permission="r" mask="0x2000000" />
+          <node id="INPUT_FIFO_IS_AFULL" address="0x0" permission="r" mask="0x4000000" />
+          <node id="INPUT_FIFO_IS_EMPTY" address="0x0" permission="r" mask="0x8000000" />
+          <node id="EVENT_FIFO_IS_UFLOW" address="0x0" permission="r" mask="0x10000000" />
+          <node id="EVENT_FIFO_IS_FULL" address="0x0" permission="r" mask="0x20000000" />
+          <node id="EVENT_FIFO_IS_AFULL" address="0x0" permission="r" mask="0x40000000" />
+          <node id="EVENT_FIFO_IS_EMPTY" address="0x0" permission="r" mask="0x80000000" />
+        </node>
+        <node id="COUNTERS" address="0x0" >
+          <node id="CORRUPT_VFAT_BLK_CNT" address="0x1" permission="r" />
+          <node id="EVN" address="0x2" permission="r" mask="0xffffff" />
+          <node id="INPUT_FIFO_DATA_CNT" address="0x4" permission="r" mask="0xfff" />
+          <node id="EVT_FIFO_DATA_CNT" address="0x4" permission="r" mask="0xfff0000" />
+          <node id="INPUT_FIFO_NEAR_FULL_CNT" address="0x5" permission="r" mask="0xffff" />
+          <node id="EVT_FIFO_NEAR_FULL_CNT" address="0x5" permission="r" mask="0xffff0000" />
+          <node id="VFAT_BLOCK_RATE" address="0x6" permission="r" mask="0x7fff" />
+          <node id="EVT_RATE" address="0x6" permission="r" mask="0xffff8000" />
+          <node id="MAX_EOE_TIMER" address="0x7" permission="r" mask="0xffffff" />
+          <node id="LAST_EOE_TIMER" address="0x8" permission="r" mask="0xffffff" />
         </node>
       </node>
       <node id="OH7" address="0x170" >
         <node id="CONTROL" address="0x0" >
           <node id="EOE_TIMEOUT" address="0x3" permission="rw" mask="0xffffff" />
         </node>
+        <node id="STATUS" address="0x0" >
+          <node id="VFAT_MIXED_EC" address="0x0" permission="r" mask="0x2" />
+          <node id="VFAT_MIXED_BC" address="0x0" permission="r" mask="0x4" />
+          <node id="OH_MIXED_BC" address="0x0" permission="r" mask="0x8" />
+          <node id="VFAT_TOO_MANY" address="0x0" permission="r" mask="0x10" />
+          <node id="VFAT_SMALL_BLOCK" address="0x0" permission="r" mask="0x20" />
+          <node id="VFAT_LARGE_BLOCK" address="0x0" permission="r" mask="0x40" />
+          <node id="VFAT_NO_MARKER" address="0x0" permission="r" mask="0x80" />
+          <node id="INPUT_FIFO_HAD_OFLOW" address="0x0" permission="r" mask="0x100" />
+          <node id="INPUT_FIFO_HAD_UFLOW" address="0x0" permission="r" mask="0x200" />
+          <node id="EVENT_FIFO_HAD_OFLOW" address="0x0" permission="r" mask="0x400" />
+          <node id="EVT_SIZE_ERR" address="0x0" permission="r" mask="0x800" />
+          <node id="VFAT_INPUT_HAD_OVF" address="0x0" permission="r" mask="0x10000" />
+          <node id="VFAT_INPUT_HAD_UNF" address="0x0" permission="r" mask="0x20000" />
+          <node id="TTS_STATE" address="0x0" permission="r" mask="0xf000" />
+          <node id="INPUT_FIFO_IS_UFLOW" address="0x0" permission="r" mask="0x1000000" />
+          <node id="INPUT_FIFO_IS_FULL" address="0x0" permission="r" mask="0x2000000" />
+          <node id="INPUT_FIFO_IS_AFULL" address="0x0" permission="r" mask="0x4000000" />
+          <node id="INPUT_FIFO_IS_EMPTY" address="0x0" permission="r" mask="0x8000000" />
+          <node id="EVENT_FIFO_IS_UFLOW" address="0x0" permission="r" mask="0x10000000" />
+          <node id="EVENT_FIFO_IS_FULL" address="0x0" permission="r" mask="0x20000000" />
+          <node id="EVENT_FIFO_IS_AFULL" address="0x0" permission="r" mask="0x40000000" />
+          <node id="EVENT_FIFO_IS_EMPTY" address="0x0" permission="r" mask="0x80000000" />
+        </node>
+        <node id="COUNTERS" address="0x0" >
+          <node id="CORRUPT_VFAT_BLK_CNT" address="0x1" permission="r" />
+          <node id="EVN" address="0x2" permission="r" mask="0xffffff" />
+          <node id="INPUT_FIFO_DATA_CNT" address="0x4" permission="r" mask="0xfff" />
+          <node id="EVT_FIFO_DATA_CNT" address="0x4" permission="r" mask="0xfff0000" />
+          <node id="INPUT_FIFO_NEAR_FULL_CNT" address="0x5" permission="r" mask="0xffff" />
+          <node id="EVT_FIFO_NEAR_FULL_CNT" address="0x5" permission="r" mask="0xffff0000" />
+          <node id="VFAT_BLOCK_RATE" address="0x6" permission="r" mask="0x7fff" />
+          <node id="EVT_RATE" address="0x6" permission="r" mask="0xffff8000" />
+          <node id="MAX_EOE_TIMER" address="0x7" permission="r" mask="0xffffff" />
+          <node id="LAST_EOE_TIMER" address="0x8" permission="r" mask="0xffffff" />
+        </node>
       </node>
       <node id="OH8" address="0x180" >
         <node id="CONTROL" address="0x0" >
           <node id="EOE_TIMEOUT" address="0x3" permission="rw" mask="0xffffff" />
+        </node>
+        <node id="STATUS" address="0x0" >
+          <node id="VFAT_MIXED_EC" address="0x0" permission="r" mask="0x2" />
+          <node id="VFAT_MIXED_BC" address="0x0" permission="r" mask="0x4" />
+          <node id="OH_MIXED_BC" address="0x0" permission="r" mask="0x8" />
+          <node id="VFAT_TOO_MANY" address="0x0" permission="r" mask="0x10" />
+          <node id="VFAT_SMALL_BLOCK" address="0x0" permission="r" mask="0x20" />
+          <node id="VFAT_LARGE_BLOCK" address="0x0" permission="r" mask="0x40" />
+          <node id="VFAT_NO_MARKER" address="0x0" permission="r" mask="0x80" />
+          <node id="INPUT_FIFO_HAD_OFLOW" address="0x0" permission="r" mask="0x100" />
+          <node id="INPUT_FIFO_HAD_UFLOW" address="0x0" permission="r" mask="0x200" />
+          <node id="EVENT_FIFO_HAD_OFLOW" address="0x0" permission="r" mask="0x400" />
+          <node id="EVT_SIZE_ERR" address="0x0" permission="r" mask="0x800" />
+          <node id="VFAT_INPUT_HAD_OVF" address="0x0" permission="r" mask="0x10000" />
+          <node id="VFAT_INPUT_HAD_UNF" address="0x0" permission="r" mask="0x20000" />
+          <node id="TTS_STATE" address="0x0" permission="r" mask="0xf000" />
+          <node id="INPUT_FIFO_IS_UFLOW" address="0x0" permission="r" mask="0x1000000" />
+          <node id="INPUT_FIFO_IS_FULL" address="0x0" permission="r" mask="0x2000000" />
+          <node id="INPUT_FIFO_IS_AFULL" address="0x0" permission="r" mask="0x4000000" />
+          <node id="INPUT_FIFO_IS_EMPTY" address="0x0" permission="r" mask="0x8000000" />
+          <node id="EVENT_FIFO_IS_UFLOW" address="0x0" permission="r" mask="0x10000000" />
+          <node id="EVENT_FIFO_IS_FULL" address="0x0" permission="r" mask="0x20000000" />
+          <node id="EVENT_FIFO_IS_AFULL" address="0x0" permission="r" mask="0x40000000" />
+          <node id="EVENT_FIFO_IS_EMPTY" address="0x0" permission="r" mask="0x80000000" />
+        </node>
+        <node id="COUNTERS" address="0x0" >
+          <node id="CORRUPT_VFAT_BLK_CNT" address="0x1" permission="r" />
+          <node id="EVN" address="0x2" permission="r" mask="0xffffff" />
+          <node id="INPUT_FIFO_DATA_CNT" address="0x4" permission="r" mask="0xfff" />
+          <node id="EVT_FIFO_DATA_CNT" address="0x4" permission="r" mask="0xfff0000" />
+          <node id="INPUT_FIFO_NEAR_FULL_CNT" address="0x5" permission="r" mask="0xffff" />
+          <node id="EVT_FIFO_NEAR_FULL_CNT" address="0x5" permission="r" mask="0xffff0000" />
+          <node id="VFAT_BLOCK_RATE" address="0x6" permission="r" mask="0x7fff" />
+          <node id="EVT_RATE" address="0x6" permission="r" mask="0xffff8000" />
+          <node id="MAX_EOE_TIMER" address="0x7" permission="r" mask="0xffffff" />
+          <node id="LAST_EOE_TIMER" address="0x8" permission="r" mask="0xffffff" />
         </node>
       </node>
       <node id="OH9" address="0x190" >
         <node id="CONTROL" address="0x0" >
           <node id="EOE_TIMEOUT" address="0x3" permission="rw" mask="0xffffff" />
         </node>
+        <node id="STATUS" address="0x0" >
+          <node id="VFAT_MIXED_EC" address="0x0" permission="r" mask="0x2" />
+          <node id="VFAT_MIXED_BC" address="0x0" permission="r" mask="0x4" />
+          <node id="OH_MIXED_BC" address="0x0" permission="r" mask="0x8" />
+          <node id="VFAT_TOO_MANY" address="0x0" permission="r" mask="0x10" />
+          <node id="VFAT_SMALL_BLOCK" address="0x0" permission="r" mask="0x20" />
+          <node id="VFAT_LARGE_BLOCK" address="0x0" permission="r" mask="0x40" />
+          <node id="VFAT_NO_MARKER" address="0x0" permission="r" mask="0x80" />
+          <node id="INPUT_FIFO_HAD_OFLOW" address="0x0" permission="r" mask="0x100" />
+          <node id="INPUT_FIFO_HAD_UFLOW" address="0x0" permission="r" mask="0x200" />
+          <node id="EVENT_FIFO_HAD_OFLOW" address="0x0" permission="r" mask="0x400" />
+          <node id="EVT_SIZE_ERR" address="0x0" permission="r" mask="0x800" />
+          <node id="VFAT_INPUT_HAD_OVF" address="0x0" permission="r" mask="0x10000" />
+          <node id="VFAT_INPUT_HAD_UNF" address="0x0" permission="r" mask="0x20000" />
+          <node id="TTS_STATE" address="0x0" permission="r" mask="0xf000" />
+          <node id="INPUT_FIFO_IS_UFLOW" address="0x0" permission="r" mask="0x1000000" />
+          <node id="INPUT_FIFO_IS_FULL" address="0x0" permission="r" mask="0x2000000" />
+          <node id="INPUT_FIFO_IS_AFULL" address="0x0" permission="r" mask="0x4000000" />
+          <node id="INPUT_FIFO_IS_EMPTY" address="0x0" permission="r" mask="0x8000000" />
+          <node id="EVENT_FIFO_IS_UFLOW" address="0x0" permission="r" mask="0x10000000" />
+          <node id="EVENT_FIFO_IS_FULL" address="0x0" permission="r" mask="0x20000000" />
+          <node id="EVENT_FIFO_IS_AFULL" address="0x0" permission="r" mask="0x40000000" />
+          <node id="EVENT_FIFO_IS_EMPTY" address="0x0" permission="r" mask="0x80000000" />
+        </node>
+        <node id="COUNTERS" address="0x0" >
+          <node id="CORRUPT_VFAT_BLK_CNT" address="0x1" permission="r" />
+          <node id="EVN" address="0x2" permission="r" mask="0xffffff" />
+          <node id="INPUT_FIFO_DATA_CNT" address="0x4" permission="r" mask="0xfff" />
+          <node id="EVT_FIFO_DATA_CNT" address="0x4" permission="r" mask="0xfff0000" />
+          <node id="INPUT_FIFO_NEAR_FULL_CNT" address="0x5" permission="r" mask="0xffff" />
+          <node id="EVT_FIFO_NEAR_FULL_CNT" address="0x5" permission="r" mask="0xffff0000" />
+          <node id="VFAT_BLOCK_RATE" address="0x6" permission="r" mask="0x7fff" />
+          <node id="EVT_RATE" address="0x6" permission="r" mask="0xffff8000" />
+          <node id="MAX_EOE_TIMER" address="0x7" permission="r" mask="0xffffff" />
+          <node id="LAST_EOE_TIMER" address="0x8" permission="r" mask="0xffffff" />
+        </node>
       </node>
       <node id="OH10" address="0x1a0" >
         <node id="CONTROL" address="0x0" >
           <node id="EOE_TIMEOUT" address="0x3" permission="rw" mask="0xffffff" />
         </node>
+        <node id="STATUS" address="0x0" >
+          <node id="VFAT_MIXED_EC" address="0x0" permission="r" mask="0x2" />
+          <node id="VFAT_MIXED_BC" address="0x0" permission="r" mask="0x4" />
+          <node id="OH_MIXED_BC" address="0x0" permission="r" mask="0x8" />
+          <node id="VFAT_TOO_MANY" address="0x0" permission="r" mask="0x10" />
+          <node id="VFAT_SMALL_BLOCK" address="0x0" permission="r" mask="0x20" />
+          <node id="VFAT_LARGE_BLOCK" address="0x0" permission="r" mask="0x40" />
+          <node id="VFAT_NO_MARKER" address="0x0" permission="r" mask="0x80" />
+          <node id="INPUT_FIFO_HAD_OFLOW" address="0x0" permission="r" mask="0x100" />
+          <node id="INPUT_FIFO_HAD_UFLOW" address="0x0" permission="r" mask="0x200" />
+          <node id="EVENT_FIFO_HAD_OFLOW" address="0x0" permission="r" mask="0x400" />
+          <node id="EVT_SIZE_ERR" address="0x0" permission="r" mask="0x800" />
+          <node id="VFAT_INPUT_HAD_OVF" address="0x0" permission="r" mask="0x10000" />
+          <node id="VFAT_INPUT_HAD_UNF" address="0x0" permission="r" mask="0x20000" />
+          <node id="TTS_STATE" address="0x0" permission="r" mask="0xf000" />
+          <node id="INPUT_FIFO_IS_UFLOW" address="0x0" permission="r" mask="0x1000000" />
+          <node id="INPUT_FIFO_IS_FULL" address="0x0" permission="r" mask="0x2000000" />
+          <node id="INPUT_FIFO_IS_AFULL" address="0x0" permission="r" mask="0x4000000" />
+          <node id="INPUT_FIFO_IS_EMPTY" address="0x0" permission="r" mask="0x8000000" />
+          <node id="EVENT_FIFO_IS_UFLOW" address="0x0" permission="r" mask="0x10000000" />
+          <node id="EVENT_FIFO_IS_FULL" address="0x0" permission="r" mask="0x20000000" />
+          <node id="EVENT_FIFO_IS_AFULL" address="0x0" permission="r" mask="0x40000000" />
+          <node id="EVENT_FIFO_IS_EMPTY" address="0x0" permission="r" mask="0x80000000" />
+        </node>
+        <node id="COUNTERS" address="0x0" >
+          <node id="CORRUPT_VFAT_BLK_CNT" address="0x1" permission="r" />
+          <node id="EVN" address="0x2" permission="r" mask="0xffffff" />
+          <node id="INPUT_FIFO_DATA_CNT" address="0x4" permission="r" mask="0xfff" />
+          <node id="EVT_FIFO_DATA_CNT" address="0x4" permission="r" mask="0xfff0000" />
+          <node id="INPUT_FIFO_NEAR_FULL_CNT" address="0x5" permission="r" mask="0xffff" />
+          <node id="EVT_FIFO_NEAR_FULL_CNT" address="0x5" permission="r" mask="0xffff0000" />
+          <node id="VFAT_BLOCK_RATE" address="0x6" permission="r" mask="0x7fff" />
+          <node id="EVT_RATE" address="0x6" permission="r" mask="0xffff8000" />
+          <node id="MAX_EOE_TIMER" address="0x7" permission="r" mask="0xffffff" />
+          <node id="LAST_EOE_TIMER" address="0x8" permission="r" mask="0xffffff" />
+        </node>
       </node>
       <node id="OH11" address="0x1b0" >
         <node id="CONTROL" address="0x0" >
           <node id="EOE_TIMEOUT" address="0x3" permission="rw" mask="0xffffff" />
+        </node>
+        <node id="STATUS" address="0x0" >
+          <node id="VFAT_MIXED_EC" address="0x0" permission="r" mask="0x2" />
+          <node id="VFAT_MIXED_BC" address="0x0" permission="r" mask="0x4" />
+          <node id="OH_MIXED_BC" address="0x0" permission="r" mask="0x8" />
+          <node id="VFAT_TOO_MANY" address="0x0" permission="r" mask="0x10" />
+          <node id="VFAT_SMALL_BLOCK" address="0x0" permission="r" mask="0x20" />
+          <node id="VFAT_LARGE_BLOCK" address="0x0" permission="r" mask="0x40" />
+          <node id="VFAT_NO_MARKER" address="0x0" permission="r" mask="0x80" />
+          <node id="INPUT_FIFO_HAD_OFLOW" address="0x0" permission="r" mask="0x100" />
+          <node id="INPUT_FIFO_HAD_UFLOW" address="0x0" permission="r" mask="0x200" />
+          <node id="EVENT_FIFO_HAD_OFLOW" address="0x0" permission="r" mask="0x400" />
+          <node id="EVT_SIZE_ERR" address="0x0" permission="r" mask="0x800" />
+          <node id="VFAT_INPUT_HAD_OVF" address="0x0" permission="r" mask="0x10000" />
+          <node id="VFAT_INPUT_HAD_UNF" address="0x0" permission="r" mask="0x20000" />
+          <node id="TTS_STATE" address="0x0" permission="r" mask="0xf000" />
+          <node id="INPUT_FIFO_IS_UFLOW" address="0x0" permission="r" mask="0x1000000" />
+          <node id="INPUT_FIFO_IS_FULL" address="0x0" permission="r" mask="0x2000000" />
+          <node id="INPUT_FIFO_IS_AFULL" address="0x0" permission="r" mask="0x4000000" />
+          <node id="INPUT_FIFO_IS_EMPTY" address="0x0" permission="r" mask="0x8000000" />
+          <node id="EVENT_FIFO_IS_UFLOW" address="0x0" permission="r" mask="0x10000000" />
+          <node id="EVENT_FIFO_IS_FULL" address="0x0" permission="r" mask="0x20000000" />
+          <node id="EVENT_FIFO_IS_AFULL" address="0x0" permission="r" mask="0x40000000" />
+          <node id="EVENT_FIFO_IS_EMPTY" address="0x0" permission="r" mask="0x80000000" />
+        </node>
+        <node id="COUNTERS" address="0x0" >
+          <node id="CORRUPT_VFAT_BLK_CNT" address="0x1" permission="r" />
+          <node id="EVN" address="0x2" permission="r" mask="0xffffff" />
+          <node id="INPUT_FIFO_DATA_CNT" address="0x4" permission="r" mask="0xfff" />
+          <node id="EVT_FIFO_DATA_CNT" address="0x4" permission="r" mask="0xfff0000" />
+          <node id="INPUT_FIFO_NEAR_FULL_CNT" address="0x5" permission="r" mask="0xffff" />
+          <node id="EVT_FIFO_NEAR_FULL_CNT" address="0x5" permission="r" mask="0xffff0000" />
+          <node id="VFAT_BLOCK_RATE" address="0x6" permission="r" mask="0x7fff" />
+          <node id="EVT_RATE" address="0x6" permission="r" mask="0xffff8000" />
+          <node id="MAX_EOE_TIMER" address="0x7" permission="r" mask="0xffffff" />
+          <node id="LAST_EOE_TIMER" address="0x8" permission="r" mask="0xffffff" />
         </node>
       </node>
     </node>
@@ -2993,6 +3451,7 @@
       </node>
     </node>
     <node id="OPTICAL_LINKS" address="0x1400000" >
+      <node id="DISABLE_TTC_PHASE_ALIGN" address="0x11000" permission="rw" mask="0x1" />
       <node id="MGT_CHANNEL_0" address="0x0" >
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />

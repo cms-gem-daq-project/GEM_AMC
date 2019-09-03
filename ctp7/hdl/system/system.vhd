@@ -90,6 +90,9 @@ entity system is
     gth_rxreset_arr_o           : out std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0); 
     gth_txreset_arr_o           : out std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
     
+    gth_gem_mgt_status_arr_o    : out t_mgt_status_arr(g_NUM_OF_GTH_GTs-1 downto 0);
+    gth_gem_mgt_ctrl_arr_i      : in  t_mgt_ctrl_arr(g_NUM_OF_GTH_GTs-1 downto 0);
+    
     ----------------- AMC13 DAQLink ------------------------
     amc13_gth_refclk_p             : in  std_logic;
     amc13_gth_refclk_n             : in  std_logic;
@@ -223,9 +226,11 @@ architecture system_arch of system is
 
   signal clk_stable_i : std_logic := '0';
 
-  signal s_gth_common_reset : std_logic_vector(g_NUM_OF_GTH_COMMONs-1 downto 0);
-  signal s_gth_gt_txreset   : std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
-  signal s_gth_gt_rxreset   : std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
+  signal s_gth_common_reset       : std_logic_vector(g_NUM_OF_GTH_COMMONs-1 downto 0);
+  signal s_gth_gt_txreset_regf    : std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
+  signal s_gth_gt_rxreset_regf    : std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
+  signal s_gth_gt_txreset         : std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
+  signal s_gth_gt_rxreset         : std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
 
   signal s_gth_common_status_arr  : t_gth_common_status_arr(g_NUM_OF_GTH_COMMONs-1 downto 0);
   signal s_gth_common_drp_in_arr  : t_gth_common_drp_in_arr(g_NUM_OF_GTH_COMMONs-1 downto 0);
@@ -255,6 +260,8 @@ architecture system_arch of system is
   signal s_clk_gth_tx_usrclk_arr : std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
   signal s_clk_gth_rx_usrclk_arr : std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
   signal s_gth_cpll_status_arr   : t_gth_cpll_status_arr(g_NUM_OF_GTH_GTs-1 downto 0);
+
+  signal s_disable_ttc_phase_align : std_logic;
 
 ----
   signal s_DRP_MMCM_clk   : std_logic;
@@ -289,7 +296,7 @@ architecture system_arch of system is
   signal ipb_axi_bvalid    : STD_LOGIC_VECTOR ( 0 downto 0 );  
   
   ----------------- TTC ------------------------
-  signal ttc_clk_160_clean : std_logic; -- this will be used as the source of all TTC clocks and should come from the jitter-cleaned MGT ref
+  signal gbt_mgt_txoutclk  : std_logic; -- this will be used as the source of all TTC clocks and should come from the jitter-cleaned MGT ref
   signal ttc_clks          : t_ttc_clks;
   signal ttc_clks_reset    : std_logic;
   signal ttc_clks_locked   : std_logic;
@@ -344,14 +351,15 @@ begin
   
   i_ttc_clocks : entity work.ttc_clocks
       port map(
-          clk_40_ttc_p_i      => clk_40_ttc_p_i,
-          clk_40_ttc_n_i      => clk_40_ttc_n_i,
-          clk_160_ttc_clean_i => ttc_clk_160_clean,
-          mmcm_rst_i          => '0', --ttc_clks_reset,
-          mmcm_locked_o       => ttc_clks_locked,
-          clocks_o            => ttc_clks,
-          pll_lock_time_o     => open,
-          unlock_cnt_o        => open
+          clk_40_ttc_p_i        => clk_40_ttc_p_i,
+          clk_40_ttc_n_i        => clk_40_ttc_n_i,
+          clk_gbt_mgt_txout_i   => gbt_mgt_txoutclk,
+          disable_phase_align_i => s_disable_ttc_phase_align,
+          mmcm_rst_i            => '0', --ttc_clks_reset,
+          mmcm_locked_o         => ttc_clks_locked,
+          clocks_o              => ttc_clks,
+          pll_lock_time_o       => open,
+          unlock_cnt_o          => open
       ); 
   
   ttc_clks_o <= ttc_clks;
@@ -443,8 +451,8 @@ begin
       gth_common_reset_o      => s_gth_common_reset,
       gth_common_status_arr_i => s_gth_common_status_arr,
       gth_cpll_status_arr_i   => s_gth_cpll_status_arr,
-      gth_gt_txreset_o        => s_gth_gt_txreset,
-      gth_gt_rxreset_o        => s_gth_gt_rxreset,
+      gth_gt_txreset_o        => s_gth_gt_txreset_regf,
+      gth_gt_rxreset_o        => s_gth_gt_rxreset_regf,
       gth_gt_txreset_done_i   => s_gth_gt_txreset_done,
       gth_gt_rxreset_done_i   => s_gth_gt_rxreset_done,
       gth_tx_ctrl_arr_o       => s_gth_tx_ctrl_arr,
@@ -455,7 +463,9 @@ begin
       gth_misc_status_arr_i   => s_gth_misc_status_arr,
 
       clk_gth_tx_usrclk_arr_i => s_clk_gth_tx_usrclk_arr,
-      clk_gth_rx_usrclk_arr_i => s_clk_gth_rx_usrclk_arr
+      clk_gth_rx_usrclk_arr_i => s_clk_gth_rx_usrclk_arr,
+      
+      disable_ttc_phase_align_o => s_disable_ttc_phase_align
       );
 
   i_drp_controller : entity work.drp_controller
@@ -478,18 +488,6 @@ begin
       gth_gt_drp_arr_o     => s_gth_gt_drp_in_arr,
       gth_gt_drp_arr_i     => s_gth_gt_drp_out_arr
       );
-
---  i_io_link_4p8g_demo_ctrl : io_link_4p8g_demo_ctrl
---    port map(
-
---      clk_gth_tx_usrclk_i => s_clk_gth_tx_usrclk_arr(35 downto 12),
---      clk_gth_rx_usrclk_i => s_clk_gth_rx_usrclk_arr(35 downto 12),
-
---      gth_tx_data_o       => s_gth_tx_data_arr(35 downto 12),
---      gth_rx_data_i       => s_gth_rx_data_arr(35 downto 12),
---      gth_rx_ctrl_2_arr_i => s_gth_rx_ctrl_2_arr(35 downto 12)
-
---      );
 
   i_gth_wrapper : entity work.gth_wrapper
     generic map
@@ -548,11 +546,23 @@ begin
       gth_rx_serial_arr_i   => s_gth_rx_serial_arr,
 
       gth_gbt_common_rxusrclk_o => gth_gbt_common_rxusrclk_o,
-      gth_gbt_common_txoutclk_o => ttc_clk_160_clean,
+      gth_gbt_common_txoutclk_o => gbt_mgt_txoutclk,
       
       gth_3p2g_common_txusrclk_o => gth_3p2g_common_txusrclk_o
       );
-    
+  
+  gen_gth_gem_stat_ctrl : for i in 0 to g_NUM_OF_GTH_GTs - 1 generate
+    -- control
+    s_gth_rx_ctrl_2_arr(i).rxslide <= gth_gem_mgt_ctrl_arr_i(i).rxslide;
+    s_gth_gt_txreset(i) <= s_gth_gt_txreset_regf(i) or gth_gem_mgt_ctrl_arr_i(i).txreset;
+    s_gth_gt_rxreset(i) <= s_gth_gt_rxreset_regf(i) or gth_gem_mgt_ctrl_arr_i(i).rxreset;
+    --status
+    gth_gem_mgt_status_arr_o(i).tx_reset_done <= s_gth_gt_txreset_done(i);
+    gth_gem_mgt_status_arr_o(i).rx_reset_done <= s_gth_gt_rxreset_done(i);
+    gth_gem_mgt_status_arr_o(i).tx_cpll_locked <= s_gth_cpll_status_arr(i).cplllock;
+    gth_gem_mgt_status_arr_o(i).rx_cpll_locked <= s_gth_cpll_status_arr(i).cplllock;
+  end generate;  
+  
   gen_gth_serial : for i in 0 to g_NUM_OF_GTH_GTs-1 generate
     s_gth_rx_serial_arr(i).gthrxn <= '0';
     s_gth_rx_serial_arr(i).gthrxp <= '1';

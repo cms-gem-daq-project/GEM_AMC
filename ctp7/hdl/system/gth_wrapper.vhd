@@ -165,7 +165,7 @@ architecture gth_wrapper_arch of gth_wrapper is
 
   ---------------------
     
-  signal s_gth_4p8g_common_rxusrclk : std_logic;
+  signal s_gth_gbt_common_rxusrclk : std_logic;
 
   signal s_gth_common_clk_in_arr  : t_gth_common_clk_in_arr(g_NUM_OF_GTH_COMMONs-1 downto 0);
   signal s_gth_common_clk_out_arr : t_gth_common_clk_out_arr(g_NUM_OF_GTH_COMMONs-1 downto 0);
@@ -212,8 +212,8 @@ architecture gth_wrapper_arch of gth_wrapper is
   signal s_tx_startup_fsm_mmcm_lock  : std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0) := (others => '1');
 
 
-  signal s_GTH_4p8g_TX_MMCM_reset  : std_logic;
-  signal s_GTH_4p8g_TX_MMCM_locked : std_logic;
+  signal s_gth_gbt_tx_mmcm_reset  : std_logic;
+  signal s_gth_gbt_tx_mmcm_locked : std_logic;
 
 
 --============================================================================
@@ -225,13 +225,13 @@ begin
   gen_tx_mmcm_sigs : for n in 0 to g_NUM_OF_GTH_GTs-1 generate
 
 
-    gen_gth_4p8g_txuserclk : if c_gth_config_arr(n).gth_link_type = gth_4p8g generate
+    gen_gth_gbt_txuserclk : if c_gth_config_arr(n).gth_link_type = gth_4p8g or c_gth_config_arr(n).gth_link_type = gth_10p24g generate
 
-      s_tx_startup_fsm_mmcm_lock(n) <= s_GTH_4p8g_TX_MMCM_locked;
+      s_tx_startup_fsm_mmcm_lock(n) <= s_gth_gbt_tx_mmcm_locked;
 
-      gen_gth_4p8g_txuserclk_master : if c_gth_config_arr(n).gth_txclk_out_master = true generate
+      gen_gth_gbt_txuserclk_master : if c_gth_config_arr(n).gth_txclk_out_master = true generate
 
-        s_GTH_4p8g_TX_MMCM_reset <= s_tx_startup_fsm_mmcm_reset(n);
+        s_gth_gbt_tx_mmcm_reset <= s_tx_startup_fsm_mmcm_reset(n);
         
 --        i_pcs_clk_phase_check : entity work.clk_phase_check_v7
 --            generic map(
@@ -254,9 +254,6 @@ begin
       )
     port map
     (
-      GTH_4p8g_TX_MMCM_reset_i  => s_GTH_4p8g_TX_MMCM_reset,
-      GTH_4p8g_TX_MMCM_locked_o => s_GTH_4p8g_TX_MMCM_locked,
-
       ttc_clks_i                => ttc_clks_i,
       ttc_clks_locked_i         => ttc_clks_locked_i,
 
@@ -279,16 +276,17 @@ begin
       clk_gth_tx_usrclk_arr_o => s_clk_gth_tx_usrclk_arr,
       clk_gth_rx_usrclk_arr_o => s_clk_gth_rx_usrclk_arr,
 
-      clk_gth_4p8g_common_rxusrclk_o => s_gth_4p8g_common_rxusrclk,
-      clk_gth_4p8g_common_txoutclk_o => gth_gbt_common_txoutclk_o,
+      gth_gbt_tx_mmcm_locked_o => s_gth_gbt_tx_mmcm_locked,
+      clk_gth_gbt_common_rxusrclk_o => s_gth_gbt_common_rxusrclk,
+      clk_gth_gbt_common_txoutclk_o => gth_gbt_common_txoutclk_o,
       
       clk_gth_3p2g_common_txusrclk_o => gth_3p2g_common_txusrclk_o
       );
 
-  ttc_clks_reset_o <= s_GTH_4p8g_TX_MMCM_reset;
+  ttc_clks_reset_o <= s_gth_gbt_tx_mmcm_reset;
   clk_gth_tx_usrclk_arr_o <= s_clk_gth_tx_usrclk_arr;
   clk_gth_rx_usrclk_arr_o <= s_clk_gth_rx_usrclk_arr;
-  gth_gbt_common_rxusrclk_o <= s_gth_4p8g_common_rxusrclk;
+  gth_gbt_common_rxusrclk_o <= s_gth_gbt_common_rxusrclk;
   
 ------------------------
 
@@ -297,6 +295,7 @@ begin
     gen_qpll_inner : for j in 0 to 3 generate
     begin
       s_gth_gt_clk_in_arr(i*4+j).GTREFCLK0  <= s_refclk_F_0(3);
+      s_gth_gt_clk_in_arr(i*4+j).GTREFCLK1  <= s_refclk_F_1(3);
       s_gth_gt_clk_in_arr(i*4+j).qpllclk    <= s_gth_common_clk_out_arr(i).QPLLCLK;
       s_gth_gt_clk_in_arr(i*4+j).qpllrefclk <= s_gth_common_clk_out_arr(i).QPLLREFCLK;
     end generate;
@@ -307,6 +306,7 @@ begin
     gen_qpll_inner : for j in 0 to 3 generate
     begin
       s_gth_gt_clk_in_arr(i*4+j).GTREFCLK0  <= s_refclk_F_0(2);
+      s_gth_gt_clk_in_arr(i*4+j).GTREFCLK1  <= s_refclk_F_1(2);
       s_gth_gt_clk_in_arr(i*4+j).qpllclk    <= s_gth_common_clk_out_arr(i).QPLLCLK;
       s_gth_gt_clk_in_arr(i*4+j).qpllrefclk <= s_gth_common_clk_out_arr(i).QPLLREFCLK;
     end generate;
@@ -317,6 +317,7 @@ begin
     gen_qpll_inner : for j in 0 to 3 generate
     begin
       s_gth_gt_clk_in_arr(i*4+j).GTREFCLK0  <= s_refclk_F_0(1);
+      s_gth_gt_clk_in_arr(i*4+j).GTREFCLK1  <= s_refclk_F_1(1);
       s_gth_gt_clk_in_arr(i*4+j).qpllclk    <= s_gth_common_clk_out_arr(i).QPLLCLK;
       s_gth_gt_clk_in_arr(i*4+j).qpllrefclk <= s_gth_common_clk_out_arr(i).QPLLREFCLK;
     end generate;
@@ -327,6 +328,7 @@ begin
     gen_qpll_inner : for j in 0 to 3 generate
     begin
       s_gth_gt_clk_in_arr(i*4+j).GTREFCLK0  <= s_refclk_F_0(0);
+      s_gth_gt_clk_in_arr(i*4+j).GTREFCLK1  <= s_refclk_F_1(0);
       s_gth_gt_clk_in_arr(i*4+j).qpllclk    <= s_gth_common_clk_out_arr(i).QPLLCLK;
       s_gth_gt_clk_in_arr(i*4+j).qpllrefclk <= s_gth_common_clk_out_arr(i).QPLLREFCLK;
     end generate;
@@ -337,6 +339,7 @@ begin
     gen_qpll_inner : for j in 0 to 3 generate
     begin
       s_gth_gt_clk_in_arr(i*4+j).GTREFCLK0  <= s_refclk_B_0(3);
+      s_gth_gt_clk_in_arr(i*4+j).GTREFCLK1  <= s_refclk_B_1(3);
       s_gth_gt_clk_in_arr(i*4+j).qpllclk    <= s_gth_common_clk_out_arr(i).QPLLCLK;
       s_gth_gt_clk_in_arr(i*4+j).qpllrefclk <= s_gth_common_clk_out_arr(i).QPLLREFCLK;
     end generate;
@@ -347,6 +350,7 @@ begin
     gen_qpll_inner : for j in 0 to 3 generate
     begin
       s_gth_gt_clk_in_arr(i*4+j).GTREFCLK0  <= s_refclk_B_0(2);
+      s_gth_gt_clk_in_arr(i*4+j).GTREFCLK1  <= s_refclk_B_1(2);
       s_gth_gt_clk_in_arr(i*4+j).qpllclk    <= s_gth_common_clk_out_arr(i).QPLLCLK;
       s_gth_gt_clk_in_arr(i*4+j).qpllrefclk <= s_gth_common_clk_out_arr(i).QPLLREFCLK;
     end generate;
@@ -357,6 +361,7 @@ begin
     gen_qpll_inner : for j in 0 to 3 generate
     begin
       s_gth_gt_clk_in_arr(i*4+j).GTREFCLK0  <= s_refclk_B_0(1);
+      s_gth_gt_clk_in_arr(i*4+j).GTREFCLK1  <= s_refclk_B_1(1);
       s_gth_gt_clk_in_arr(i*4+j).qpllclk    <= s_gth_common_clk_out_arr(i).QPLLCLK;
       s_gth_gt_clk_in_arr(i*4+j).qpllrefclk <= s_gth_common_clk_out_arr(i).QPLLREFCLK;
     end generate;
@@ -406,6 +411,7 @@ begin
       i_gth_single_3p2g : entity work.gth_single_3p2g
         generic map
         (
+          g_REFCLK_01 => 0,
                                         -- Simulation attributes
           g_GT_SIM_GTRESET_SPEEDUP => g_GT_SIM_GTRESET_SPEEDUP
           )
@@ -485,6 +491,7 @@ begin
       i_gth_single_4p8g : entity work.gth_single_4p8g
         generic map
         (
+          g_REFCLK_01 => 0,
                                         -- Simulation attributes
           g_GT_SIM_GTRESET_SPEEDUP => g_GT_SIM_GTRESET_SPEEDUP
           )
@@ -515,6 +522,85 @@ begin
           );
 
     end generate;
+    
+    gen_gth_10p24g : if c_gth_config_arr(n).gth_link_type = gth_10p24g generate
+        
+      s_gth_tx_data_arr(n) <= gth_tx_data_arr_i(n);
+      gth_rx_data_arr_o(n) <= s_gth_rx_data_arr(n);
+
+      i_gth_single_10p24g : entity work.gth_single_10p24g
+        generic map
+        (
+          g_REFCLK_01 => 1,
+                                        -- Simulation attributes
+          g_GT_SIM_GTRESET_SPEEDUP => g_GT_SIM_GTRESET_SPEEDUP
+          )
+        port map
+        (
+          gth_rx_serial_i => s_gth_rx_serial_arr(n),
+          gth_tx_serial_o => s_gth_tx_serial_arr(n),
+          gth_gt_clk_i    => s_gth_gt_clk_in_arr(n),
+          gth_gt_clk_o    => s_gth_gt_clk_out_arr(n),
+
+          gth_cpll_ctrl_i   => s_gth_cpll_ctrl_arr(n),
+          gth_cpll_init_i   => s_gth_cpll_init_arr(n),
+          gth_cpll_status_o => s_gth_cpll_status_arr(n),
+
+          gth_gt_drp_i      => s_gth_gt_drp_in_arr(n),
+          gth_gt_drp_o      => s_gth_gt_drp_out_arr(n),
+          gth_tx_ctrl_i     => s_gth_tx_ctrl_arr(n),
+          gth_tx_init_i     => s_gth_tx_init_arr(n),
+          gth_tx_status_o   => s_gth_tx_status_arr(n),
+          gth_rx_ctrl_i     => s_gth_rx_ctrl_arr(n),
+          gth_rx_ctrl_2_i   => s_gth_rx_ctrl_2_arr(n),
+          gth_rx_init_i     => s_gth_rx_init_arr(n),
+          gth_rx_status_o   => s_gth_rx_status_arr(n),
+          gth_misc_ctrl_i   => s_gth_misc_ctrl_arr(n),
+          gth_misc_status_o => s_gth_misc_status_arr(n),
+          gth_tx_data_i     => s_gth_tx_data_arr(n),
+          gth_rx_data_o     => s_gth_rx_data_arr(n)
+          );        
+    end generate;
+
+    gen_gth_2p56g : if c_gth_config_arr(n).gth_link_type = gth_2p56g generate
+        
+      s_gth_tx_data_arr(n) <= gth_tx_data_arr_i(n);
+      gth_rx_data_arr_o(n) <= s_gth_rx_data_arr(n);
+
+      i_gth_single_2p56g : entity work.gth_single_2p56g
+        generic map
+        (
+          g_REFCLK_01 => 1,
+                                        -- Simulation attributes
+          g_GT_SIM_GTRESET_SPEEDUP => g_GT_SIM_GTRESET_SPEEDUP
+          )
+        port map
+        (
+          gth_rx_serial_i => s_gth_rx_serial_arr(n),
+          gth_tx_serial_o => s_gth_tx_serial_arr(n),
+          gth_gt_clk_i    => s_gth_gt_clk_in_arr(n),
+          gth_gt_clk_o    => s_gth_gt_clk_out_arr(n),
+
+          gth_cpll_ctrl_i   => s_gth_cpll_ctrl_arr(n),
+          gth_cpll_init_i   => s_gth_cpll_init_arr(n),
+          gth_cpll_status_o => s_gth_cpll_status_arr(n),
+
+          gth_gt_drp_i      => s_gth_gt_drp_in_arr(n),
+          gth_gt_drp_o      => s_gth_gt_drp_out_arr(n),
+          gth_tx_ctrl_i     => s_gth_tx_ctrl_arr(n),
+          gth_tx_init_i     => s_gth_tx_init_arr(n),
+          gth_tx_status_o   => s_gth_tx_status_arr(n),
+          gth_rx_ctrl_i     => s_gth_rx_ctrl_arr(n),
+          gth_rx_ctrl_2_i   => s_gth_rx_ctrl_2_arr(n),
+          gth_rx_init_i     => s_gth_rx_init_arr(n),
+          gth_rx_status_o   => s_gth_rx_status_arr(n),
+          gth_misc_ctrl_i   => s_gth_misc_ctrl_arr(n),
+          gth_misc_status_o => s_gth_misc_status_arr(n),
+          gth_tx_data_i     => s_gth_tx_data_arr(n),
+          gth_rx_data_o     => s_gth_rx_data_arr(n)
+          );        
+    end generate;
+    
   end generate;
 
 

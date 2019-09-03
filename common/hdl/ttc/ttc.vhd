@@ -74,6 +74,7 @@ architecture ttc_arch of ttc is
     signal reset                    : std_logic;
 
     -- MMCM lock monitor
+    signal ttc_clocks_locked_sync   : std_logic;
     signal mmcm_unlock_en           : std_logic;
     signal mmcm_unlock_cnt          : std_logic_vector(15 downto 0);   
 
@@ -163,8 +164,18 @@ begin
 
     ------------- Wiring and resets -------------
 
-    ttc_status.mmcm_locked <= ttc_clks_locked_i;
+    ttc_status.mmcm_locked <= ttc_clocks_locked_sync;
     ttc_status_o <= ttc_status;
+
+    i_ttc_clocks_locked_sync: entity work.synchronizer
+        generic map(
+            N_STAGES => 3
+        )
+        port map(
+            async_i => ttc_clks_locked_i,
+            clk_i   => ttc_clks_i.clk_40,
+            sync_o  => ttc_clocks_locked_sync
+        );
 
     i_reset_sync: 
     entity work.synchronizer
@@ -180,13 +191,12 @@ begin
     reset <= reset_global or ttc_ctrl.reset_local;
 
     ------------- MMCM unlock monitor -------------
-    i_mmcm_unlock_oneshot : entity work.oneshot_cross_domain
+    i_mmcm_unlock_oneshot : entity work.oneshot
         port map(
-            reset_i       => reset,
-            input_clk_i   => ttc_clks_i.clk_160,
-            oneshot_clk_i => ttc_clks_i.clk_40,
-            input_i       => not ttc_clks_locked_i,
-            oneshot_o     => mmcm_unlock_en
+            reset_i   => reset,
+            clk_i     => ttc_clks_i.clk_40,
+            input_i   => not ttc_clocks_locked_sync,
+            oneshot_o => mmcm_unlock_en
         );
         
     i_mmcm_unlock_cnt : entity work.counter

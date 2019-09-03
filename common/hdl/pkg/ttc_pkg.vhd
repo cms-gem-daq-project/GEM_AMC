@@ -24,10 +24,10 @@ package ttc_pkg is
     constant C_TTC_NUM_BXs              : std_logic_vector(11 downto 0) := x"dec";
 
     type t_ttc_clks is record
-        clk_40  : std_logic;
-        clk_80  : std_logic;
-        clk_120 : std_logic;
-        clk_160 : std_logic;
+        clk_40              : std_logic;
+        clk_80              : std_logic;
+        clk_160             : std_logic;
+        clk_gbt_mgt_usrclk  : std_logic;
     end record;
 
     type t_ttc_cmds is record

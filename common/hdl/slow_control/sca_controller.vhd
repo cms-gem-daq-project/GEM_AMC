@@ -303,7 +303,7 @@ begin
                             tx_sca_command.channel <= SCA_CHANNEL_GPIO;
                             tx_sca_command.command <= SCA_CMD_GPIO_SET_OUT;
                             tx_sca_command.length <= x"04";
-                            tx_sca_command.data <= x"f0ffff0f";
+                            tx_sca_command.data <= SCA_DEFAULT_GPIO_OUT_HR;
                         elsif (trans_error = '1') then
                             top_state <= ERROR;
                             trans_en <= '0';
@@ -320,7 +320,7 @@ begin
                             tx_sca_command.channel <= SCA_CHANNEL_GPIO;
                             tx_sca_command.command <= SCA_CMD_GPIO_SET_OUT;
                             tx_sca_command.length <= x"04";
-                            tx_sca_command.data <= SCA_DEFAULT_GPIO_OUTPUT;
+                            tx_sca_command.data <= SCA_DEFAULT_GPIO_OUT;
                         elsif (trans_error = '1') then
                             top_state <= ERROR;
                             trans_en <= '0';

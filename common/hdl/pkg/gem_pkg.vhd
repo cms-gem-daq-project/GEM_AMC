@@ -10,10 +10,10 @@ package gem_pkg is
     --==  Firmware version  ==--
     --========================-- 
 
-    constant C_FIRMWARE_DATE    : std_logic_vector(31 downto 0) := x"20190705";
+    constant C_FIRMWARE_DATE    : std_logic_vector(31 downto 0) := x"20190829";
     constant C_FIRMWARE_MAJOR   : integer range 0 to 255        := 3;
     constant C_FIRMWARE_MINOR   : integer range 0 to 255        := 9;
-    constant C_FIRMWARE_BUILD   : integer range 0 to 255        := 0;
+    constant C_FIRMWARE_BUILD   : integer range 0 to 255        := 1;
     
     ------ Change log ------
     -- 1.8.6 no gbt sync procedure with oh
@@ -108,6 +108,7 @@ package gem_pkg is
     -- 3.8.5  Small fix in the TX FSM for the OH FPGA -- during link reset the send_idle and send_header signals were undefined, so could possibly send some false data for OH slow control during reset
     -- 3.8.6  Small fix in DAQ input processor: previously a condition existed for event word count to be lower by one VFAT if a new event came exactly at the clock cycle when the old one timed out. Hopefully this will solve the EC/BC mismatch problem seen at GE1/1 QC8 cosmic stand
     -- 3.9.0  Calibration mode data format added - it's a very aggressive bandwidth saving mode designed for calibration runs, which drops most of the VFAT data, except for the VFAT position, 2 bits of EC, and just one channel bit for the selected channel number, so each VFAT only takes up 8 bits. Note: addresses of existing DAQ registers have been changed in order to accomodate the new registers, so it's necessary to update the address table for this version
+    -- 3.9.1  LpGBT and ME0 support added (no trigger data yet, but all other features should work)! The firmware has been restructured to better support different GEM stations.
 
     --======================--
     --==      General     ==--
@@ -133,7 +134,13 @@ package gem_pkg is
     --============--   
     
     type t_std_array is array(integer range <>) of std_logic;
+
+    type t_std234_array is array(integer range <>) of std_logic_vector(233 downto 0);
+
+    type t_std256_array is array(integer range <>) of std_logic_vector(255 downto 0);
   
+    type t_std64_array is array(integer range <>) of std_logic_vector(63 downto 0);
+
     type t_std32_array is array(integer range <>) of std_logic_vector(31 downto 0);
         
     type t_std24_array is array(integer range <>) of std_logic_vector(23 downto 0);
@@ -159,6 +166,25 @@ package gem_pkg is
     --============--   
 
     type t_gbt_frame_array is array(integer range <>) of std_logic_vector(83 downto 0);
+
+    --============--
+    --==   LpGBT  ==--
+    --============--   
+
+    type t_lpgbt_tx_frame is record
+        tx_data         : std_logic_vector(31 downto 0);
+        tx_ec_data      : std_logic_vector(1 downto 0);
+        tx_ic_data      : std_logic_vector(1 downto 0);
+    end record;
+
+    type t_lpgbt_rx_frame is record
+        rx_data         : std_logic_vector(223 downto 0);
+        rx_ec_data      : std_logic_vector(1 downto 0);
+        rx_ic_data      : std_logic_vector(1 downto 0);
+    end record;
+
+    type t_lpgbt_tx_frame_array is array(integer range <>) of t_lpgbt_tx_frame;
+    type t_lpgbt_rx_frame_array is array(integer range <>) of t_lpgbt_rx_frame;
 
     --=============--
     --==  VFAT3  ==--
@@ -192,6 +218,23 @@ package gem_pkg is
     type t_gt_8b10b_rx_data_arr is array(integer range <>) of t_gt_8b10b_rx_data;
 
     type t_gt_gbt_data_arr is array(integer range <>) of std_logic_vector(39 downto 0);
+
+    type t_mgt_ctrl is record
+        txreset     : std_logic;
+        rxreset     : std_logic;
+        rxslide     : std_logic;
+    end record;
+
+    type t_mgt_ctrl_arr is array(integer range <>) of t_mgt_ctrl;
+
+    type t_mgt_status is record
+        tx_reset_done   : std_logic;
+        rx_reset_done   : std_logic;
+        tx_cpll_locked  : std_logic;
+        rx_cpll_locked  : std_logic;
+    end record;
+
+    type t_mgt_status_arr is array(integer range <>) of t_mgt_status;
 
     --========================--
     --== SBit cluster data  ==--
@@ -350,9 +393,16 @@ package gem_pkg is
     end record;
 
     type t_gbt_link_status is record
-        gbt_rx_sync_status      : t_sync_fifo_status;
-        gbt_rx_ready            : std_logic;
-        gbt_rx_had_not_ready    : std_logic;
+        gbt_tx_ready                : std_logic;
+        gbt_tx_had_not_ready        : std_logic;
+        gbt_tx_gearbox_ready        : std_logic;
+        gbt_rx_sync_status          : t_sync_fifo_status;
+        gbt_rx_ready                : std_logic;
+        gbt_rx_had_not_ready        : std_logic;
+        gbt_rx_header_locked        : std_logic;
+        gbt_rx_header_had_unlock    : std_logic;
+        gbt_rx_gearbox_ready        : std_logic;
+        gbt_rx_correction_cnt       : std_logic_vector(7 downto 0);
     end record;
     
     type t_vfat_link_status is record

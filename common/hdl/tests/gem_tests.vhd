@@ -20,7 +20,8 @@ use work.registers.all;
 entity gem_tests is
     generic(
         g_NUM_GBT_LINKS     : integer;
-        g_NUM_OF_OHs        : integer
+        g_NUM_OF_OHs        : integer;
+        g_GEM_STATION       : integer
     );
     port(
         -- reset
@@ -104,21 +105,23 @@ begin
     
     --== GBT loopback test ==--
     
-    g_gbt_loopback_tests : for i in 0 to g_NUM_GBT_LINKS - 1 generate
-    
-        i_gbt_loopback_test_single : entity work.gbt_loopback_test
-            port map(
-                reset_i          => reset or not loopback_gbt_test_en_i,
-                gbt_clk_i        => ttc_clk_i.clk_40,
-                gbt_link_ready_i => gbt_link_ready_i(i),
-                gbt_tx_data_o    => gbt_tx_data_arr_o(i),
-                gbt_rx_data_i    => gbt_rx_data_arr_i(i),
-                oh_in_the_loop_i => gbt_loop_through_oh,
-                link_sync_done_o => gbt_loop_sync_done_arr(i),
-                mega_word_cnt_o  => gbt_loop_mega_word_cnt_arr(i),
-                error_cnt_o      => gbt_loop_error_cnt_arr(i)
-            );
-    
+    g_use_gbtx : if (g_GEM_STATION = 1) or (g_GEM_STATION = 2) generate
+        g_gbt_loopback_tests : for i in 0 to g_NUM_GBT_LINKS - 1 generate
+        
+            i_gbt_loopback_test_single : entity work.gbt_loopback_test
+                port map(
+                    reset_i          => reset or not loopback_gbt_test_en_i,
+                    gbt_clk_i        => ttc_clk_i.clk_40,
+                    gbt_link_ready_i => gbt_link_ready_i(i),
+                    gbt_tx_data_o    => gbt_tx_data_arr_o(i),
+                    gbt_rx_data_i    => gbt_rx_data_arr_i(i),
+                    oh_in_the_loop_i => gbt_loop_through_oh,
+                    link_sync_done_o => gbt_loop_sync_done_arr(i),
+                    mega_word_cnt_o  => gbt_loop_mega_word_cnt_arr(i),
+                    error_cnt_o      => gbt_loop_error_cnt_arr(i)
+                );
+        
+        end generate;
     end generate;
 
     --== VFAT3 DAQ monitor ==--
@@ -248,68 +251,32 @@ begin
     regs_addresses(71)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"1180";
     regs_addresses(72)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"1181";
     regs_addresses(73)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"1182";
-    regs_addresses(74)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"1190";
-    regs_addresses(75)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"1191";
-    regs_addresses(76)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"1192";
-    regs_addresses(77)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"11a0";
-    regs_addresses(78)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"11a1";
-    regs_addresses(79)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"11a2";
-    regs_addresses(80)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"11b0";
-    regs_addresses(81)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"11b1";
-    regs_addresses(82)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"11b2";
-    regs_addresses(83)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"11c0";
-    regs_addresses(84)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"11c1";
-    regs_addresses(85)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"11c2";
-    regs_addresses(86)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"11d0";
-    regs_addresses(87)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"11d1";
-    regs_addresses(88)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"11d2";
-    regs_addresses(89)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"11e0";
-    regs_addresses(90)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"11e1";
-    regs_addresses(91)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"11e2";
-    regs_addresses(92)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"11f0";
-    regs_addresses(93)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"11f1";
-    regs_addresses(94)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"11f2";
-    regs_addresses(95)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"1200";
-    regs_addresses(96)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"1201";
-    regs_addresses(97)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"1202";
-    regs_addresses(98)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"1210";
-    regs_addresses(99)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"1211";
-    regs_addresses(100)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"1212";
-    regs_addresses(101)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"1220";
-    regs_addresses(102)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"1221";
-    regs_addresses(103)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"1222";
-    regs_addresses(104)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"1230";
-    regs_addresses(105)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"1231";
-    regs_addresses(106)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"1232";
-    regs_addresses(107)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"1240";
-    regs_addresses(108)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"1241";
-    regs_addresses(109)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"1242";
-    regs_addresses(110)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"2000";
-    regs_addresses(111)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"2001";
-    regs_addresses(112)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"2010";
-    regs_addresses(113)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"2020";
-    regs_addresses(114)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"2030";
-    regs_addresses(115)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"2040";
-    regs_addresses(116)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"2050";
-    regs_addresses(117)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"2060";
-    regs_addresses(118)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"2070";
-    regs_addresses(119)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"2080";
-    regs_addresses(120)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"2090";
-    regs_addresses(121)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"20a0";
-    regs_addresses(122)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"20b0";
-    regs_addresses(123)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"20c0";
-    regs_addresses(124)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"20d0";
-    regs_addresses(125)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"20e0";
-    regs_addresses(126)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"20f0";
-    regs_addresses(127)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"2100";
-    regs_addresses(128)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"2110";
-    regs_addresses(129)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"2120";
-    regs_addresses(130)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"2130";
-    regs_addresses(131)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"2140";
-    regs_addresses(132)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"2150";
-    regs_addresses(133)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"2160";
-    regs_addresses(134)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"2170";
-    regs_addresses(135)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"2180";
+    regs_addresses(74)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"2000";
+    regs_addresses(75)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"2001";
+    regs_addresses(76)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"2010";
+    regs_addresses(77)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"2020";
+    regs_addresses(78)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"2030";
+    regs_addresses(79)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"2040";
+    regs_addresses(80)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"2050";
+    regs_addresses(81)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"2060";
+    regs_addresses(82)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"2070";
+    regs_addresses(83)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"2080";
+    regs_addresses(84)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"2090";
+    regs_addresses(85)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"20a0";
+    regs_addresses(86)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"20b0";
+    regs_addresses(87)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"20c0";
+    regs_addresses(88)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"20d0";
+    regs_addresses(89)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"20e0";
+    regs_addresses(90)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"20f0";
+    regs_addresses(91)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"2100";
+    regs_addresses(92)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"2110";
+    regs_addresses(93)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"2120";
+    regs_addresses(94)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"2130";
+    regs_addresses(95)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"2140";
+    regs_addresses(96)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"2150";
+    regs_addresses(97)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"2160";
+    regs_addresses(98)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"2170";
+    regs_addresses(99)(REG_GEM_TESTS_ADDRESS_MSB downto REG_GEM_TESTS_ADDRESS_LSB) <= '0' & x"2180";
 
     -- Connect read signals
     regs_read_arr(1)(REG_GEM_TESTS_GBT_LOOPBACK_CTRL_LOOP_THROUGH_OH_BIT) <= gbt_loop_through_oh;
@@ -385,105 +352,69 @@ begin
     regs_read_arr(71)(REG_GEM_TESTS_GBT_LOOPBACK_LINK_23_SYNC_DONE_BIT) <= gbt_loop_sync_done_arr(23);
     regs_read_arr(72)(REG_GEM_TESTS_GBT_LOOPBACK_LINK_23_MEGA_WORD_CNT_MSB downto REG_GEM_TESTS_GBT_LOOPBACK_LINK_23_MEGA_WORD_CNT_LSB) <= gbt_loop_mega_word_cnt_arr(23);
     regs_read_arr(73)(REG_GEM_TESTS_GBT_LOOPBACK_LINK_23_ERROR_CNT_MSB downto REG_GEM_TESTS_GBT_LOOPBACK_LINK_23_ERROR_CNT_LSB) <= gbt_loop_error_cnt_arr(23);
-    regs_read_arr(74)(REG_GEM_TESTS_GBT_LOOPBACK_LINK_24_SYNC_DONE_BIT) <= gbt_loop_sync_done_arr(24);
-    regs_read_arr(75)(REG_GEM_TESTS_GBT_LOOPBACK_LINK_24_MEGA_WORD_CNT_MSB downto REG_GEM_TESTS_GBT_LOOPBACK_LINK_24_MEGA_WORD_CNT_LSB) <= gbt_loop_mega_word_cnt_arr(24);
-    regs_read_arr(76)(REG_GEM_TESTS_GBT_LOOPBACK_LINK_24_ERROR_CNT_MSB downto REG_GEM_TESTS_GBT_LOOPBACK_LINK_24_ERROR_CNT_LSB) <= gbt_loop_error_cnt_arr(24);
-    regs_read_arr(77)(REG_GEM_TESTS_GBT_LOOPBACK_LINK_25_SYNC_DONE_BIT) <= gbt_loop_sync_done_arr(25);
-    regs_read_arr(78)(REG_GEM_TESTS_GBT_LOOPBACK_LINK_25_MEGA_WORD_CNT_MSB downto REG_GEM_TESTS_GBT_LOOPBACK_LINK_25_MEGA_WORD_CNT_LSB) <= gbt_loop_mega_word_cnt_arr(25);
-    regs_read_arr(79)(REG_GEM_TESTS_GBT_LOOPBACK_LINK_25_ERROR_CNT_MSB downto REG_GEM_TESTS_GBT_LOOPBACK_LINK_25_ERROR_CNT_LSB) <= gbt_loop_error_cnt_arr(25);
-    regs_read_arr(80)(REG_GEM_TESTS_GBT_LOOPBACK_LINK_26_SYNC_DONE_BIT) <= gbt_loop_sync_done_arr(26);
-    regs_read_arr(81)(REG_GEM_TESTS_GBT_LOOPBACK_LINK_26_MEGA_WORD_CNT_MSB downto REG_GEM_TESTS_GBT_LOOPBACK_LINK_26_MEGA_WORD_CNT_LSB) <= gbt_loop_mega_word_cnt_arr(26);
-    regs_read_arr(82)(REG_GEM_TESTS_GBT_LOOPBACK_LINK_26_ERROR_CNT_MSB downto REG_GEM_TESTS_GBT_LOOPBACK_LINK_26_ERROR_CNT_LSB) <= gbt_loop_error_cnt_arr(26);
-    regs_read_arr(83)(REG_GEM_TESTS_GBT_LOOPBACK_LINK_27_SYNC_DONE_BIT) <= gbt_loop_sync_done_arr(27);
-    regs_read_arr(84)(REG_GEM_TESTS_GBT_LOOPBACK_LINK_27_MEGA_WORD_CNT_MSB downto REG_GEM_TESTS_GBT_LOOPBACK_LINK_27_MEGA_WORD_CNT_LSB) <= gbt_loop_mega_word_cnt_arr(27);
-    regs_read_arr(85)(REG_GEM_TESTS_GBT_LOOPBACK_LINK_27_ERROR_CNT_MSB downto REG_GEM_TESTS_GBT_LOOPBACK_LINK_27_ERROR_CNT_LSB) <= gbt_loop_error_cnt_arr(27);
-    regs_read_arr(86)(REG_GEM_TESTS_GBT_LOOPBACK_LINK_28_SYNC_DONE_BIT) <= gbt_loop_sync_done_arr(28);
-    regs_read_arr(87)(REG_GEM_TESTS_GBT_LOOPBACK_LINK_28_MEGA_WORD_CNT_MSB downto REG_GEM_TESTS_GBT_LOOPBACK_LINK_28_MEGA_WORD_CNT_LSB) <= gbt_loop_mega_word_cnt_arr(28);
-    regs_read_arr(88)(REG_GEM_TESTS_GBT_LOOPBACK_LINK_28_ERROR_CNT_MSB downto REG_GEM_TESTS_GBT_LOOPBACK_LINK_28_ERROR_CNT_LSB) <= gbt_loop_error_cnt_arr(28);
-    regs_read_arr(89)(REG_GEM_TESTS_GBT_LOOPBACK_LINK_29_SYNC_DONE_BIT) <= gbt_loop_sync_done_arr(29);
-    regs_read_arr(90)(REG_GEM_TESTS_GBT_LOOPBACK_LINK_29_MEGA_WORD_CNT_MSB downto REG_GEM_TESTS_GBT_LOOPBACK_LINK_29_MEGA_WORD_CNT_LSB) <= gbt_loop_mega_word_cnt_arr(29);
-    regs_read_arr(91)(REG_GEM_TESTS_GBT_LOOPBACK_LINK_29_ERROR_CNT_MSB downto REG_GEM_TESTS_GBT_LOOPBACK_LINK_29_ERROR_CNT_LSB) <= gbt_loop_error_cnt_arr(29);
-    regs_read_arr(92)(REG_GEM_TESTS_GBT_LOOPBACK_LINK_30_SYNC_DONE_BIT) <= gbt_loop_sync_done_arr(30);
-    regs_read_arr(93)(REG_GEM_TESTS_GBT_LOOPBACK_LINK_30_MEGA_WORD_CNT_MSB downto REG_GEM_TESTS_GBT_LOOPBACK_LINK_30_MEGA_WORD_CNT_LSB) <= gbt_loop_mega_word_cnt_arr(30);
-    regs_read_arr(94)(REG_GEM_TESTS_GBT_LOOPBACK_LINK_30_ERROR_CNT_MSB downto REG_GEM_TESTS_GBT_LOOPBACK_LINK_30_ERROR_CNT_LSB) <= gbt_loop_error_cnt_arr(30);
-    regs_read_arr(95)(REG_GEM_TESTS_GBT_LOOPBACK_LINK_31_SYNC_DONE_BIT) <= gbt_loop_sync_done_arr(31);
-    regs_read_arr(96)(REG_GEM_TESTS_GBT_LOOPBACK_LINK_31_MEGA_WORD_CNT_MSB downto REG_GEM_TESTS_GBT_LOOPBACK_LINK_31_MEGA_WORD_CNT_LSB) <= gbt_loop_mega_word_cnt_arr(31);
-    regs_read_arr(97)(REG_GEM_TESTS_GBT_LOOPBACK_LINK_31_ERROR_CNT_MSB downto REG_GEM_TESTS_GBT_LOOPBACK_LINK_31_ERROR_CNT_LSB) <= gbt_loop_error_cnt_arr(31);
-    regs_read_arr(98)(REG_GEM_TESTS_GBT_LOOPBACK_LINK_32_SYNC_DONE_BIT) <= gbt_loop_sync_done_arr(32);
-    regs_read_arr(99)(REG_GEM_TESTS_GBT_LOOPBACK_LINK_32_MEGA_WORD_CNT_MSB downto REG_GEM_TESTS_GBT_LOOPBACK_LINK_32_MEGA_WORD_CNT_LSB) <= gbt_loop_mega_word_cnt_arr(32);
-    regs_read_arr(100)(REG_GEM_TESTS_GBT_LOOPBACK_LINK_32_ERROR_CNT_MSB downto REG_GEM_TESTS_GBT_LOOPBACK_LINK_32_ERROR_CNT_LSB) <= gbt_loop_error_cnt_arr(32);
-    regs_read_arr(101)(REG_GEM_TESTS_GBT_LOOPBACK_LINK_33_SYNC_DONE_BIT) <= gbt_loop_sync_done_arr(33);
-    regs_read_arr(102)(REG_GEM_TESTS_GBT_LOOPBACK_LINK_33_MEGA_WORD_CNT_MSB downto REG_GEM_TESTS_GBT_LOOPBACK_LINK_33_MEGA_WORD_CNT_LSB) <= gbt_loop_mega_word_cnt_arr(33);
-    regs_read_arr(103)(REG_GEM_TESTS_GBT_LOOPBACK_LINK_33_ERROR_CNT_MSB downto REG_GEM_TESTS_GBT_LOOPBACK_LINK_33_ERROR_CNT_LSB) <= gbt_loop_error_cnt_arr(33);
-    regs_read_arr(104)(REG_GEM_TESTS_GBT_LOOPBACK_LINK_34_SYNC_DONE_BIT) <= gbt_loop_sync_done_arr(34);
-    regs_read_arr(105)(REG_GEM_TESTS_GBT_LOOPBACK_LINK_34_MEGA_WORD_CNT_MSB downto REG_GEM_TESTS_GBT_LOOPBACK_LINK_34_MEGA_WORD_CNT_LSB) <= gbt_loop_mega_word_cnt_arr(34);
-    regs_read_arr(106)(REG_GEM_TESTS_GBT_LOOPBACK_LINK_34_ERROR_CNT_MSB downto REG_GEM_TESTS_GBT_LOOPBACK_LINK_34_ERROR_CNT_LSB) <= gbt_loop_error_cnt_arr(34);
-    regs_read_arr(107)(REG_GEM_TESTS_GBT_LOOPBACK_LINK_35_SYNC_DONE_BIT) <= gbt_loop_sync_done_arr(35);
-    regs_read_arr(108)(REG_GEM_TESTS_GBT_LOOPBACK_LINK_35_MEGA_WORD_CNT_MSB downto REG_GEM_TESTS_GBT_LOOPBACK_LINK_35_MEGA_WORD_CNT_LSB) <= gbt_loop_mega_word_cnt_arr(35);
-    regs_read_arr(109)(REG_GEM_TESTS_GBT_LOOPBACK_LINK_35_ERROR_CNT_MSB downto REG_GEM_TESTS_GBT_LOOPBACK_LINK_35_ERROR_CNT_LSB) <= gbt_loop_error_cnt_arr(35);
-    regs_read_arr(111)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_CTRL_ENABLE_BIT) <= vfat_daqmon_enable;
-    regs_read_arr(111)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_CTRL_OH_SELECT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_CTRL_OH_SELECT_LSB) <= vfat_daqmon_oh_select;
-    regs_read_arr(111)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_CTRL_VFAT_CHANNEL_SELECT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_CTRL_VFAT_CHANNEL_SELECT_LSB) <= vfat_daqmon_chan_select;
-    regs_read_arr(111)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_CTRL_VFAT_CHANNEL_GLOBAL_OR_BIT) <= vfat_daqmon_chan_global_or;
-    regs_read_arr(112)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT0_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT0_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(0);
-    regs_read_arr(112)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT0_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT0_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(0);
-    regs_read_arr(113)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT1_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT1_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(1);
-    regs_read_arr(113)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT1_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT1_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(1);
-    regs_read_arr(114)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT2_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT2_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(2);
-    regs_read_arr(114)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT2_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT2_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(2);
-    regs_read_arr(115)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT3_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT3_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(3);
-    regs_read_arr(115)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT3_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT3_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(3);
-    regs_read_arr(116)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT4_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT4_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(4);
-    regs_read_arr(116)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT4_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT4_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(4);
-    regs_read_arr(117)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT5_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT5_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(5);
-    regs_read_arr(117)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT5_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT5_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(5);
-    regs_read_arr(118)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT6_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT6_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(6);
-    regs_read_arr(118)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT6_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT6_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(6);
-    regs_read_arr(119)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT7_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT7_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(7);
-    regs_read_arr(119)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT7_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT7_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(7);
-    regs_read_arr(120)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT8_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT8_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(8);
-    regs_read_arr(120)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT8_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT8_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(8);
-    regs_read_arr(121)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT9_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT9_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(9);
-    regs_read_arr(121)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT9_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT9_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(9);
-    regs_read_arr(122)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT10_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT10_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(10);
-    regs_read_arr(122)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT10_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT10_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(10);
-    regs_read_arr(123)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT11_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT11_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(11);
-    regs_read_arr(123)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT11_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT11_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(11);
-    regs_read_arr(124)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT12_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT12_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(12);
-    regs_read_arr(124)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT12_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT12_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(12);
-    regs_read_arr(125)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT13_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT13_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(13);
-    regs_read_arr(125)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT13_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT13_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(13);
-    regs_read_arr(126)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT14_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT14_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(14);
-    regs_read_arr(126)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT14_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT14_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(14);
-    regs_read_arr(127)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT15_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT15_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(15);
-    regs_read_arr(127)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT15_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT15_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(15);
-    regs_read_arr(128)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT16_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT16_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(16);
-    regs_read_arr(128)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT16_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT16_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(16);
-    regs_read_arr(129)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT17_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT17_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(17);
-    regs_read_arr(129)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT17_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT17_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(17);
-    regs_read_arr(130)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT18_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT18_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(18);
-    regs_read_arr(130)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT18_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT18_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(18);
-    regs_read_arr(131)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT19_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT19_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(19);
-    regs_read_arr(131)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT19_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT19_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(19);
-    regs_read_arr(132)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT20_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT20_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(20);
-    regs_read_arr(132)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT20_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT20_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(20);
-    regs_read_arr(133)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT21_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT21_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(21);
-    regs_read_arr(133)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT21_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT21_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(21);
-    regs_read_arr(134)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT22_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT22_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(22);
-    regs_read_arr(134)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT22_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT22_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(22);
-    regs_read_arr(135)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT23_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT23_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(23);
-    regs_read_arr(135)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT23_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT23_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(23);
+    regs_read_arr(75)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_CTRL_ENABLE_BIT) <= vfat_daqmon_enable;
+    regs_read_arr(75)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_CTRL_OH_SELECT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_CTRL_OH_SELECT_LSB) <= vfat_daqmon_oh_select;
+    regs_read_arr(75)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_CTRL_VFAT_CHANNEL_SELECT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_CTRL_VFAT_CHANNEL_SELECT_LSB) <= vfat_daqmon_chan_select;
+    regs_read_arr(75)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_CTRL_VFAT_CHANNEL_GLOBAL_OR_BIT) <= vfat_daqmon_chan_global_or;
+    regs_read_arr(76)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT0_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT0_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(0);
+    regs_read_arr(76)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT0_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT0_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(0);
+    regs_read_arr(77)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT1_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT1_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(1);
+    regs_read_arr(77)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT1_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT1_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(1);
+    regs_read_arr(78)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT2_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT2_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(2);
+    regs_read_arr(78)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT2_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT2_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(2);
+    regs_read_arr(79)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT3_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT3_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(3);
+    regs_read_arr(79)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT3_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT3_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(3);
+    regs_read_arr(80)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT4_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT4_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(4);
+    regs_read_arr(80)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT4_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT4_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(4);
+    regs_read_arr(81)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT5_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT5_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(5);
+    regs_read_arr(81)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT5_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT5_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(5);
+    regs_read_arr(82)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT6_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT6_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(6);
+    regs_read_arr(82)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT6_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT6_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(6);
+    regs_read_arr(83)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT7_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT7_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(7);
+    regs_read_arr(83)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT7_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT7_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(7);
+    regs_read_arr(84)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT8_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT8_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(8);
+    regs_read_arr(84)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT8_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT8_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(8);
+    regs_read_arr(85)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT9_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT9_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(9);
+    regs_read_arr(85)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT9_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT9_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(9);
+    regs_read_arr(86)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT10_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT10_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(10);
+    regs_read_arr(86)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT10_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT10_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(10);
+    regs_read_arr(87)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT11_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT11_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(11);
+    regs_read_arr(87)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT11_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT11_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(11);
+    regs_read_arr(88)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT12_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT12_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(12);
+    regs_read_arr(88)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT12_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT12_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(12);
+    regs_read_arr(89)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT13_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT13_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(13);
+    regs_read_arr(89)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT13_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT13_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(13);
+    regs_read_arr(90)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT14_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT14_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(14);
+    regs_read_arr(90)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT14_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT14_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(14);
+    regs_read_arr(91)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT15_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT15_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(15);
+    regs_read_arr(91)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT15_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT15_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(15);
+    regs_read_arr(92)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT16_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT16_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(16);
+    regs_read_arr(92)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT16_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT16_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(16);
+    regs_read_arr(93)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT17_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT17_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(17);
+    regs_read_arr(93)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT17_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT17_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(17);
+    regs_read_arr(94)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT18_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT18_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(18);
+    regs_read_arr(94)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT18_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT18_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(18);
+    regs_read_arr(95)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT19_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT19_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(19);
+    regs_read_arr(95)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT19_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT19_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(19);
+    regs_read_arr(96)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT20_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT20_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(20);
+    regs_read_arr(96)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT20_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT20_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(20);
+    regs_read_arr(97)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT21_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT21_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(21);
+    regs_read_arr(97)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT21_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT21_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(21);
+    regs_read_arr(98)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT22_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT22_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(22);
+    regs_read_arr(98)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT22_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT22_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(22);
+    regs_read_arr(99)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT23_GOOD_EVENTS_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT23_GOOD_EVENTS_COUNT_LSB) <= vfat_daqmon_good_evt_cnt_arr(23);
+    regs_read_arr(99)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT23_CHANNEL_FIRE_COUNT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_VFAT23_CHANNEL_FIRE_COUNT_LSB) <= vfat_daqmon_chan_fire_cnt_arr(23);
 
     -- Connect write signals
     gbt_loop_through_oh <= regs_write_arr(1)(REG_GEM_TESTS_GBT_LOOPBACK_CTRL_LOOP_THROUGH_OH_BIT);
-    vfat_daqmon_enable <= regs_write_arr(111)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_CTRL_ENABLE_BIT);
-    vfat_daqmon_oh_select <= regs_write_arr(111)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_CTRL_OH_SELECT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_CTRL_OH_SELECT_LSB);
-    vfat_daqmon_chan_select <= regs_write_arr(111)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_CTRL_VFAT_CHANNEL_SELECT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_CTRL_VFAT_CHANNEL_SELECT_LSB);
-    vfat_daqmon_chan_global_or <= regs_write_arr(111)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_CTRL_VFAT_CHANNEL_GLOBAL_OR_BIT);
+    vfat_daqmon_enable <= regs_write_arr(75)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_CTRL_ENABLE_BIT);
+    vfat_daqmon_oh_select <= regs_write_arr(75)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_CTRL_OH_SELECT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_CTRL_OH_SELECT_LSB);
+    vfat_daqmon_chan_select <= regs_write_arr(75)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_CTRL_VFAT_CHANNEL_SELECT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_CTRL_VFAT_CHANNEL_SELECT_LSB);
+    vfat_daqmon_chan_global_or <= regs_write_arr(75)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_CTRL_VFAT_CHANNEL_GLOBAL_OR_BIT);
 
     -- Connect write pulse signals
     reset_local <= regs_write_pulse_arr(0);
-    vfat_daqmon_reset <= regs_write_pulse_arr(110);
+    vfat_daqmon_reset <= regs_write_pulse_arr(74);
 
     -- Connect write done signals
 
@@ -493,14 +424,14 @@ begin
 
     -- Defaults
     regs_defaults(1)(REG_GEM_TESTS_GBT_LOOPBACK_CTRL_LOOP_THROUGH_OH_BIT) <= REG_GEM_TESTS_GBT_LOOPBACK_CTRL_LOOP_THROUGH_OH_DEFAULT;
-    regs_defaults(111)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_CTRL_ENABLE_BIT) <= REG_GEM_TESTS_VFAT_DAQ_MONITOR_CTRL_ENABLE_DEFAULT;
-    regs_defaults(111)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_CTRL_OH_SELECT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_CTRL_OH_SELECT_LSB) <= REG_GEM_TESTS_VFAT_DAQ_MONITOR_CTRL_OH_SELECT_DEFAULT;
-    regs_defaults(111)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_CTRL_VFAT_CHANNEL_SELECT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_CTRL_VFAT_CHANNEL_SELECT_LSB) <= REG_GEM_TESTS_VFAT_DAQ_MONITOR_CTRL_VFAT_CHANNEL_SELECT_DEFAULT;
-    regs_defaults(111)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_CTRL_VFAT_CHANNEL_GLOBAL_OR_BIT) <= REG_GEM_TESTS_VFAT_DAQ_MONITOR_CTRL_VFAT_CHANNEL_GLOBAL_OR_DEFAULT;
+    regs_defaults(75)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_CTRL_ENABLE_BIT) <= REG_GEM_TESTS_VFAT_DAQ_MONITOR_CTRL_ENABLE_DEFAULT;
+    regs_defaults(75)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_CTRL_OH_SELECT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_CTRL_OH_SELECT_LSB) <= REG_GEM_TESTS_VFAT_DAQ_MONITOR_CTRL_OH_SELECT_DEFAULT;
+    regs_defaults(75)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_CTRL_VFAT_CHANNEL_SELECT_MSB downto REG_GEM_TESTS_VFAT_DAQ_MONITOR_CTRL_VFAT_CHANNEL_SELECT_LSB) <= REG_GEM_TESTS_VFAT_DAQ_MONITOR_CTRL_VFAT_CHANNEL_SELECT_DEFAULT;
+    regs_defaults(75)(REG_GEM_TESTS_VFAT_DAQ_MONITOR_CTRL_VFAT_CHANNEL_GLOBAL_OR_BIT) <= REG_GEM_TESTS_VFAT_DAQ_MONITOR_CTRL_VFAT_CHANNEL_GLOBAL_OR_DEFAULT;
 
     -- Define writable regs
     regs_writable_arr(1) <= '1';
-    regs_writable_arr(111) <= '1';
+    regs_writable_arr(75) <= '1';
 
     --==== Registers end ============================================================================
 

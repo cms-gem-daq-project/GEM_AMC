@@ -20,8 +20,9 @@ use work.registers.all;
 
 entity slow_control is
     generic(
-        g_NUM_OF_OHs    : integer := 1;
-        g_DEBUG         : boolean := false -- if this is set to true, some chipscope cores will be inserted
+        g_NUM_OF_OHs        : integer;
+        g_NUM_GBTS_PER_OH   : integer;
+        g_DEBUG             : boolean := false -- if this is set to true, some chipscope cores will be inserted
     );
     port(
         -- reset
@@ -32,13 +33,13 @@ entity slow_control is
         ttc_cmds_i              : in  t_ttc_cmds;
         
         -- SCA elinks
-        gbt_rx_ready_i          : in  std_logic_vector(g_NUM_OF_OHs * 3 - 1 downto 0); 
+        gbt_rx_ready_i          : in  std_logic_vector(g_NUM_OF_OHs * g_NUM_GBTS_PER_OH - 1 downto 0); 
         gbt_rx_sca_elinks_i     : in  t_std2_array(g_NUM_OF_OHs - 1 downto 0);
         gbt_tx_sca_elinks_o     : out t_std2_array(g_NUM_OF_OHs - 1 downto 0);
         
         -- GBTx IC elinks
-        gbt_rx_ic_elinks_i      : in  t_std2_array(g_NUM_OF_OHs * 3 - 1 downto 0);
-        gbt_tx_ic_elinks_o      : out t_std2_array(g_NUM_OF_OHs * 3 - 1 downto 0);
+        gbt_rx_ic_elinks_i      : in  t_std2_array(g_NUM_OF_OHs * g_NUM_GBTS_PER_OH - 1 downto 0);
+        gbt_tx_ic_elinks_o      : out t_std2_array(g_NUM_OF_OHs * g_NUM_GBTS_PER_OH - 1 downto 0);
         
         -- VFAT3 slow control status
         vfat3_sc_status_i       : in t_vfat_slow_control_status; 
@@ -55,9 +56,6 @@ end slow_control;
 architecture slow_control_arch of slow_control is
 
     --------------------------------- signals ---------------------------------    
-
-    -- only handle one GBT IC for now, this constant defines the elink to use for that one SCA controller
-    constant ELINK_IDX          : integer := 1;
 
     --============ SCA ============--
     
@@ -147,7 +145,7 @@ begin
                 gbt_clk_40_i                => ttc_clk_i.clk_40,
                 clk_80_i                    => ttc_clk_i.clk_80,
             
-                gbt_rx_ready_i              => gbt_rx_ready_i(i * 3),
+                gbt_rx_ready_i              => gbt_rx_ready_i(i * g_NUM_GBTS_PER_OH),
                 gbt_rx_sca_elink_i          => gbt_rx_sca_elinks_i(i),
                 gbt_tx_sca_elink_o          => gbt_tx_sca_elinks_o(i),
             
@@ -251,7 +249,7 @@ begin
         );
     
     ic_rx_elink <= gbt_rx_ic_elinks_i(to_integer(unsigned(ic_link_select)));
-    g_ic_tx_generate: for i in 0 to g_NUM_OF_OHs * 3 - 1 generate
+    g_ic_tx_generate: for i in 0 to g_NUM_OF_OHs * g_NUM_GBTS_PER_OH - 1 generate
         gbt_tx_ic_elinks_o(i) <= ic_tx_elink when to_integer(unsigned(ic_link_select)) = i else (others => '1'); 
     end generate;
     

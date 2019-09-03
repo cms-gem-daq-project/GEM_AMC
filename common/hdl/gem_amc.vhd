@@ -22,17 +22,19 @@ use work.ipb_addr_decode.all;
 use work.ipbus.all;
 use work.ttc_pkg.all;
 use work.vendor_specific_gbt_bank_package.all;
+use work.lpgbtfpga_package.all;
 
 entity gem_amc is
     generic(
+        g_GEM_STATION        : integer;
         g_NUM_OF_OHs         : integer;
-        g_USE_TRIG_LINKS     : boolean := true;  -- this should be TRUE by default, but could be set to false for tests or quicker compilation if not needed
+        g_NUM_GBTS_PER_OH    : integer;
+        g_NUM_VFATS_PER_OH   : integer;
         g_USE_TRIG_TX_LINKS  : boolean := true;  -- if true, then trigger output links will be instantiated
         g_NUM_TRIG_TX_LINKS  : integer;
         
         g_NUM_IPB_SLAVES     : integer;
-        g_DAQ_CLK_FREQ       : integer;
-        g_SYSTEM             : string := "GE11"
+        g_DAQ_CLK_FREQ       : integer
     );
     port(
         reset_i                 : in   std_logic;
@@ -54,12 +56,15 @@ entity gem_amc is
         gt_trig_tx_data_arr_o   : out t_gt_8b10b_tx_data_arr(g_NUM_TRIG_TX_LINKS - 1 downto 0);
         gt_trig_tx_clk_i        : in  std_logic;
 
-        -- GBT DAQ + Control GTX / GTH links (4.8Gbs, 40bit @ 120MHz without encoding)
-        gt_gbt_rx_data_arr_i    : in  t_gt_gbt_data_arr(g_NUM_OF_OHs * 3 - 1 downto 0);
-        gt_gbt_tx_data_arr_o    : out t_gt_gbt_data_arr(g_NUM_OF_OHs * 3 - 1 downto 0);
-        gt_gbt_rx_clk_arr_i     : in  std_logic_vector(g_NUM_OF_OHs * 3 - 1 downto 0);
-        gt_gbt_tx_clk_arr_i     : in  std_logic_vector(g_NUM_OF_OHs * 3 - 1 downto 0);
+        -- GBT DAQ + Control GTX / GTH links (4.8Gbs, 40bit @ 120MHz without encoding when using GBTX, and 10.24Gbp, lower 32bit @ 320MHz without encoding when using LpGBT)
+        gt_gbt_rx_data_arr_i    : in  t_gt_gbt_data_arr(g_NUM_OF_OHs * g_NUM_GBTS_PER_OH - 1 downto 0);
+        gt_gbt_tx_data_arr_o    : out t_gt_gbt_data_arr(g_NUM_OF_OHs * g_NUM_GBTS_PER_OH - 1 downto 0);
+        gt_gbt_rx_clk_arr_i     : in  std_logic_vector(g_NUM_OF_OHs * g_NUM_GBTS_PER_OH - 1 downto 0);
+        gt_gbt_tx_clk_arr_i     : in  std_logic_vector(g_NUM_OF_OHs * g_NUM_GBTS_PER_OH - 1 downto 0);
         gt_gbt_rx_common_clk_i  : in  std_logic;
+        
+        gt_gbt_status_arr_i     : in  t_mgt_status_arr(g_NUM_OF_OHs * g_NUM_GBTS_PER_OH - 1 downto 0);
+        gt_gbt_ctrl_arr_o       : out t_mgt_ctrl_arr(g_NUM_OF_OHs * g_NUM_GBTS_PER_OH - 1 downto 0);
 
         -- IPbus
         ipb_reset_i             : in  std_logic;
@@ -96,8 +101,8 @@ architecture gem_amc_arch of gem_amc is
     component ila_gbt
         port(
             clk     : in std_logic;
-            probe0  : IN std_logic_vector(83 downto 0);
-            probe1  : IN std_logic_vector(83 downto 0);
+            probe0  : in std_logic_vector(83 downto 0);
+            probe1  : in std_logic_vector(83 downto 0);
             probe2  : in std_logic;
             probe3  : in std_logic;
             probe4  : in std_logic;
@@ -105,6 +110,19 @@ architecture gem_amc_arch of gem_amc is
             probe6  : in std_logic;
             probe7  : in std_logic;
             probe8  : in std_logic_vector(5 downto 0)
+        );
+    end component;
+
+    component ila_lpgbt
+        port(
+            clk    : in std_logic;
+            probe0 : in std_logic_vector(35 downto 0);
+            probe1 : in std_logic_vector(227 downto 0);
+            probe2 : in std_logic;
+            probe3 : in std_logic;
+            probe4 : in std_logic;
+            probe5 : in std_logic;
+            probe6 : in std_logic
         );
     end component;
 
@@ -132,43 +150,31 @@ architecture gem_amc_arch of gem_amc is
     signal ttc_counters         : t_ttc_daq_cntrs;
     signal ttc_status           : t_ttc_status;
 
-    --== DAQ signals ==--    
-    signal tk_data_links        : t_data_link_array(g_NUM_OF_OHs - 1 downto 0);
-    
     --== Trigger signals ==--    
     signal sbit_clusters_arr        : t_oh_sbits_arr(g_NUM_OF_OHs - 1 downto 0);
     signal sbit_links_status_arr    : t_oh_sbit_links_arr(g_NUM_OF_OHs - 1 downto 0);
     
-    signal gt_trig0_rx_clk_arr      : std_logic_vector(g_NUM_OF_OHs - 1 downto 0);
-    signal gt_trig0_rx_data_arr     : t_gt_8b10b_rx_data_arr(g_NUM_OF_OHs - 1 downto 0);
-    signal gt_trig1_rx_clk_arr      : std_logic_vector(g_NUM_OF_OHs - 1 downto 0);
-    signal gt_trig1_rx_data_arr     : t_gt_8b10b_rx_data_arr(g_NUM_OF_OHs - 1 downto 0);
-    
-    --== OH links ==--
-    signal oh_trig0_rx_data_arr         : t_gt_8b10b_rx_data_arr(g_NUM_OF_OHs - 1 downto 0);
-    signal oh_trig1_rx_data_arr         : t_gt_8b10b_rx_data_arr(g_NUM_OF_OHs - 1 downto 0);    
-    signal oh_link_tk_error_arr         : std_logic_vector(g_NUM_OF_OHs - 1 downto 0);
-    signal oh_link_evt_rcvd_arr         : std_logic_vector(g_NUM_OF_OHs - 1 downto 0);
-
     --== GBT ==--
-    signal gbt_tx_data_arr              : t_gbt_frame_array(g_NUM_OF_OHs * 3 - 1 downto 0);    
-    signal gbt_tx_gearbox_aligned_arr   : std_logic_vector(g_NUM_OF_OHs * 3 - 1 downto 0);
-    signal gbt_tx_gearbox_align_done_arr: std_logic_vector(g_NUM_OF_OHs * 3 - 1 downto 0);
+    signal gbt_tx_data_arr              : t_gbt_frame_array(g_NUM_OF_OHs * g_NUM_GBTS_PER_OH - 1 downto 0);    
+    signal lpgbt_tx_data_arr            : t_lpgbt_tx_frame_array(g_NUM_OF_OHs * g_NUM_GBTS_PER_OH - 1 downto 0);    
+    signal gbt_tx_gearbox_aligned_arr   : std_logic_vector(g_NUM_OF_OHs * g_NUM_GBTS_PER_OH - 1 downto 0);
+    signal gbt_tx_gearbox_align_done_arr: std_logic_vector(g_NUM_OF_OHs * g_NUM_GBTS_PER_OH - 1 downto 0);
             
-    signal gbt_rx_data_arr              : t_gbt_frame_array(g_NUM_OF_OHs * 3 - 1 downto 0);    
-    signal gbt_rx_valid_arr             : std_logic_vector(g_NUM_OF_OHs * 3 - 1 downto 0);
-    signal gbt_rx_header                : std_logic_vector(g_NUM_OF_OHs * 3 - 1 downto 0);
-    signal gbt_rx_header_locked         : std_logic_vector(g_NUM_OF_OHs * 3 - 1 downto 0);
-    signal gbt_rx_bitslip_nbr           : rxBitSlipNbr_mxnbit_A(g_NUM_OF_OHs * 3 - 1 downto 0);
+    signal gbt_rx_data_arr              : t_gbt_frame_array(g_NUM_OF_OHs * g_NUM_GBTS_PER_OH - 1 downto 0);    
+    signal lpgbt_rx_data_arr            : t_lpgbt_rx_frame_array(g_NUM_OF_OHs * g_NUM_GBTS_PER_OH - 1 downto 0);    
+    signal gbt_rx_valid_arr             : std_logic_vector(g_NUM_OF_OHs * g_NUM_GBTS_PER_OH - 1 downto 0);
+    signal gbt_rx_header                : std_logic_vector(g_NUM_OF_OHs * g_NUM_GBTS_PER_OH - 1 downto 0);
+    signal gbt_rx_header_locked         : std_logic_vector(g_NUM_OF_OHs * g_NUM_GBTS_PER_OH - 1 downto 0);
+    signal gbt_rx_bitslip_nbr           : rxBitSlipNbr_mxnbit_A(g_NUM_OF_OHs * g_NUM_GBTS_PER_OH - 1 downto 0);
     
-    signal gbt_link_status_arr          : t_gbt_link_status_arr(g_NUM_OF_OHs * 3 - 1 downto 0);
+    signal gbt_link_status_arr          : t_gbt_link_status_arr(g_NUM_OF_OHs * g_NUM_GBTS_PER_OH - 1 downto 0);
+    signal gbt_ready_arr                : std_logic_vector(g_NUM_OF_OHs * g_NUM_GBTS_PER_OH - 1 downto 0);
 
     --== GBT elinks ==--
-    signal gbt_ready_arr                : std_logic_vector(g_NUM_OF_OHs * 3 - 1 downto 0);
     signal sca_tx_data_arr              : t_std2_array(g_NUM_OF_OHs - 1 downto 0);
     signal sca_rx_data_arr              : t_std2_array(g_NUM_OF_OHs - 1 downto 0);
-    signal gbt_ic_tx_data_arr           : t_std2_array(g_NUM_OF_OHs * 3 - 1 downto 0);
-    signal gbt_ic_rx_data_arr           : t_std2_array(g_NUM_OF_OHs * 3 - 1 downto 0);
+    signal gbt_ic_tx_data_arr           : t_std2_array(g_NUM_OF_OHs * g_NUM_GBTS_PER_OH - 1 downto 0);
+    signal gbt_ic_rx_data_arr           : t_std2_array(g_NUM_OF_OHs * g_NUM_GBTS_PER_OH - 1 downto 0);
     signal promless_tx_data             : std_logic_vector(15 downto 0);
     signal oh_fpga_tx_data_arr          : t_std8_array(g_NUM_OF_OHs - 1 downto 0);
     signal oh_fpga_rx_data_arr          : t_std8_array(g_NUM_OF_OHs - 1 downto 0);
@@ -176,7 +182,6 @@ architecture gem_amc_arch of gem_amc is
     signal vfat3_rx_data_arr            : t_vfat3_elinks_arr(g_NUM_OF_OHs - 1 downto 0);
     
     --== VFAT3 ==--
-    signal use_oh_vfat3_connectors      : std_logic;
     signal vfat3_sc_only_mode           : std_logic;
     signal vfat3_tx_stream              : std_logic_vector(7 downto 0);
     signal vfat3_tx_idle                : std_logic;
@@ -195,15 +200,16 @@ architecture gem_amc_arch of gem_amc is
     signal vfat3_sc_status              : t_vfat_slow_control_status;    
     
     signal vfat3_daq_link_arr           : t_oh_vfat_daq_link_arr(g_NUM_OF_OHs - 1 downto 0);
+    signal vfat3_gbt_ready_arr          : t_std24_array(g_NUM_OF_OHs - 1 downto 0);
     
     signal vfat_mask_arr                : t_std24_array(g_NUM_OF_OHs - 1 downto 0);
     
     signal use_v3b_elink_mapping        : std_logic;
 
     -- test module links
-    signal test_gbt_rx_data_arr         : t_gbt_frame_array((g_NUM_OF_OHs * 3) - 1 downto 0);
-    signal test_gbt_tx_data_arr         : t_gbt_frame_array((g_NUM_OF_OHs * 3) - 1 downto 0);
-    signal test_gbt_ready_arr           : std_logic_vector((g_NUM_OF_OHs * 3) - 1 downto 0);
+    signal test_gbt_rx_data_arr         : t_gbt_frame_array((g_NUM_OF_OHs * g_NUM_GBTS_PER_OH) - 1 downto 0);
+    signal test_gbt_tx_data_arr         : t_gbt_frame_array((g_NUM_OF_OHs * g_NUM_GBTS_PER_OH) - 1 downto 0);
+    signal test_gbt_ready_arr           : std_logic_vector((g_NUM_OF_OHs * g_NUM_GBTS_PER_OH) - 1 downto 0);
         
     --== TEST module ==--
     signal loopback_gbt_test_en         : std_logic; 
@@ -212,6 +218,8 @@ architecture gem_amc_arch of gem_amc is
     signal ipb_miso_arr                 : ipb_rbus_array(g_NUM_IPB_SLAVES - 1 downto 0) := (others => (ipb_rdata => (others => '0'), ipb_ack => '0', ipb_err => '0'));
     
     --== Debug ==--
+    signal dbg_lpgbt_tx_data            : t_lpgbt_tx_frame;
+    signal dbg_lpgbt_rx_data            : t_lpgbt_rx_frame;
     signal dbg_gbt_tx_data              : std_logic_vector(83 downto 0);
     signal dbg_gbt_rx_data              : std_logic_vector(83 downto 0);
     signal dbg_gbt_tx_gearbox_aligned   : std_logic;
@@ -221,6 +229,7 @@ architecture gem_amc_arch of gem_amc is
     signal dbg_gbt_rx_header_locked     : std_logic;
     signal dbg_gbt_rx_valid             : std_logic;
     signal dbg_gbt_rx_bitslip_nbr       : std_logic_vector(GBTRX_BITSLIP_NBR_MSB downto 0);
+    signal dbg_gbt_link_status          : t_gbt_link_status;
 
     signal dbg_gbt_link_select          : std_logic_vector(5 downto 0);
     signal dbg_vfat_link_select         : std_logic_vector(4 downto 0);
@@ -237,25 +246,13 @@ begin
     ipb_miso_arr_o <= ipb_miso_arr;
     link_reset <= manual_link_reset or ttc_cmd.hard_reset;
 
-    g_real_trig_links : if (g_USE_TRIG_LINKS) generate
-        gt_trig0_rx_clk_arr <= gt_trig0_rx_clk_arr_i;
-        gt_trig1_rx_clk_arr <= gt_trig1_rx_clk_arr_i;
-        
-        gt_trig0_rx_data_arr <= gt_trig0_rx_data_arr_i;
-        gt_trig1_rx_data_arr <= gt_trig1_rx_data_arr_i;
-    end generate;
-    
-    g_fake_trig_links : if (not g_USE_TRIG_LINKS) generate
-        gt_trig0_rx_clk_arr <= (others => '0');
-        gt_trig1_rx_clk_arr <= (others => '0');
-
-        gt_trig0_rx_data_arr <= (others => (rxdata => (others => ('0')), rxcharisk => (others => '0'), rxchariscomma => (others => '0'), rxnotintable => (others => '0'), rxdisperr => (others => '0'), rxcommadet => '0', rxbyterealign => '0', rxbyteisaligned => '0'));
-        gt_trig1_rx_data_arr <= (others => (rxdata => (others => ('0')), rxcharisk => (others => '0'), rxchariscomma => (others => '0'), rxnotintable => (others => '0'), rxdisperr => (others => '0'), rxcommadet => '0', rxbyterealign => '0', rxbyteisaligned => '0'));
-    end generate;
+    gt_gbt_ctrl_arr_o <= (others => (txreset => '0', rxreset => '0', rxslide => '0')); -- GBT MGT controls, currently not used but at least rxslide will be used soon for ME0
 
     -- select the GBT link to debug
     dbg_gbt_tx_data               <= gbt_tx_data_arr(to_integer(unsigned(dbg_gbt_link_select)));
     dbg_gbt_rx_data               <= gbt_rx_data_arr(to_integer(unsigned(dbg_gbt_link_select)));
+    dbg_lpgbt_tx_data             <= lpgbt_tx_data_arr(to_integer(unsigned(dbg_gbt_link_select)));
+    dbg_lpgbt_rx_data             <= lpgbt_rx_data_arr(to_integer(unsigned(dbg_gbt_link_select)));
     dbg_gbt_tx_gearbox_aligned    <= gbt_tx_gearbox_aligned_arr(to_integer(unsigned(dbg_gbt_link_select)));
     dbg_gbt_tx_gearbox_align_done <= gbt_tx_gearbox_align_done_arr(to_integer(unsigned(dbg_gbt_link_select)));
     dbg_gbt_rx_ready              <= gbt_link_status_arr(to_integer(unsigned(dbg_gbt_link_select))).gbt_rx_ready;
@@ -263,6 +260,7 @@ begin
     dbg_gbt_rx_header_locked      <= gbt_rx_header_locked(to_integer(unsigned(dbg_gbt_link_select)));
     dbg_gbt_rx_valid              <= gbt_rx_valid_arr(to_integer(unsigned(dbg_gbt_link_select)));
     dbg_gbt_rx_bitslip_nbr        <= gbt_rx_bitslip_nbr(to_integer(unsigned(dbg_gbt_link_select)));
+    dbg_gbt_link_status           <= gbt_link_status_arr(to_integer(unsigned(dbg_gbt_link_select)));
     
     --================================--
     -- Power-on reset  
@@ -350,6 +348,7 @@ begin
 
         i_optohybrid_single : entity work.optohybrid
             generic map(
+                g_GEM_STATION   => g_GEM_STATION,
                 g_OH_IDX        => std_logic_vector(to_unsigned(i, 4)),
                 g_DEBUG         => i = 0
             )
@@ -363,7 +362,6 @@ begin
                 vfat3_sync_i            => vfat3_sync,
                 vfat3_sync_verify_i     => vfat3_sync_verify,
 
-                gbt_rx_ready_i          => (gbt_ready_arr(i * 3 + 0), gbt_ready_arr(i * 3 + 1), gbt_ready_arr(i * 3 + 2)),
                 fpga_tx_data_o          => oh_fpga_tx_data_arr(i),
                 fpga_rx_data_i          => oh_fpga_rx_data_arr(i),
 
@@ -371,6 +369,7 @@ begin
                 vfat3_rx_data_i         => vfat3_rx_data_arr(i),
                 vfat3_link_status_o     => vfat3_link_status_arr(i),
                 vfat_mask_arr_i         => vfat_mask_arr(i),
+                vfat_gbt_ready_arr_i    => vfat3_gbt_ready_arr(i),
 
                 vfat3_sc_tx_data_i      => vfat3_sc_tx_data,
                 vfat3_sc_tx_empty_i     => vfat3_sc_tx_empty,
@@ -387,10 +386,6 @@ begin
                 sbit_links_status_o     => sbit_links_status_arr(i), 
                 gth_rx_trig_data_i      => (gt_trig0_rx_data_arr_i(i), gt_trig1_rx_data_arr_i(i)),
                 gth_rx_trig_usrclk_i    => (gt_trig0_rx_clk_arr_i(i), gt_trig1_rx_clk_arr_i(i)),
-
-                tk_data_link_o          => tk_data_links(i),
-                tk_error_o              => oh_link_tk_error_arr(i),
-                tk_evt_received_o       => oh_link_evt_rcvd_arr(i),
 
                 oh_reg_ipb_reset_i      => ipb_reset,
                 oh_reg_ipb_clk_i        => ipb_clk_i,
@@ -476,11 +471,8 @@ begin
             ipb_reset_i                 => ipb_reset_i,
             ipb_mosi_i                  => ipb_mosi_arr_i(C_IPB_SLV.system),
             ipb_miso_o                  => ipb_miso_arr(C_IPB_SLV.system),
-            tk_rx_polarity_o            => open,
-            tk_tx_polarity_o            => open,
             board_id_o                  => open,
             loopback_gbt_test_en_o      => loopback_gbt_test_en,
-            use_oh_vfat3_connectors_o   => use_oh_vfat3_connectors,
             vfat3_sc_only_mode_o        => vfat3_sc_only_mode,
             use_v3b_elink_mapping_o     => use_v3b_elink_mapping,
             manual_link_reset_o         => manual_link_reset
@@ -492,7 +484,8 @@ begin
 
     i_oh_link_registers : entity work.oh_link_regs
         generic map(
-            g_NUM_OF_OHs => g_NUM_OF_OHs
+            g_NUM_OF_OHs        => g_NUM_OF_OHs,
+            g_NUM_GBTS_PER_OH   => g_NUM_GBTS_PER_OH
         )
         port map(
             reset_i                 => reset,
@@ -515,8 +508,9 @@ begin
 
     i_slow_control : entity work.slow_control
         generic map(
-            g_NUM_OF_OHs => g_NUM_OF_OHs,
-            g_DEBUG      => false
+            g_NUM_OF_OHs        => g_NUM_OF_OHs,
+            g_NUM_GBTS_PER_OH   => g_NUM_GBTS_PER_OH,
+            g_DEBUG             => false
         )
         port map(
             reset_i             => reset,
@@ -540,8 +534,9 @@ begin
     
     i_gem_tests : entity work.gem_tests
         generic map(
-            g_NUM_GBT_LINKS => g_NUM_OF_OHs * 3,
-            g_NUM_OF_OHs    => g_NUM_OF_OHs
+            g_NUM_GBT_LINKS => g_NUM_OF_OHs * g_NUM_GBTS_PER_OH,
+            g_NUM_OF_OHs    => g_NUM_OF_OHs,
+            g_GEM_STATION   => g_GEM_STATION
         )
         port map(
             reset_i                     => reset_i,
@@ -562,90 +557,181 @@ begin
     --    GBT   --
     --==========--
     
-    i_gbt : entity work.gbt
-        generic map(
-            GBT_BANK_ID     => 0,
-            NUM_LINKS       => g_NUM_OF_OHs * 3,
-            TX_OPTIMIZATION => 1,
-            RX_OPTIMIZATION => 0,
-            TX_ENCODING     => 0,
-            RX_ENCODING     => 0
-        )
-        port map(
-            reset_i                     => reset,
-            cnt_reset_i                 => link_reset,
-            tx_frame_clk_i              => ttc_clocks_i.clk_40,
-            rx_frame_clk_i              => ttc_clocks_i.clk_40,
-            rx_word_common_clk_i        => gt_gbt_rx_common_clk_i,
-            tx_word_clk_arr_i           => gt_gbt_tx_clk_arr_i,
-            rx_word_clk_arr_i           => gt_gbt_rx_clk_arr_i,
-            tx_ready_arr_i              => (others => '1'),
-            tx_we_arr_i                 => (others => '1'),
-            tx_data_arr_i               => gbt_tx_data_arr,
-            tx_gearbox_aligned_arr_o    => gbt_tx_gearbox_aligned_arr,
-            tx_gearbox_align_done_arr_o => gbt_tx_gearbox_align_done_arr,
-            rx_frame_clk_rdy_arr_i      => (others => '1'),
-            rx_word_clk_rdy_arr_i       => (others => '1'),
-            rx_bitslip_nbr_arr_o        => gbt_rx_bitslip_nbr,
-            rx_header_arr_o             => gbt_rx_header,
-            rx_header_locked_arr_o      => gbt_rx_header_locked,
-            rx_data_valid_arr_o         => gbt_rx_valid_arr,
-            rx_data_arr_o               => gbt_rx_data_arr,
-            mgt_rx_rdy_arr_i            => (others => '1'),
-            mgt_tx_data_arr_o           => gt_gbt_tx_data_arr_o,
-            mgt_rx_data_arr_i           => gt_gbt_rx_data_arr_i,
-            link_status_arr_o           => gbt_link_status_arr
-        );
+    g_gbtx : if (g_GEM_STATION = 1) or (g_GEM_STATION = 2) generate
+        i_gbt : entity work.gbt
+            generic map(
+                GBT_BANK_ID     => 0,
+                NUM_LINKS       => g_NUM_OF_OHs * g_NUM_GBTS_PER_OH,
+                TX_OPTIMIZATION => 1,
+                RX_OPTIMIZATION => 0,
+                TX_ENCODING     => 0,
+                RX_ENCODING     => 0
+            )
+            port map(
+                reset_i                     => reset,
+                cnt_reset_i                 => link_reset,
+                tx_frame_clk_i              => ttc_clocks_i.clk_40,
+                rx_frame_clk_i              => ttc_clocks_i.clk_40,
+                rx_word_common_clk_i        => gt_gbt_rx_common_clk_i,
+                tx_word_clk_arr_i           => gt_gbt_tx_clk_arr_i,
+                rx_word_clk_arr_i           => gt_gbt_rx_clk_arr_i,
+                tx_ready_arr_i              => (others => '1'),
+                tx_we_arr_i                 => (others => '1'),
+                tx_data_arr_i               => gbt_tx_data_arr,
+                tx_gearbox_aligned_arr_o    => gbt_tx_gearbox_aligned_arr,
+                tx_gearbox_align_done_arr_o => gbt_tx_gearbox_align_done_arr,
+                rx_frame_clk_rdy_arr_i      => (others => '1'),
+                rx_word_clk_rdy_arr_i       => (others => '1'),
+                rx_bitslip_nbr_arr_o        => gbt_rx_bitslip_nbr,
+                rx_header_arr_o             => gbt_rx_header,
+                rx_header_locked_arr_o      => gbt_rx_header_locked,
+                rx_data_valid_arr_o         => gbt_rx_valid_arr,
+                rx_data_arr_o               => gbt_rx_data_arr,
+                mgt_rx_rdy_arr_i            => (others => '1'),
+                mgt_tx_data_arr_o           => gt_gbt_tx_data_arr_o,
+                mgt_rx_data_arr_i           => gt_gbt_rx_data_arr_i,
+                link_status_arr_o           => gbt_link_status_arr
+            );
+    end generate;
 
---    i_gbt_link_mux : entity work.gbt_link_mux(gbt_link_mux_ge21)
-    i_gbt_link_mux : entity work.gbt_link_mux(gbt_link_mux_ge11)
-        generic map(
-            g_NUM_OF_OHs  => g_NUM_OF_OHs
-        )
-        port map(
-            gbt_frame_clk_i             => ttc_clocks_i.clk_40,
-            
-            gbt_rx_data_arr_i           => gbt_rx_data_arr,
-            gbt_tx_data_arr_o           => gbt_tx_data_arr,
-            gbt_link_status_arr_i       => gbt_link_status_arr,
+    g_lbgbt : if g_GEM_STATION = 0 generate
+        i_gbt : entity work.lpgbt
+            generic map(
+                g_NUM_LINKS             => g_NUM_OF_OHs * g_NUM_GBTS_PER_OH,
+                g_SKIP_ODD_TX           => false,
+                g_RX_RATE               => DATARATE_10G24,
+                g_RX_ENCODING           => FEC5,
+                g_RESET_MGT_ON_EVEN     => 0,
+                g_USE_RX_SYNC_FIFOS     => true,
+                g_USE_RX_CORRECTION_CNT => true
+            )
+            port map(
+                reset_i              => reset_i,
+                cnt_reset_i          => link_reset,
+                tx_frame_clk_i       => ttc_clocks_i.clk_40,
+                rx_frame_clk_i       => ttc_clocks_i.clk_40,
+                tx_word_clk_arr_i    => gt_gbt_tx_clk_arr_i,
+                rx_word_clk_arr_i    => gt_gbt_rx_clk_arr_i,
+                rx_word_common_clk_i => gt_gbt_rx_common_clk_i,
+                mgt_status_arr_i     => gt_gbt_status_arr_i,
+                mgt_ctrl_arr_o       => gt_gbt_ctrl_arr_o,
+                mgt_tx_data_arr_o    => gt_gbt_tx_data_arr_o,
+                mgt_rx_data_arr_i    => gt_gbt_rx_data_arr_i,
+                tx_data_arr_i        => lpgbt_tx_data_arr,
+                rx_data_arr_o        => lpgbt_rx_data_arr,
+                link_status_arr_o    => gbt_link_status_arr
+            );
+    end generate;
 
-            link_test_mode_i            => loopback_gbt_test_en,
-            use_oh_vfat3_connectors_i   => use_oh_vfat3_connectors,
-            use_v3b_mapping_i           => use_v3b_elink_mapping,
+    g_gbt_link_mux_ge11 : if g_GEM_STATION = 1 generate
+        i_gbt_link_mux : entity work.gbt_link_mux(gbt_link_mux_ge11)
+            generic map(
+                g_NUM_OF_OHs        => g_NUM_OF_OHs,
+                g_NUM_GBTS_PER_OH   => g_NUM_GBTS_PER_OH
+            )
+            port map(
+                gbt_frame_clk_i             => ttc_clocks_i.clk_40,
+                
+                gbt_rx_data_arr_i           => gbt_rx_data_arr,
+                gbt_tx_data_arr_o           => gbt_tx_data_arr,
+                gbt_link_status_arr_i       => gbt_link_status_arr,
+    
+                link_test_mode_i            => loopback_gbt_test_en,
+                use_v3b_mapping_i           => use_v3b_elink_mapping,
+    
+                sca_tx_data_arr_i           => sca_tx_data_arr,
+                sca_rx_data_arr_o           => sca_rx_data_arr,
+                gbt_ic_tx_data_arr_i        => gbt_ic_tx_data_arr,
+                gbt_ic_rx_data_arr_o        => gbt_ic_rx_data_arr,
+                promless_tx_data_i          => promless_tx_data,
+                oh_fpga_tx_data_arr_i       => oh_fpga_tx_data_arr,
+                oh_fpga_rx_data_arr_o       => oh_fpga_rx_data_arr,
+                vfat3_tx_data_arr_i         => vfat3_tx_data_arr,
+                vfat3_rx_data_arr_o         => vfat3_rx_data_arr,
+                gbt_ready_arr_o             => gbt_ready_arr,
+                vfat3_gbt_ready_arr_o       => vfat3_gbt_ready_arr,
+                
+                tst_gbt_rx_data_arr_o       => test_gbt_rx_data_arr,
+                tst_gbt_tx_data_arr_i       => test_gbt_tx_data_arr,
+                tst_gbt_ready_arr_o         => test_gbt_ready_arr
+            );    
+    end generate;
 
-            sca_tx_data_arr_i           => sca_tx_data_arr,
-            sca_rx_data_arr_o           => sca_rx_data_arr,
-            gbt_ic_tx_data_arr_i        => gbt_ic_tx_data_arr,
-            gbt_ic_rx_data_arr_o        => gbt_ic_rx_data_arr,
-            promless_tx_data_i          => promless_tx_data,
-            oh_fpga_tx_data_arr_i       => oh_fpga_tx_data_arr,
-            oh_fpga_rx_data_arr_o       => oh_fpga_rx_data_arr,
-            vfat3_tx_data_arr_i         => vfat3_tx_data_arr,
-            vfat3_rx_data_arr_o         => vfat3_rx_data_arr,
-            gbt_ready_arr_o             => gbt_ready_arr,
-            
-            tst_gbt_rx_data_arr_o       => test_gbt_rx_data_arr,
-            tst_gbt_tx_data_arr_i       => test_gbt_tx_data_arr,
-            tst_gbt_ready_arr_o         => test_gbt_ready_arr
-        );    
+    g_gbt_link_mux_ge21 : if g_GEM_STATION = 2 generate
+        i_gbt_link_mux : entity work.gbt_link_mux(gbt_link_mux_ge21)
+            generic map(
+                g_NUM_OF_OHs        => g_NUM_OF_OHs,
+                g_NUM_GBTS_PER_OH   => g_NUM_GBTS_PER_OH
+            )
+            port map(
+                gbt_frame_clk_i             => ttc_clocks_i.clk_40,
+                
+                gbt_rx_data_arr_i           => gbt_rx_data_arr,
+                gbt_tx_data_arr_o           => gbt_tx_data_arr,
+                gbt_link_status_arr_i       => gbt_link_status_arr,
+    
+                link_test_mode_i            => loopback_gbt_test_en,
+                use_v3b_mapping_i           => use_v3b_elink_mapping,
+    
+                sca_tx_data_arr_i           => sca_tx_data_arr,
+                sca_rx_data_arr_o           => sca_rx_data_arr,
+                gbt_ic_tx_data_arr_i        => gbt_ic_tx_data_arr,
+                gbt_ic_rx_data_arr_o        => gbt_ic_rx_data_arr,
+                promless_tx_data_i          => promless_tx_data,
+                oh_fpga_tx_data_arr_i       => oh_fpga_tx_data_arr,
+                oh_fpga_rx_data_arr_o       => oh_fpga_rx_data_arr,
+                vfat3_tx_data_arr_i         => vfat3_tx_data_arr,
+                vfat3_rx_data_arr_o         => vfat3_rx_data_arr,
+                gbt_ready_arr_o             => gbt_ready_arr,
+                vfat3_gbt_ready_arr_o       => vfat3_gbt_ready_arr,
+                
+                tst_gbt_rx_data_arr_o       => test_gbt_rx_data_arr,
+                tst_gbt_tx_data_arr_i       => test_gbt_tx_data_arr,
+                tst_gbt_ready_arr_o         => test_gbt_ready_arr
+            );    
+    end generate;
 
+    g_gbt_link_mux_me0 : if g_GEM_STATION = 0 generate
+        i_lpgbt_link_mux : entity work.lpgbt_link_mux
+            generic map(
+                g_NUM_OF_OHs      => g_NUM_OF_OHs,
+                g_NUM_GBTS_PER_OH => g_NUM_GBTS_PER_OH
+            )
+            port map(
+                gbt_frame_clk_i       => ttc_clocks_i.clk_40,
+                
+                gbt_rx_data_arr_i     => lpgbt_rx_data_arr,
+                gbt_tx_data_arr_o     => lpgbt_tx_data_arr,
+                gbt_link_status_arr_i => gbt_link_status_arr,
+                
+                gbt_ic_tx_data_arr_i  => gbt_ic_tx_data_arr,
+                gbt_ic_rx_data_arr_o  => gbt_ic_rx_data_arr,
+                vfat3_tx_data_arr_i   => vfat3_tx_data_arr,
+                vfat3_rx_data_arr_o   => vfat3_rx_data_arr,
+                gbt_ready_arr_o       => gbt_ready_arr,
+                vfat3_gbt_ready_arr_o => vfat3_gbt_ready_arr
+            );
+    end generate;
+    
     --===========================--
     --    OH FPGA programming    --
     --===========================--
 
-    i_oh_fpga_loader : entity work.oh_fpga_loader
-            generic map (
-                g_LOADER_CLK_80_MHZ => true
-            )
-        port map(
-            reset_i           => reset_i,
-            gbt_clk_i         => ttc_clocks_i.clk_40,
-            loader_clk_i      => ttc_clocks_i.clk_80,
-            to_gem_loader_o   => to_gem_loader_o,
-            from_gem_loader_i => from_gem_loader_i,
-            elink_data_o      => promless_tx_data,
-            hard_reset_i      => ttc_cmd.hard_reset
-        );
+    g_use_oh_fpga_loader : if (g_GEM_STATION = 1) or (g_GEM_STATION = 2) generate
+        i_oh_fpga_loader : entity work.oh_fpga_loader
+                generic map (
+                    g_LOADER_CLK_80_MHZ => true
+                )
+            port map(
+                reset_i           => reset_i,
+                gbt_clk_i         => ttc_clocks_i.clk_40,
+                loader_clk_i      => ttc_clocks_i.clk_80,
+                to_gem_loader_o   => to_gem_loader_o,
+                from_gem_loader_i => from_gem_loader_i,
+                elink_data_o      => promless_tx_data,
+                hard_reset_i      => ttc_cmd.hard_reset
+            );
+    end generate;
         
     --================================--
     -- Configuration Blaster  
@@ -677,18 +763,36 @@ begin
             probe_out1 => dbg_vfat_link_select
         );
 
-    i_ila_gbt : component ila_gbt
-        port map(
-            clk     => ttc_clocks_i.clk_40,
-            probe0  => dbg_gbt_tx_data,
-            probe1  => dbg_gbt_rx_data,
-            probe2  => dbg_gbt_tx_gearbox_aligned,
-            probe3  => dbg_gbt_tx_gearbox_align_done,
-            probe4  => dbg_gbt_rx_ready,
-            probe5  => dbg_gbt_rx_header,
-            probe6  => dbg_gbt_rx_header_locked,
-            probe7  => dbg_gbt_rx_valid,
-            probe8  => dbg_gbt_rx_bitslip_nbr
-        );
-        
+    g_gbt_debug : if CFG_GBT_DEBUG generate
+        g_gbtx_ila : if (g_GEM_STATION = 1) or (g_GEM_STATION = 2) generate
+            i_ila_gbt : component ila_gbt
+                port map(
+                    clk     => ttc_clocks_i.clk_40,
+                    probe0  => dbg_gbt_tx_data,
+                    probe1  => dbg_gbt_rx_data,
+                    probe2  => dbg_gbt_tx_gearbox_aligned,
+                    probe3  => dbg_gbt_tx_gearbox_align_done,
+                    probe4  => dbg_gbt_rx_ready,
+                    probe5  => dbg_gbt_rx_header,
+                    probe6  => dbg_gbt_rx_header_locked,
+                    probe7  => dbg_gbt_rx_valid,
+                    probe8  => dbg_gbt_rx_bitslip_nbr
+                );
+        end generate;
+    
+        g_lpgbt_ila : if g_GEM_STATION = 0 generate
+            i_ila_lpgbt : component ila_lpgbt
+                port map(
+                    clk    => ttc_clocks_i.clk_40,
+                    probe0 => dbg_lpgbt_tx_data.tx_ic_data & dbg_lpgbt_tx_data.tx_ec_data & dbg_lpgbt_tx_data.tx_data,
+                    probe1 => dbg_lpgbt_rx_data.rx_ic_data & dbg_lpgbt_rx_data.rx_ec_data & dbg_lpgbt_rx_data.rx_data,
+                    probe2 => dbg_gbt_link_status.gbt_rx_ready,
+                    probe3 => dbg_gbt_link_status.gbt_rx_gearbox_ready,
+                    probe4 => dbg_gbt_link_status.gbt_rx_header_locked,
+                    probe5 => dbg_gbt_link_status.gbt_tx_ready,
+                    probe6 => dbg_gbt_link_status.gbt_tx_gearbox_ready
+                );
+        end generate;
+    end generate;
+
 end gem_amc_arch;

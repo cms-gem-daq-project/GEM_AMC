@@ -20,6 +20,8 @@ def main():
     parser = argparse.ArgumentParser(description='This script helps you create GEM_AMC releases.')
     parser.add_argument('-v', metavar='version', required=True,
                    help='Required: Release version e.g. 3.5.0')
+    parser.add_argument('-s', metavar='station', required=True,
+                   help='Required: GEM station (0 = ME0; 1 = GE1/1; 2 = GE2/1)')
     parser.add_argument('-oh', metavar='num_optohybrids', required=True, type=int,
                    help='Required: Number of optohybrids supported by this release')
     parser.add_argument('-linux', metavar='linux_image_file', required=False, default='/home/evka/Documents/ctp7_images/LinuxImage-CTP7-GENERIC-20180529T153916-0500-4935611.img',
@@ -65,14 +67,14 @@ def main():
             linux_hash = linux_match.group(2)
             print "Linux hash parsed from the filename: %s" % linux_hash
 
-    version_no_dots = args.v.replace(".", "_")
+    version_no_dots = args.v.replace(".", "_") + "_" + args.s
     release_dir = RELEASE_BASE_DIR + "/v" + version_no_dots
 
     if os.path.isdir(release_dir):
         print "Release directory %s already exists." % release_dir
         return
 
-    print "******** Creating release v%s with %d OHs ********" % (args.v, args.oh)
+    print "******** Creating release v%s for station %s with %d OHs ********" % (args.v, args.s, args.oh)
 
     os.makedirs(release_dir)
 
@@ -89,6 +91,7 @@ def main():
     f.write("linux_hash=%s\n" % linux_hash)
     f.write("linux_filename=%s\n" % os.path.basename(args.linux))
     f.write("num_oh=%d\n" % args.oh)
+    f.write("station=%s\n" % args.s)
     f.write("md5_%s=%s\n" % (relname_bitfile, md5(BITFILE)))
     f.write("md5_%s=%s\n" % (relname_debug_probes, md5(DEBUG_PROBES_FILE)))
     f.write("md5_%s=%s\n" % (os.path.basename(args.linux), md5(args.linux)))

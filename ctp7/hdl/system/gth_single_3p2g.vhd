@@ -7,7 +7,7 @@
 --                                                                            
 -------------------------------------------------------------------------------
 --                                                                            
---           Notes:                                                           
+--           Notes: requires 160MHz refclk                                                 
 --                                                                            
 -------------------------------------------------------------------------------
 
@@ -30,7 +30,8 @@ entity gth_single_3p2g is
   generic
     (
       -- Simulation attributes
-      g_GT_SIM_GTRESET_SPEEDUP : string := "TRUE"  -- Set to "TRUE" to speed up sim reset
+      g_GT_SIM_GTRESET_SPEEDUP : string := "TRUE";  -- Set to "TRUE" to speed up sim reset
+      g_REFCLK_01              : integer range 0 to 1 := 0
       );
   port
     (
@@ -102,10 +103,20 @@ architecture gth_single_3p2g_arch of gth_single_3p2g is
   signal s_cpll_pd                                          : std_logic;
   signal s_cpllpd_sync                                      : std_logic;
 
+  signal refclks    : std_logic_vector(1 downto 0);
+
 --============================================================================
 --                                                          Architecture begin
 --============================================================================
 begin
+
+  g_ref_clk0: if g_REFCLK_01 = 0 generate
+    refclks(0) <= gth_gt_clk_i.GTREFCLK0;
+  end generate;
+
+  g_ref_clk1: if g_REFCLK_01 = 1 generate
+    refclks(1) <= gth_gt_clk_i.GTREFCLK1;
+  end generate;
 
   ----------------------------- GTHE2 Instance  --------------------------   
 
@@ -492,8 +503,8 @@ begin
       GTGREFCLK                  => gth_gt_clk_i.GTGREFCLK,
       GTNORTHREFCLK0             => gth_gt_clk_i.GTNORTHREFCLK0,
       GTNORTHREFCLK1             => gth_gt_clk_i.GTNORTHREFCLK1,
-      GTREFCLK0                  => gth_gt_clk_i.GTREFCLK0,
-      GTREFCLK1                  => gth_gt_clk_i.GTREFCLK1,
+      GTREFCLK0                  => refclks(0),
+      GTREFCLK1                  => refclks(1),
       GTSOUTHREFCLK0             => gth_gt_clk_i.GTSOUTHREFCLK0,
       GTSOUTHREFCLK1             => gth_gt_clk_i.GTSOUTHREFCLK1,
       ---------------------------- Channel - DRP Ports  --------------------------

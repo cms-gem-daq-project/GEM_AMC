@@ -113,7 +113,7 @@ begin
     process (ttc_clk_i.clk_40)
     begin
         if (rising_edge(ttc_clk_i.clk_40)) then
-            if (reset_i = '1') then
+            if (reset_i = '1' or mask_i = '1') then
                 daq_word_cntdown <= (others => '0');
                 event_done <= '0';
                 crc_init <= '1';

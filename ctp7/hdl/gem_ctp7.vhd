@@ -117,7 +117,8 @@ architecture gem_ctp7_arch of gem_ctp7 is
     signal gth_gbt_rx_data_arr  : t_gt_gbt_data_arr(g_NUM_OF_GTH_GTs - 1 downto 0);
     signal gth_rxreset_arr      : std_logic_vector(g_NUM_OF_GTH_GTs - 1 downto 0);
     signal gth_txreset_arr      : std_logic_vector(g_NUM_OF_GTH_GTs - 1 downto 0);
-
+    signal gt_gbt_ctrl_arr      : t_mgt_ctrl_arr(g_NUM_OF_GTH_GTs - 1 downto 0) := (others => (txreset => '0', rxreset => '0', rxslide => '0'));
+    signal gt_gbt_status_arr    : t_mgt_status_arr(g_NUM_OF_GTH_GTs - 1 downto 0) := (others => (tx_reset_done => '0', rx_reset_done => '0', tx_cpll_locked => '0', rx_cpll_locked => '0'));
     
     -------------------- GTHs mapped to GEM links ---------------------------------
     
@@ -132,19 +133,21 @@ architecture gem_ctp7_arch of gem_ctp7 is
     signal gem_gt_trig_tx_data_arr  : t_gt_8b10b_tx_data_arr(CFG_NUM_TRIG_TX - 1 downto 0);
 
     -- GBT GTX/GTH links (4.8Gbs, 40bit @ 120MHz w/o 8b10b encoding)
-    signal gem_gt_gbt_rx_data_arr   : t_gt_gbt_data_arr(CFG_NUM_OF_OHs * 3 - 1 downto 0);
-    signal gem_gt_gbt_tx_data_arr   : t_gt_gbt_data_arr(CFG_NUM_OF_OHs * 3 - 1 downto 0);
-    signal gem_gt_gbt_rx_clk_arr    : std_logic_vector(CFG_NUM_OF_OHs * 3 - 1 downto 0);
-    signal gem_gt_gbt_tx_clk_arr    : std_logic_vector(CFG_NUM_OF_OHs * 3 - 1 downto 0);
+    signal gem_gt_gbt_rx_data_arr   : t_gt_gbt_data_arr(CFG_NUM_OF_OHs * CFG_NUM_GBTS_PER_OH - 1 downto 0);
+    signal gem_gt_gbt_tx_data_arr   : t_gt_gbt_data_arr(CFG_NUM_OF_OHs * CFG_NUM_GBTS_PER_OH - 1 downto 0);
+    signal gem_gt_gbt_rx_clk_arr    : std_logic_vector(CFG_NUM_OF_OHs * CFG_NUM_GBTS_PER_OH - 1 downto 0);
+    signal gem_gt_gbt_tx_clk_arr    : std_logic_vector(CFG_NUM_OF_OHs * CFG_NUM_GBTS_PER_OH - 1 downto 0);
     signal gth_gbt_common_rxusrclk  : std_logic;
 
-
+    signal gem_gt_gbt_ctrl_arr      : t_mgt_ctrl_arr(CFG_NUM_OF_OHs * CFG_NUM_GBTS_PER_OH - 1 downto 0);
+    signal gem_gt_gbt_status_arr    : t_mgt_status_arr(CFG_NUM_OF_OHs * CFG_NUM_GBTS_PER_OH - 1 downto 0);
+    
     -------------------- AMC13 DAQLink ---------------------------------
     signal daq_to_daqlink       : t_daq_to_daqlink;
     signal daqlink_to_daq       : t_daqlink_to_daq;
 
     -------------------- GEM loader ---------------------------------
-    signal to_gem_loader        : t_to_gem_loader;
+    signal to_gem_loader        : t_to_gem_loader := (clk => '0', en => '0');
     signal from_gem_loader      : t_from_gem_loader;
 
 --============================================================================
@@ -209,6 +212,9 @@ begin
             gth_rxreset_arr_o              => gth_rxreset_arr,
             gth_txreset_arr_o              => gth_txreset_arr,
 
+            gth_gem_mgt_status_arr_o       => gt_gbt_status_arr,
+            gth_gem_mgt_ctrl_arr_i         => gt_gbt_ctrl_arr,
+
             amc13_gth_refclk_p             => amc13_gth_refclk_p,
             amc13_gth_refclk_n             => amc13_gth_refclk_n,
             amc_13_gth_rx_n                => amc_13_gth_rx_n,
@@ -261,86 +267,133 @@ begin
 
     -------------------------- GEM logic ---------------------------------
     
-    i_gem : entity work.gem_amc
-        generic map(
-            g_USE_TRIG_LINKS     => CFG_USE_TRIG_LINKS,
-            g_USE_TRIG_TX_LINKS  => CFG_USE_TRIG_TX_LINKS,
-            g_NUM_OF_OHs         => CFG_NUM_OF_OHs,
-            g_NUM_TRIG_TX_LINKS  => CFG_NUM_TRIG_TX,
-            g_NUM_IPB_SLAVES     => C_NUM_IPB_SLAVES,
-            g_DAQ_CLK_FREQ       => 62_500_000 --50_000_000
-        )
-        port map(
-            reset_i                 => '0',
-            reset_pwrup_o           => open,
-            
-            ttc_data_p_i            => ttc_data_p_i,
-            ttc_data_n_i            => ttc_data_n_i,
-            ttc_clocks_i            => ttc_clocks,
-            ttc_clocks_locked_i     => ttc_clocks_locked,
-            
-            gt_trig0_rx_clk_arr_i   => gem_gt_trig0_rx_clk_arr,
-            gt_trig0_rx_data_arr_i  => gem_gt_trig0_rx_data_arr,
-            gt_trig1_rx_clk_arr_i   => gem_gt_trig1_rx_clk_arr,
-            gt_trig1_rx_data_arr_i  => gem_gt_trig1_rx_data_arr,
-
-            gt_trig_tx_data_arr_o   => gem_gt_trig_tx_data_arr,
-            gt_trig_tx_clk_i        => gem_gt_trig_tx_clk,
-
-            gt_gbt_rx_data_arr_i    => gem_gt_gbt_rx_data_arr,
-            gt_gbt_tx_data_arr_o    => gem_gt_gbt_tx_data_arr,
-            gt_gbt_rx_clk_arr_i     => gem_gt_gbt_rx_clk_arr,
-            gt_gbt_tx_clk_arr_i     => gem_gt_gbt_tx_clk_arr,
-            gt_gbt_rx_common_clk_i  => gth_gbt_common_rxusrclk,
-            
-            ipb_reset_i             => ipb_reset,
-            ipb_clk_i               => ipb_clk,
-            ipb_miso_arr_o          => ipb_miso_arr,
-            ipb_mosi_arr_i          => ipb_mosi_arr,
-
-            led_l1a_o               => LEDs(0),
-            led_trigger_o           => LEDs(1),
-            
-            daq_data_clk_i          => clk_62p5, --clk_50,
-            daq_data_clk_locked_i   => '1',
-            daq_to_daqlink_o        => daq_to_daqlink,
-            daqlink_to_daq_i        => daqlink_to_daq,
-            
-            board_id_i              => x"beef",
-
-            to_gem_loader_o         => to_gem_loader,
-            from_gem_loader_i       => from_gem_loader
-        );
-
-    -- GTH mapping to GEM links
-    g_gem_links : for i in 0 to CFG_NUM_OF_OHs - 1 generate
-
-        gth_gbt_tx_data_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt0_link).tx) <= gem_gt_gbt_tx_data_arr(i * 3);
-        gth_gbt_tx_data_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt1_link).tx) <= gem_gt_gbt_tx_data_arr(i * 3 + 1);
-        gth_gbt_tx_data_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt2_link).tx) <= gem_gt_gbt_tx_data_arr(i * 3 + 2);
-        
-        gem_gt_gbt_rx_data_arr(i * 3)     <= gth_gbt_rx_data_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt0_link).rx);
-        gem_gt_gbt_rx_data_arr(i * 3 + 1) <= gth_gbt_rx_data_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt1_link).rx);
-        gem_gt_gbt_rx_data_arr(i * 3 + 2) <= gth_gbt_rx_data_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt2_link).rx);
-
-        gem_gt_gbt_rx_clk_arr(i * 3)     <= clk_gth_rx_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt0_link).rx);
-        gem_gt_gbt_rx_clk_arr(i * 3 + 1) <= clk_gth_rx_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt1_link).rx);
-        gem_gt_gbt_rx_clk_arr(i * 3 + 2) <= clk_gth_rx_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt2_link).rx);
-        
-        gem_gt_gbt_tx_clk_arr(i * 3)     <= clk_gth_tx_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt0_link).tx);
-        gem_gt_gbt_tx_clk_arr(i * 3 + 1) <= clk_gth_tx_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt1_link).tx);
-        gem_gt_gbt_tx_clk_arr(i * 3 + 2) <= clk_gth_tx_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt2_link).tx);        
-
-        gem_gt_trig0_rx_clk_arr(i)  <= clk_gth_rx_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).trig0_rx_link).rx);
-        gem_gt_trig0_rx_data_arr(i) <= gth_rx_data_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).trig0_rx_link).rx);
-        gem_gt_trig1_rx_clk_arr(i)  <= clk_gth_rx_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).trig1_rx_link).rx);
-        gem_gt_trig1_rx_data_arr(i) <= gth_rx_data_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).trig1_rx_link).rx);
-        
-    end generate; 
+    g_gem_logic : if not CFG_LPGBT_2P56G_LOOPBACK_TEST generate
+        i_gem : entity work.gem_amc
+            generic map(
+                g_GEM_STATION        => CFG_GEM_STATION,
+                g_NUM_OF_OHs         => CFG_NUM_OF_OHs,
+                g_NUM_GBTS_PER_OH    => CFG_NUM_GBTS_PER_OH,
+                g_NUM_VFATS_PER_OH   => CFG_NUM_VFATS_PER_OH,
+                g_USE_TRIG_TX_LINKS  => CFG_USE_TRIG_TX_LINKS,
+                g_NUM_TRIG_TX_LINKS  => CFG_NUM_TRIG_TX,
+                g_NUM_IPB_SLAVES     => C_NUM_IPB_SLAVES,
+                g_DAQ_CLK_FREQ       => 62_500_000 --50_000_000
+            )
+            port map(
+                reset_i                 => '0',
+                reset_pwrup_o           => open,
+                
+                ttc_data_p_i            => ttc_data_p_i,
+                ttc_data_n_i            => ttc_data_n_i,
+                ttc_clocks_i            => ttc_clocks,
+                ttc_clocks_locked_i     => ttc_clocks_locked,
+                
+                gt_trig0_rx_clk_arr_i   => gem_gt_trig0_rx_clk_arr,
+                gt_trig0_rx_data_arr_i  => gem_gt_trig0_rx_data_arr,
+                gt_trig1_rx_clk_arr_i   => gem_gt_trig1_rx_clk_arr,
+                gt_trig1_rx_data_arr_i  => gem_gt_trig1_rx_data_arr,
     
-    -- GTH mapping to EMTF links
-    g_emtf_links : for i in 0 to CFG_NUM_TRIG_TX - 1 generate
-        gth_tx_data_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_TRIG_TX_LINK_CONFIG_ARR(i)).tx) <= gem_gt_trig_tx_data_arr(i);
+                gt_trig_tx_data_arr_o   => gem_gt_trig_tx_data_arr,
+                gt_trig_tx_clk_i        => gem_gt_trig_tx_clk,
+    
+                gt_gbt_rx_data_arr_i    => gem_gt_gbt_rx_data_arr,
+                gt_gbt_tx_data_arr_o    => gem_gt_gbt_tx_data_arr,
+                gt_gbt_rx_clk_arr_i     => gem_gt_gbt_rx_clk_arr,
+                gt_gbt_tx_clk_arr_i     => gem_gt_gbt_tx_clk_arr,
+                gt_gbt_rx_common_clk_i  => gth_gbt_common_rxusrclk,
+                
+                gt_gbt_status_arr_i     => gem_gt_gbt_status_arr,
+                gt_gbt_ctrl_arr_o       => gem_gt_gbt_ctrl_arr,
+                
+                ipb_reset_i             => ipb_reset,
+                ipb_clk_i               => ipb_clk,
+                ipb_miso_arr_o          => ipb_miso_arr,
+                ipb_mosi_arr_i          => ipb_mosi_arr,
+    
+                led_l1a_o               => LEDs(0),
+                led_trigger_o           => LEDs(1),
+                
+                daq_data_clk_i          => clk_62p5, --clk_50,
+                daq_data_clk_locked_i   => '1',
+                daq_to_daqlink_o        => daq_to_daqlink,
+                daqlink_to_daq_i        => daqlink_to_daq,
+                
+                board_id_i              => x"beef",
+    
+                to_gem_loader_o         => to_gem_loader,
+                from_gem_loader_i       => from_gem_loader
+            );
+    
+        -- GTH mapping to GEM links for GE1/1
+        g_gem_links : for i in 0 to CFG_NUM_OF_OHs - 1 generate
+    
+            --=== GBT0 ===--
+            gem_gt_gbt_rx_data_arr(i * CFG_NUM_GBTS_PER_OH)     <= gth_gbt_rx_data_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt0_link).rx);
+            gem_gt_gbt_rx_clk_arr(i * CFG_NUM_GBTS_PER_OH)     <= clk_gth_rx_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt0_link).rx);
+            gth_gbt_tx_data_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt0_link).tx) <= gem_gt_gbt_tx_data_arr(i * CFG_NUM_GBTS_PER_OH);
+            gem_gt_gbt_tx_clk_arr(i * CFG_NUM_GBTS_PER_OH)     <= clk_gth_tx_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt0_link).tx);
+            gt_gbt_ctrl_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt0_link).tx).txreset <= gem_gt_gbt_ctrl_arr(i * CFG_NUM_GBTS_PER_OH).txreset;
+            gt_gbt_ctrl_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt0_link).rx).rxreset <= gem_gt_gbt_ctrl_arr(i * CFG_NUM_GBTS_PER_OH).rxreset;
+            gt_gbt_ctrl_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt0_link).rx).rxslide <= gem_gt_gbt_ctrl_arr(i * CFG_NUM_GBTS_PER_OH).rxslide;
+            gem_gt_gbt_status_arr(i * CFG_NUM_GBTS_PER_OH).tx_reset_done <= gt_gbt_status_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt0_link).tx).tx_reset_done;
+            gem_gt_gbt_status_arr(i * CFG_NUM_GBTS_PER_OH).tx_cpll_locked <= gt_gbt_status_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt0_link).tx).tx_cpll_locked;
+            gem_gt_gbt_status_arr(i * CFG_NUM_GBTS_PER_OH).rx_reset_done <= gt_gbt_status_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt0_link).rx).rx_reset_done;
+            gem_gt_gbt_status_arr(i * CFG_NUM_GBTS_PER_OH).rx_cpll_locked <= gt_gbt_status_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt0_link).rx).rx_cpll_locked;
+    
+            --=== GBT1 (no TX for ME0) ===--
+            gem_gt_gbt_rx_data_arr(i * CFG_NUM_GBTS_PER_OH + 1) <= gth_gbt_rx_data_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt1_link).rx);
+            gem_gt_gbt_rx_clk_arr(i * CFG_NUM_GBTS_PER_OH + 1) <= clk_gth_rx_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt1_link).rx);
+            gt_gbt_ctrl_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt1_link).rx).rxreset <= gem_gt_gbt_ctrl_arr(i * CFG_NUM_GBTS_PER_OH + 1).rxreset;
+            gt_gbt_ctrl_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt1_link).rx).rxslide <= gem_gt_gbt_ctrl_arr(i * CFG_NUM_GBTS_PER_OH + 1).rxslide;
+            gem_gt_gbt_status_arr(i * CFG_NUM_GBTS_PER_OH + 1).rx_reset_done <= gt_gbt_status_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt1_link).rx).rx_reset_done;
+            gem_gt_gbt_status_arr(i * CFG_NUM_GBTS_PER_OH + 1).rx_cpll_locked <= gt_gbt_status_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt1_link).rx).rx_cpll_locked;
+            g_non_me0_gbt1_tx_links: if CFG_GEM_STATION /= 0 generate        
+                gth_gbt_tx_data_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt1_link).tx) <= gem_gt_gbt_tx_data_arr(i * CFG_NUM_GBTS_PER_OH + 1);
+                gem_gt_gbt_tx_clk_arr(i * CFG_NUM_GBTS_PER_OH + 1) <= clk_gth_tx_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt1_link).tx);
+                gt_gbt_ctrl_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt1_link).tx).txreset <= gem_gt_gbt_ctrl_arr(i * CFG_NUM_GBTS_PER_OH + 1).txreset;
+                gem_gt_gbt_status_arr(i * CFG_NUM_GBTS_PER_OH + 1).tx_reset_done <= gt_gbt_status_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt1_link).tx).tx_reset_done;
+                gem_gt_gbt_status_arr(i * CFG_NUM_GBTS_PER_OH + 1).tx_cpll_locked <= gt_gbt_status_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt1_link).tx).tx_cpll_locked;
+            end generate;
+            
+            --=== GBT2 (GE1/1 only) ===--
+            g_ge11_gbt2_links: if CFG_GEM_STATION = 1 generate        
+                gem_gt_gbt_rx_data_arr(i * CFG_NUM_GBTS_PER_OH + 2) <= gth_gbt_rx_data_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt2_link).rx);    
+                gem_gt_gbt_rx_clk_arr(i * CFG_NUM_GBTS_PER_OH + 2) <= clk_gth_rx_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt2_link).rx);
+                gth_gbt_tx_data_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt2_link).tx) <= gem_gt_gbt_tx_data_arr(i * CFG_NUM_GBTS_PER_OH + 2);            
+                gem_gt_gbt_tx_clk_arr(i * CFG_NUM_GBTS_PER_OH + 2) <= clk_gth_tx_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt2_link).tx);
+                gt_gbt_ctrl_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt2_link).tx).txreset <= gem_gt_gbt_ctrl_arr(i * CFG_NUM_GBTS_PER_OH + 2).txreset;
+                gt_gbt_ctrl_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt2_link).rx).rxreset <= gem_gt_gbt_ctrl_arr(i * CFG_NUM_GBTS_PER_OH + 2).rxreset;
+                gt_gbt_ctrl_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt2_link).rx).rxslide <= gem_gt_gbt_ctrl_arr(i * CFG_NUM_GBTS_PER_OH + 2).rxslide;
+                gem_gt_gbt_status_arr(i * CFG_NUM_GBTS_PER_OH + 2).tx_reset_done <= gt_gbt_status_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt2_link).tx).tx_reset_done;
+                gem_gt_gbt_status_arr(i * CFG_NUM_GBTS_PER_OH + 2).tx_cpll_locked <= gt_gbt_status_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt2_link).tx).tx_cpll_locked;
+                gem_gt_gbt_status_arr(i * CFG_NUM_GBTS_PER_OH + 2).rx_reset_done <= gt_gbt_status_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt2_link).rx).rx_reset_done;
+                gem_gt_gbt_status_arr(i * CFG_NUM_GBTS_PER_OH + 2).rx_cpll_locked <= gt_gbt_status_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt2_link).rx).rx_cpll_locked;
+            end generate;        
+    
+            --=== Trigger links (GE1/1 and GE2/1 only) ===--
+            g_non_me0_trig_links: if CFG_GEM_STATION /= 0 generate                
+                gem_gt_trig0_rx_clk_arr(i)  <= clk_gth_rx_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).trig0_rx_link).rx);
+                gem_gt_trig0_rx_data_arr(i) <= gth_rx_data_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).trig0_rx_link).rx);
+                gem_gt_trig1_rx_clk_arr(i)  <= clk_gth_rx_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).trig1_rx_link).rx);
+                gem_gt_trig1_rx_data_arr(i) <= gth_rx_data_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).trig1_rx_link).rx);
+            end generate;
+            
+        end generate; 
+        
+        -- GTH mapping to EMTF links
+        g_emtf_links : for i in 0 to CFG_NUM_TRIG_TX - 1 generate
+            gth_tx_data_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_TRIG_TX_LINK_CONFIG_ARR(i)).tx) <= gem_gt_trig_tx_data_arr(i);
+        end generate;
+    end generate;
+    
+    -------------------------- LpGBT loopback test without GEM logic ---------------------------------
+    
+    g_lpgbt_loopback_logic : if CFG_LPGBT_2P56G_LOOPBACK_TEST generate
+        g_fake_gth_data : for i in 0 to g_NUM_OF_GTH_GTs - 1 generate
+            gth_gbt_tx_data_arr(i) <= x"5555555555";
+            daq_to_daqlink <= (reset => '1', ttc_clk => ttc_clocks.clk_40, ttc_bc0 => '0', trig => (others => '0'), tts_clk => ttc_clocks.clk_40, tts_state => x"8", resync => '0', event_clk => clk_62p5, event_valid => '0', event_header => '0', event_trailer => '0', event_data => (others => '0'));
+            LEDs <= "00";
+        end generate;
     end generate;
     
 end gem_ctp7_arch;

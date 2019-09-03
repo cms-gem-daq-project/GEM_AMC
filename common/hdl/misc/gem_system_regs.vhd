@@ -30,13 +30,9 @@ port(
     ipb_mosi_i                  : in ipb_wbus;
     ipb_miso_o                  : out ipb_rbus;
     
-    tk_rx_polarity_o            : out std_logic_vector(23 downto 0);
-    tk_tx_polarity_o            : out std_logic_vector(23 downto 0);
-    
     board_id_o                  : out std_logic_vector(15 downto 0);
 
     loopback_gbt_test_en_o      : out std_logic;
-    use_oh_vfat3_connectors_o   : out std_logic;
     use_v3b_elink_mapping_o     : out std_logic;
 
     vfat3_sc_only_mode_o        : out std_logic;
@@ -48,19 +44,16 @@ architecture gem_system_regs_arch of gem_system_regs is
 
     signal reset_cnt                : std_logic := '0';
     
-    signal tk_rx_polarity           : std_logic_vector(23 downto 0) := (others => '0');
-    signal tk_tx_polarity           : std_logic_vector(23 downto 0) := (others => '0');
     signal board_id                 : std_logic_vector(15 downto 0) := (others => '0');
+    signal gem_station              : integer range 0 to 2;
     signal version_major            : integer range 0 to 255; 
     signal version_minor            : integer range 0 to 255; 
     signal version_build            : integer range 0 to 255;
     signal firmware_date            : std_logic_vector(31 downto 0);
     signal num_of_oh                : std_logic_vector(4 downto 0);
     signal board_type               : std_logic_vector(3 downto 0);
-    signal use_trig_links           : std_logic;
     
     signal loopback_gbt_test_en     : std_logic;
-    signal use_oh_vfat3_connectors  : std_logic;
     
     signal vfat3_sc_only_mode       : std_logic;
     
@@ -98,11 +91,11 @@ begin
     version_major <= C_FIRMWARE_MAJOR;
     version_minor <= C_FIRMWARE_MINOR;
     version_build <= C_FIRMWARE_BUILD;
+    gem_station <= CFG_GEM_STATION;
 
     --=== board type and configuration parameters ===--
     board_type     <= CFG_BOARD_TYPE;
     num_of_oh      <= std_logic_vector(to_unsigned(CFG_NUM_OF_OHs, 5));
-    use_trig_links <= bool_to_std_logic(CFG_USE_TRIG_LINKS); 
     
     --=== version and date === --
     -- TODO: remove legacy firmware date and version once the software is ready
@@ -115,13 +108,8 @@ begin
                             std_logic_vector(to_unsigned(c_legacy_sys_ver_month, 4)) &
                             std_logic_vector(to_unsigned(c_legacy_sys_ver_day, 5));
             
-    --=== TX/RX polarity === --
-    tk_rx_polarity_o <= tk_rx_polarity;
-    tk_tx_polarity_o <= tk_tx_polarity;
-   
     --=== Tests === --
     loopback_gbt_test_en_o <= loopback_gbt_test_en; 
-    use_oh_vfat3_connectors_o <= use_oh_vfat3_connectors;
     
     vfat3_sc_only_mode_o <= vfat3_sc_only_mode;
     use_v3b_elink_mapping_o <= use_v3b_elink_mapping;
@@ -156,51 +144,43 @@ begin
       );
 
     -- Addresses
-    regs_addresses(0)(REG_GEM_SYSTEM_ADDRESS_MSB downto REG_GEM_SYSTEM_ADDRESS_LSB) <= '0' & x"0000";
-    regs_addresses(1)(REG_GEM_SYSTEM_ADDRESS_MSB downto REG_GEM_SYSTEM_ADDRESS_LSB) <= '0' & x"0001";
-    regs_addresses(2)(REG_GEM_SYSTEM_ADDRESS_MSB downto REG_GEM_SYSTEM_ADDRESS_LSB) <= '0' & x"0002";
-    regs_addresses(3)(REG_GEM_SYSTEM_ADDRESS_MSB downto REG_GEM_SYSTEM_ADDRESS_LSB) <= '0' & x"0003";
-    regs_addresses(4)(REG_GEM_SYSTEM_ADDRESS_MSB downto REG_GEM_SYSTEM_ADDRESS_LSB) <= '0' & x"0004";
-    regs_addresses(5)(REG_GEM_SYSTEM_ADDRESS_MSB downto REG_GEM_SYSTEM_ADDRESS_LSB) <= '0' & x"0005";
-    regs_addresses(6)(REG_GEM_SYSTEM_ADDRESS_MSB downto REG_GEM_SYSTEM_ADDRESS_LSB) <= '0' & x"0011";
-    regs_addresses(7)(REG_GEM_SYSTEM_ADDRESS_MSB downto REG_GEM_SYSTEM_ADDRESS_LSB) <= '0' & x"0100";
-    regs_addresses(8)(REG_GEM_SYSTEM_ADDRESS_MSB downto REG_GEM_SYSTEM_ADDRESS_LSB) <= '0' & x"0101";
-    regs_addresses(9)(REG_GEM_SYSTEM_ADDRESS_MSB downto REG_GEM_SYSTEM_ADDRESS_LSB) <= '0' & x"0200";
-    regs_addresses(10)(REG_GEM_SYSTEM_ADDRESS_MSB downto REG_GEM_SYSTEM_ADDRESS_LSB) <= '1' & x"0000";
-    regs_addresses(11)(REG_GEM_SYSTEM_ADDRESS_MSB downto REG_GEM_SYSTEM_ADDRESS_LSB) <= '1' & x"0001";
-    regs_addresses(12)(REG_GEM_SYSTEM_ADDRESS_MSB downto REG_GEM_SYSTEM_ADDRESS_LSB) <= '1' & x"0002";
+    regs_addresses(0)(REG_GEM_SYSTEM_ADDRESS_MSB downto REG_GEM_SYSTEM_ADDRESS_LSB) <= '0' & x"0002";
+    regs_addresses(1)(REG_GEM_SYSTEM_ADDRESS_MSB downto REG_GEM_SYSTEM_ADDRESS_LSB) <= '0' & x"0003";
+    regs_addresses(2)(REG_GEM_SYSTEM_ADDRESS_MSB downto REG_GEM_SYSTEM_ADDRESS_LSB) <= '0' & x"0004";
+    regs_addresses(3)(REG_GEM_SYSTEM_ADDRESS_MSB downto REG_GEM_SYSTEM_ADDRESS_LSB) <= '0' & x"0005";
+    regs_addresses(4)(REG_GEM_SYSTEM_ADDRESS_MSB downto REG_GEM_SYSTEM_ADDRESS_LSB) <= '0' & x"0011";
+    regs_addresses(5)(REG_GEM_SYSTEM_ADDRESS_MSB downto REG_GEM_SYSTEM_ADDRESS_LSB) <= '0' & x"0100";
+    regs_addresses(6)(REG_GEM_SYSTEM_ADDRESS_MSB downto REG_GEM_SYSTEM_ADDRESS_LSB) <= '0' & x"0101";
+    regs_addresses(7)(REG_GEM_SYSTEM_ADDRESS_MSB downto REG_GEM_SYSTEM_ADDRESS_LSB) <= '0' & x"0200";
+    regs_addresses(8)(REG_GEM_SYSTEM_ADDRESS_MSB downto REG_GEM_SYSTEM_ADDRESS_LSB) <= '1' & x"0000";
+    regs_addresses(9)(REG_GEM_SYSTEM_ADDRESS_MSB downto REG_GEM_SYSTEM_ADDRESS_LSB) <= '1' & x"0001";
+    regs_addresses(10)(REG_GEM_SYSTEM_ADDRESS_MSB downto REG_GEM_SYSTEM_ADDRESS_LSB) <= '1' & x"0002";
 
     -- Connect read signals
-    regs_read_arr(0)(REG_GEM_SYSTEM_TK_LINK_RX_POLARITY_MSB downto REG_GEM_SYSTEM_TK_LINK_RX_POLARITY_LSB) <= tk_rx_polarity;
-    regs_read_arr(1)(REG_GEM_SYSTEM_TK_LINK_TX_POLARITY_MSB downto REG_GEM_SYSTEM_TK_LINK_TX_POLARITY_LSB) <= tk_tx_polarity;
-    regs_read_arr(2)(REG_GEM_SYSTEM_BOARD_ID_MSB downto REG_GEM_SYSTEM_BOARD_ID_LSB) <= board_id;
-    regs_read_arr(2)(REG_GEM_SYSTEM_BOARD_TYPE_MSB downto REG_GEM_SYSTEM_BOARD_TYPE_LSB) <= board_type;
-    regs_read_arr(3)(REG_GEM_SYSTEM_RELEASE_BUILD_MSB downto REG_GEM_SYSTEM_RELEASE_BUILD_LSB) <= std_logic_vector(to_unsigned(version_build, 8));
-    regs_read_arr(3)(REG_GEM_SYSTEM_RELEASE_MINOR_MSB downto REG_GEM_SYSTEM_RELEASE_MINOR_LSB) <= std_logic_vector(to_unsigned(version_minor, 8));
-    regs_read_arr(3)(REG_GEM_SYSTEM_RELEASE_MAJOR_MSB downto REG_GEM_SYSTEM_RELEASE_MAJOR_LSB) <= std_logic_vector(to_unsigned(version_major, 8));
-    regs_read_arr(4)(REG_GEM_SYSTEM_RELEASE_DATE_MSB downto REG_GEM_SYSTEM_RELEASE_DATE_LSB) <= firmware_date;
-    regs_read_arr(5)(REG_GEM_SYSTEM_CONFIG_NUM_OF_OH_MSB downto REG_GEM_SYSTEM_CONFIG_NUM_OF_OH_LSB) <= num_of_oh;
-    regs_read_arr(5)(REG_GEM_SYSTEM_CONFIG_USE_TRIG_LINKS_BIT) <= use_trig_links;
-    regs_read_arr(6)(REG_GEM_SYSTEM_VFAT3_USE_OH_VFAT3_SLOTS_BIT) <= use_oh_vfat3_connectors;
-    regs_read_arr(6)(REG_GEM_SYSTEM_VFAT3_SC_ONLY_MODE_BIT) <= vfat3_sc_only_mode;
-    regs_read_arr(6)(REG_GEM_SYSTEM_VFAT3_USE_OH_V3B_MAPPING_BIT) <= use_v3b_elink_mapping;
-    regs_read_arr(9)(REG_GEM_SYSTEM_TESTS_GBT_LOOPBACK_EN_BIT) <= loopback_gbt_test_en;
-    regs_read_arr(10)(REG_GEM_SYSTEM_LEGACY_SYSTEM_BOARD_ID_MSB downto REG_GEM_SYSTEM_LEGACY_SYSTEM_BOARD_ID_LSB) <= legacy_board_id;
-    regs_read_arr(11)(REG_GEM_SYSTEM_LEGACY_SYSTEM_SYSTEM_ID_MSB downto REG_GEM_SYSTEM_LEGACY_SYSTEM_SYSTEM_ID_LSB) <= legacy_sys_id;
-    regs_read_arr(12)(REG_GEM_SYSTEM_LEGACY_SYSTEM_FIRMWARE_VERSION_MSB downto REG_GEM_SYSTEM_LEGACY_SYSTEM_FIRMWARE_VERSION_LSB) <= legacy_fw_version;
+    regs_read_arr(0)(REG_GEM_SYSTEM_BOARD_ID_MSB downto REG_GEM_SYSTEM_BOARD_ID_LSB) <= board_id;
+    regs_read_arr(0)(REG_GEM_SYSTEM_BOARD_TYPE_MSB downto REG_GEM_SYSTEM_BOARD_TYPE_LSB) <= board_type;
+    regs_read_arr(1)(REG_GEM_SYSTEM_RELEASE_BUILD_MSB downto REG_GEM_SYSTEM_RELEASE_BUILD_LSB) <= std_logic_vector(to_unsigned(version_build, 8));
+    regs_read_arr(1)(REG_GEM_SYSTEM_RELEASE_MINOR_MSB downto REG_GEM_SYSTEM_RELEASE_MINOR_LSB) <= std_logic_vector(to_unsigned(version_minor, 8));
+    regs_read_arr(1)(REG_GEM_SYSTEM_RELEASE_MAJOR_MSB downto REG_GEM_SYSTEM_RELEASE_MAJOR_LSB) <= std_logic_vector(to_unsigned(version_major, 8));
+    regs_read_arr(1)(REG_GEM_SYSTEM_RELEASE_GEM_STATION_MSB downto REG_GEM_SYSTEM_RELEASE_GEM_STATION_LSB) <= std_logic_vector(to_unsigned(gem_station, 2));
+    regs_read_arr(2)(REG_GEM_SYSTEM_RELEASE_DATE_MSB downto REG_GEM_SYSTEM_RELEASE_DATE_LSB) <= firmware_date;
+    regs_read_arr(3)(REG_GEM_SYSTEM_CONFIG_NUM_OF_OH_MSB downto REG_GEM_SYSTEM_CONFIG_NUM_OF_OH_LSB) <= num_of_oh;
+    regs_read_arr(4)(REG_GEM_SYSTEM_VFAT3_SC_ONLY_MODE_BIT) <= vfat3_sc_only_mode;
+    regs_read_arr(4)(REG_GEM_SYSTEM_VFAT3_USE_OH_V3B_MAPPING_BIT) <= use_v3b_elink_mapping;
+    regs_read_arr(7)(REG_GEM_SYSTEM_TESTS_GBT_LOOPBACK_EN_BIT) <= loopback_gbt_test_en;
+    regs_read_arr(8)(REG_GEM_SYSTEM_LEGACY_SYSTEM_BOARD_ID_MSB downto REG_GEM_SYSTEM_LEGACY_SYSTEM_BOARD_ID_LSB) <= legacy_board_id;
+    regs_read_arr(9)(REG_GEM_SYSTEM_LEGACY_SYSTEM_SYSTEM_ID_MSB downto REG_GEM_SYSTEM_LEGACY_SYSTEM_SYSTEM_ID_LSB) <= legacy_sys_id;
+    regs_read_arr(10)(REG_GEM_SYSTEM_LEGACY_SYSTEM_FIRMWARE_VERSION_MSB downto REG_GEM_SYSTEM_LEGACY_SYSTEM_FIRMWARE_VERSION_LSB) <= legacy_fw_version;
 
     -- Connect write signals
-    tk_rx_polarity <= regs_write_arr(0)(REG_GEM_SYSTEM_TK_LINK_RX_POLARITY_MSB downto REG_GEM_SYSTEM_TK_LINK_RX_POLARITY_LSB);
-    tk_tx_polarity <= regs_write_arr(1)(REG_GEM_SYSTEM_TK_LINK_TX_POLARITY_MSB downto REG_GEM_SYSTEM_TK_LINK_TX_POLARITY_LSB);
-    board_id <= regs_write_arr(2)(REG_GEM_SYSTEM_BOARD_ID_MSB downto REG_GEM_SYSTEM_BOARD_ID_LSB);
-    use_oh_vfat3_connectors <= regs_write_arr(6)(REG_GEM_SYSTEM_VFAT3_USE_OH_VFAT3_SLOTS_BIT);
-    vfat3_sc_only_mode <= regs_write_arr(6)(REG_GEM_SYSTEM_VFAT3_SC_ONLY_MODE_BIT);
-    use_v3b_elink_mapping <= regs_write_arr(6)(REG_GEM_SYSTEM_VFAT3_USE_OH_V3B_MAPPING_BIT);
-    loopback_gbt_test_en <= regs_write_arr(9)(REG_GEM_SYSTEM_TESTS_GBT_LOOPBACK_EN_BIT);
+    board_id <= regs_write_arr(0)(REG_GEM_SYSTEM_BOARD_ID_MSB downto REG_GEM_SYSTEM_BOARD_ID_LSB);
+    vfat3_sc_only_mode <= regs_write_arr(4)(REG_GEM_SYSTEM_VFAT3_SC_ONLY_MODE_BIT);
+    use_v3b_elink_mapping <= regs_write_arr(4)(REG_GEM_SYSTEM_VFAT3_USE_OH_V3B_MAPPING_BIT);
+    loopback_gbt_test_en <= regs_write_arr(7)(REG_GEM_SYSTEM_TESTS_GBT_LOOPBACK_EN_BIT);
 
     -- Connect write pulse signals
-    reset_cnt <= regs_write_pulse_arr(7);
-    manual_link_reset_o <= regs_write_pulse_arr(8);
+    reset_cnt <= regs_write_pulse_arr(5);
+    manual_link_reset_o <= regs_write_pulse_arr(6);
 
     -- Connect write done signals
 
@@ -209,20 +189,15 @@ begin
     -- Connect read ready signals
 
     -- Defaults
-    regs_defaults(0)(REG_GEM_SYSTEM_TK_LINK_RX_POLARITY_MSB downto REG_GEM_SYSTEM_TK_LINK_RX_POLARITY_LSB) <= REG_GEM_SYSTEM_TK_LINK_RX_POLARITY_DEFAULT;
-    regs_defaults(1)(REG_GEM_SYSTEM_TK_LINK_TX_POLARITY_MSB downto REG_GEM_SYSTEM_TK_LINK_TX_POLARITY_LSB) <= REG_GEM_SYSTEM_TK_LINK_TX_POLARITY_DEFAULT;
-    regs_defaults(2)(REG_GEM_SYSTEM_BOARD_ID_MSB downto REG_GEM_SYSTEM_BOARD_ID_LSB) <= REG_GEM_SYSTEM_BOARD_ID_DEFAULT;
-    regs_defaults(6)(REG_GEM_SYSTEM_VFAT3_USE_OH_VFAT3_SLOTS_BIT) <= REG_GEM_SYSTEM_VFAT3_USE_OH_VFAT3_SLOTS_DEFAULT;
-    regs_defaults(6)(REG_GEM_SYSTEM_VFAT3_SC_ONLY_MODE_BIT) <= REG_GEM_SYSTEM_VFAT3_SC_ONLY_MODE_DEFAULT;
-    regs_defaults(6)(REG_GEM_SYSTEM_VFAT3_USE_OH_V3B_MAPPING_BIT) <= REG_GEM_SYSTEM_VFAT3_USE_OH_V3B_MAPPING_DEFAULT;
-    regs_defaults(9)(REG_GEM_SYSTEM_TESTS_GBT_LOOPBACK_EN_BIT) <= REG_GEM_SYSTEM_TESTS_GBT_LOOPBACK_EN_DEFAULT;
+    regs_defaults(0)(REG_GEM_SYSTEM_BOARD_ID_MSB downto REG_GEM_SYSTEM_BOARD_ID_LSB) <= REG_GEM_SYSTEM_BOARD_ID_DEFAULT;
+    regs_defaults(4)(REG_GEM_SYSTEM_VFAT3_SC_ONLY_MODE_BIT) <= REG_GEM_SYSTEM_VFAT3_SC_ONLY_MODE_DEFAULT;
+    regs_defaults(4)(REG_GEM_SYSTEM_VFAT3_USE_OH_V3B_MAPPING_BIT) <= REG_GEM_SYSTEM_VFAT3_USE_OH_V3B_MAPPING_DEFAULT;
+    regs_defaults(7)(REG_GEM_SYSTEM_TESTS_GBT_LOOPBACK_EN_BIT) <= REG_GEM_SYSTEM_TESTS_GBT_LOOPBACK_EN_DEFAULT;
 
     -- Define writable regs
     regs_writable_arr(0) <= '1';
-    regs_writable_arr(1) <= '1';
-    regs_writable_arr(2) <= '1';
-    regs_writable_arr(6) <= '1';
-    regs_writable_arr(9) <= '1';
+    regs_writable_arr(4) <= '1';
+    regs_writable_arr(7) <= '1';
 
     --==== Registers end ============================================================================
 
