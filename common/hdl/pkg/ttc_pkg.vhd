@@ -27,6 +27,7 @@ package ttc_pkg is
         clk_40              : std_logic;
         clk_80              : std_logic;
         clk_160             : std_logic;
+        clk_320             : std_logic;
         clk_gbt_mgt_usrclk  : std_logic;
     end record;
 

@@ -506,189 +506,227 @@
       <node id="CTRL" address="0x0" >
         <node id="RESET" address="0x0" permission="w" />
       </node>
-      <node id="GBT_LOOPBACK" address="0x1000" >
+      <node id="OH_LOOPBACK" address="0x1000" >
         <node id="CTRL" address="0x0" >
-          <node id="LOOP_THROUGH_OH" address="0x0" permission="rw" mask="0x1" />
+          <node id="RESET" address="0x0" permission="w" />
+          <node id="OH_SELECT" address="0x1" permission="rw" mask="0xf" />
+          <node id="INJECT_ERR" address="0x2" permission="w" />
         </node>
-        <node id="LINK_0" address="0x10" >
-          <node id="SYNC_DONE" address="0x0" permission="r" mask="0x1" />
-          <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
-          <node id="ERROR_CNT" address="0x2" permission="r" />
+        <node id="GBT_0" address="0x10" >
+          <node id="ELINK_0" address="0x0" >
+            <node id="PRBS_LOCKED" address="0x0" permission="r" mask="0x80000000" />
+            <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
+            <node id="ERROR_CNT" address="0x0" permission="r" mask="0x7fffffff" />
+          </node>
+          <node id="ELINK_1" address="0x2" >
+            <node id="PRBS_LOCKED" address="0x0" permission="r" mask="0x80000000" />
+            <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
+            <node id="ERROR_CNT" address="0x0" permission="r" mask="0x7fffffff" />
+          </node>
+          <node id="ELINK_2" address="0x4" >
+            <node id="PRBS_LOCKED" address="0x0" permission="r" mask="0x80000000" />
+            <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
+            <node id="ERROR_CNT" address="0x0" permission="r" mask="0x7fffffff" />
+          </node>
+          <node id="ELINK_3" address="0x6" >
+            <node id="PRBS_LOCKED" address="0x0" permission="r" mask="0x80000000" />
+            <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
+            <node id="ERROR_CNT" address="0x0" permission="r" mask="0x7fffffff" />
+          </node>
+          <node id="ELINK_4" address="0x8" >
+            <node id="PRBS_LOCKED" address="0x0" permission="r" mask="0x80000000" />
+            <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
+            <node id="ERROR_CNT" address="0x0" permission="r" mask="0x7fffffff" />
+          </node>
+          <node id="ELINK_5" address="0xa" >
+            <node id="PRBS_LOCKED" address="0x0" permission="r" mask="0x80000000" />
+            <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
+            <node id="ERROR_CNT" address="0x0" permission="r" mask="0x7fffffff" />
+          </node>
+          <node id="ELINK_6" address="0xc" >
+            <node id="PRBS_LOCKED" address="0x0" permission="r" mask="0x80000000" />
+            <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
+            <node id="ERROR_CNT" address="0x0" permission="r" mask="0x7fffffff" />
+          </node>
+          <node id="ELINK_7" address="0xe" >
+            <node id="PRBS_LOCKED" address="0x0" permission="r" mask="0x80000000" />
+            <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
+            <node id="ERROR_CNT" address="0x0" permission="r" mask="0x7fffffff" />
+          </node>
+          <node id="ELINK_8" address="0x10" >
+            <node id="PRBS_LOCKED" address="0x0" permission="r" mask="0x80000000" />
+            <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
+            <node id="ERROR_CNT" address="0x0" permission="r" mask="0x7fffffff" />
+          </node>
+          <node id="ELINK_9" address="0x12" >
+            <node id="PRBS_LOCKED" address="0x0" permission="r" mask="0x80000000" />
+            <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
+            <node id="ERROR_CNT" address="0x0" permission="r" mask="0x7fffffff" />
+          </node>
+          <node id="ELINK_10" address="0x14" >
+            <node id="PRBS_LOCKED" address="0x0" permission="r" mask="0x80000000" />
+            <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
+            <node id="ERROR_CNT" address="0x0" permission="r" mask="0x7fffffff" />
+          </node>
+          <node id="ELINK_11" address="0x16" >
+            <node id="PRBS_LOCKED" address="0x0" permission="r" mask="0x80000000" />
+            <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
+            <node id="ERROR_CNT" address="0x0" permission="r" mask="0x7fffffff" />
+          </node>
+          <node id="ELINK_12" address="0x18" >
+            <node id="PRBS_LOCKED" address="0x0" permission="r" mask="0x80000000" />
+            <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
+            <node id="ERROR_CNT" address="0x0" permission="r" mask="0x7fffffff" />
+          </node>
+          <node id="ELINK_13" address="0x1a" >
+            <node id="PRBS_LOCKED" address="0x0" permission="r" mask="0x80000000" />
+            <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
+            <node id="ERROR_CNT" address="0x0" permission="r" mask="0x7fffffff" />
+          </node>
         </node>
-        <node id="LINK_1" address="0x20" >
-          <node id="SYNC_DONE" address="0x0" permission="r" mask="0x1" />
-          <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
-          <node id="ERROR_CNT" address="0x2" permission="r" />
+        <node id="GBT_1" address="0x110" >
+          <node id="ELINK_0" address="0x0" >
+            <node id="PRBS_LOCKED" address="0x0" permission="r" mask="0x80000000" />
+            <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
+            <node id="ERROR_CNT" address="0x0" permission="r" mask="0x7fffffff" />
+          </node>
+          <node id="ELINK_1" address="0x2" >
+            <node id="PRBS_LOCKED" address="0x0" permission="r" mask="0x80000000" />
+            <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
+            <node id="ERROR_CNT" address="0x0" permission="r" mask="0x7fffffff" />
+          </node>
+          <node id="ELINK_2" address="0x4" >
+            <node id="PRBS_LOCKED" address="0x0" permission="r" mask="0x80000000" />
+            <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
+            <node id="ERROR_CNT" address="0x0" permission="r" mask="0x7fffffff" />
+          </node>
+          <node id="ELINK_3" address="0x6" >
+            <node id="PRBS_LOCKED" address="0x0" permission="r" mask="0x80000000" />
+            <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
+            <node id="ERROR_CNT" address="0x0" permission="r" mask="0x7fffffff" />
+          </node>
+          <node id="ELINK_4" address="0x8" >
+            <node id="PRBS_LOCKED" address="0x0" permission="r" mask="0x80000000" />
+            <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
+            <node id="ERROR_CNT" address="0x0" permission="r" mask="0x7fffffff" />
+          </node>
+          <node id="ELINK_5" address="0xa" >
+            <node id="PRBS_LOCKED" address="0x0" permission="r" mask="0x80000000" />
+            <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
+            <node id="ERROR_CNT" address="0x0" permission="r" mask="0x7fffffff" />
+          </node>
+          <node id="ELINK_6" address="0xc" >
+            <node id="PRBS_LOCKED" address="0x0" permission="r" mask="0x80000000" />
+            <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
+            <node id="ERROR_CNT" address="0x0" permission="r" mask="0x7fffffff" />
+          </node>
+          <node id="ELINK_7" address="0xe" >
+            <node id="PRBS_LOCKED" address="0x0" permission="r" mask="0x80000000" />
+            <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
+            <node id="ERROR_CNT" address="0x0" permission="r" mask="0x7fffffff" />
+          </node>
+          <node id="ELINK_8" address="0x10" >
+            <node id="PRBS_LOCKED" address="0x0" permission="r" mask="0x80000000" />
+            <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
+            <node id="ERROR_CNT" address="0x0" permission="r" mask="0x7fffffff" />
+          </node>
+          <node id="ELINK_9" address="0x12" >
+            <node id="PRBS_LOCKED" address="0x0" permission="r" mask="0x80000000" />
+            <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
+            <node id="ERROR_CNT" address="0x0" permission="r" mask="0x7fffffff" />
+          </node>
+          <node id="ELINK_10" address="0x14" >
+            <node id="PRBS_LOCKED" address="0x0" permission="r" mask="0x80000000" />
+            <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
+            <node id="ERROR_CNT" address="0x0" permission="r" mask="0x7fffffff" />
+          </node>
+          <node id="ELINK_11" address="0x16" >
+            <node id="PRBS_LOCKED" address="0x0" permission="r" mask="0x80000000" />
+            <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
+            <node id="ERROR_CNT" address="0x0" permission="r" mask="0x7fffffff" />
+          </node>
+          <node id="ELINK_12" address="0x18" >
+            <node id="PRBS_LOCKED" address="0x0" permission="r" mask="0x80000000" />
+            <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
+            <node id="ERROR_CNT" address="0x0" permission="r" mask="0x7fffffff" />
+          </node>
+          <node id="ELINK_13" address="0x1a" >
+            <node id="PRBS_LOCKED" address="0x0" permission="r" mask="0x80000000" />
+            <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
+            <node id="ERROR_CNT" address="0x0" permission="r" mask="0x7fffffff" />
+          </node>
         </node>
-        <node id="LINK_2" address="0x30" >
-          <node id="SYNC_DONE" address="0x0" permission="r" mask="0x1" />
-          <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
-          <node id="ERROR_CNT" address="0x2" permission="r" />
-        </node>
-        <node id="LINK_3" address="0x40" >
-          <node id="SYNC_DONE" address="0x0" permission="r" mask="0x1" />
-          <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
-          <node id="ERROR_CNT" address="0x2" permission="r" />
-        </node>
-        <node id="LINK_4" address="0x50" >
-          <node id="SYNC_DONE" address="0x0" permission="r" mask="0x1" />
-          <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
-          <node id="ERROR_CNT" address="0x2" permission="r" />
-        </node>
-        <node id="LINK_5" address="0x60" >
-          <node id="SYNC_DONE" address="0x0" permission="r" mask="0x1" />
-          <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
-          <node id="ERROR_CNT" address="0x2" permission="r" />
-        </node>
-        <node id="LINK_6" address="0x70" >
-          <node id="SYNC_DONE" address="0x0" permission="r" mask="0x1" />
-          <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
-          <node id="ERROR_CNT" address="0x2" permission="r" />
-        </node>
-        <node id="LINK_7" address="0x80" >
-          <node id="SYNC_DONE" address="0x0" permission="r" mask="0x1" />
-          <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
-          <node id="ERROR_CNT" address="0x2" permission="r" />
-        </node>
-        <node id="LINK_8" address="0x90" >
-          <node id="SYNC_DONE" address="0x0" permission="r" mask="0x1" />
-          <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
-          <node id="ERROR_CNT" address="0x2" permission="r" />
-        </node>
-        <node id="LINK_9" address="0xa0" >
-          <node id="SYNC_DONE" address="0x0" permission="r" mask="0x1" />
-          <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
-          <node id="ERROR_CNT" address="0x2" permission="r" />
-        </node>
-        <node id="LINK_10" address="0xb0" >
-          <node id="SYNC_DONE" address="0x0" permission="r" mask="0x1" />
-          <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
-          <node id="ERROR_CNT" address="0x2" permission="r" />
-        </node>
-        <node id="LINK_11" address="0xc0" >
-          <node id="SYNC_DONE" address="0x0" permission="r" mask="0x1" />
-          <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
-          <node id="ERROR_CNT" address="0x2" permission="r" />
-        </node>
-        <node id="LINK_12" address="0xd0" >
-          <node id="SYNC_DONE" address="0x0" permission="r" mask="0x1" />
-          <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
-          <node id="ERROR_CNT" address="0x2" permission="r" />
-        </node>
-        <node id="LINK_13" address="0xe0" >
-          <node id="SYNC_DONE" address="0x0" permission="r" mask="0x1" />
-          <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
-          <node id="ERROR_CNT" address="0x2" permission="r" />
-        </node>
-        <node id="LINK_14" address="0xf0" >
-          <node id="SYNC_DONE" address="0x0" permission="r" mask="0x1" />
-          <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
-          <node id="ERROR_CNT" address="0x2" permission="r" />
-        </node>
-        <node id="LINK_15" address="0x100" >
-          <node id="SYNC_DONE" address="0x0" permission="r" mask="0x1" />
-          <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
-          <node id="ERROR_CNT" address="0x2" permission="r" />
-        </node>
-        <node id="LINK_16" address="0x110" >
-          <node id="SYNC_DONE" address="0x0" permission="r" mask="0x1" />
-          <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
-          <node id="ERROR_CNT" address="0x2" permission="r" />
-        </node>
-        <node id="LINK_17" address="0x120" >
-          <node id="SYNC_DONE" address="0x0" permission="r" mask="0x1" />
-          <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
-          <node id="ERROR_CNT" address="0x2" permission="r" />
-        </node>
-        <node id="LINK_18" address="0x130" >
-          <node id="SYNC_DONE" address="0x0" permission="r" mask="0x1" />
-          <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
-          <node id="ERROR_CNT" address="0x2" permission="r" />
-        </node>
-        <node id="LINK_19" address="0x140" >
-          <node id="SYNC_DONE" address="0x0" permission="r" mask="0x1" />
-          <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
-          <node id="ERROR_CNT" address="0x2" permission="r" />
-        </node>
-        <node id="LINK_20" address="0x150" >
-          <node id="SYNC_DONE" address="0x0" permission="r" mask="0x1" />
-          <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
-          <node id="ERROR_CNT" address="0x2" permission="r" />
-        </node>
-        <node id="LINK_21" address="0x160" >
-          <node id="SYNC_DONE" address="0x0" permission="r" mask="0x1" />
-          <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
-          <node id="ERROR_CNT" address="0x2" permission="r" />
-        </node>
-        <node id="LINK_22" address="0x170" >
-          <node id="SYNC_DONE" address="0x0" permission="r" mask="0x1" />
-          <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
-          <node id="ERROR_CNT" address="0x2" permission="r" />
-        </node>
-        <node id="LINK_23" address="0x180" >
-          <node id="SYNC_DONE" address="0x0" permission="r" mask="0x1" />
-          <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
-          <node id="ERROR_CNT" address="0x2" permission="r" />
-        </node>
-        <node id="LINK_24" address="0x190" >
-          <node id="SYNC_DONE" address="0x0" permission="r" mask="0x1" />
-          <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
-          <node id="ERROR_CNT" address="0x2" permission="r" />
-        </node>
-        <node id="LINK_25" address="0x1a0" >
-          <node id="SYNC_DONE" address="0x0" permission="r" mask="0x1" />
-          <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
-          <node id="ERROR_CNT" address="0x2" permission="r" />
-        </node>
-        <node id="LINK_26" address="0x1b0" >
-          <node id="SYNC_DONE" address="0x0" permission="r" mask="0x1" />
-          <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
-          <node id="ERROR_CNT" address="0x2" permission="r" />
-        </node>
-        <node id="LINK_27" address="0x1c0" >
-          <node id="SYNC_DONE" address="0x0" permission="r" mask="0x1" />
-          <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
-          <node id="ERROR_CNT" address="0x2" permission="r" />
-        </node>
-        <node id="LINK_28" address="0x1d0" >
-          <node id="SYNC_DONE" address="0x0" permission="r" mask="0x1" />
-          <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
-          <node id="ERROR_CNT" address="0x2" permission="r" />
-        </node>
-        <node id="LINK_29" address="0x1e0" >
-          <node id="SYNC_DONE" address="0x0" permission="r" mask="0x1" />
-          <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
-          <node id="ERROR_CNT" address="0x2" permission="r" />
-        </node>
-        <node id="LINK_30" address="0x1f0" >
-          <node id="SYNC_DONE" address="0x0" permission="r" mask="0x1" />
-          <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
-          <node id="ERROR_CNT" address="0x2" permission="r" />
-        </node>
-        <node id="LINK_31" address="0x200" >
-          <node id="SYNC_DONE" address="0x0" permission="r" mask="0x1" />
-          <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
-          <node id="ERROR_CNT" address="0x2" permission="r" />
-        </node>
-        <node id="LINK_32" address="0x210" >
-          <node id="SYNC_DONE" address="0x0" permission="r" mask="0x1" />
-          <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
-          <node id="ERROR_CNT" address="0x2" permission="r" />
-        </node>
-        <node id="LINK_33" address="0x220" >
-          <node id="SYNC_DONE" address="0x0" permission="r" mask="0x1" />
-          <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
-          <node id="ERROR_CNT" address="0x2" permission="r" />
-        </node>
-        <node id="LINK_34" address="0x230" >
-          <node id="SYNC_DONE" address="0x0" permission="r" mask="0x1" />
-          <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
-          <node id="ERROR_CNT" address="0x2" permission="r" />
-        </node>
-        <node id="LINK_35" address="0x240" >
-          <node id="SYNC_DONE" address="0x0" permission="r" mask="0x1" />
-          <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
-          <node id="ERROR_CNT" address="0x2" permission="r" />
+        <node id="GBT_2" address="0x210" >
+          <node id="ELINK_0" address="0x0" >
+            <node id="PRBS_LOCKED" address="0x0" permission="r" mask="0x80000000" />
+            <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
+            <node id="ERROR_CNT" address="0x0" permission="r" mask="0x7fffffff" />
+          </node>
+          <node id="ELINK_1" address="0x2" >
+            <node id="PRBS_LOCKED" address="0x0" permission="r" mask="0x80000000" />
+            <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
+            <node id="ERROR_CNT" address="0x0" permission="r" mask="0x7fffffff" />
+          </node>
+          <node id="ELINK_2" address="0x4" >
+            <node id="PRBS_LOCKED" address="0x0" permission="r" mask="0x80000000" />
+            <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
+            <node id="ERROR_CNT" address="0x0" permission="r" mask="0x7fffffff" />
+          </node>
+          <node id="ELINK_3" address="0x6" >
+            <node id="PRBS_LOCKED" address="0x0" permission="r" mask="0x80000000" />
+            <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
+            <node id="ERROR_CNT" address="0x0" permission="r" mask="0x7fffffff" />
+          </node>
+          <node id="ELINK_4" address="0x8" >
+            <node id="PRBS_LOCKED" address="0x0" permission="r" mask="0x80000000" />
+            <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
+            <node id="ERROR_CNT" address="0x0" permission="r" mask="0x7fffffff" />
+          </node>
+          <node id="ELINK_5" address="0xa" >
+            <node id="PRBS_LOCKED" address="0x0" permission="r" mask="0x80000000" />
+            <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
+            <node id="ERROR_CNT" address="0x0" permission="r" mask="0x7fffffff" />
+          </node>
+          <node id="ELINK_6" address="0xc" >
+            <node id="PRBS_LOCKED" address="0x0" permission="r" mask="0x80000000" />
+            <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
+            <node id="ERROR_CNT" address="0x0" permission="r" mask="0x7fffffff" />
+          </node>
+          <node id="ELINK_7" address="0xe" >
+            <node id="PRBS_LOCKED" address="0x0" permission="r" mask="0x80000000" />
+            <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
+            <node id="ERROR_CNT" address="0x0" permission="r" mask="0x7fffffff" />
+          </node>
+          <node id="ELINK_8" address="0x10" >
+            <node id="PRBS_LOCKED" address="0x0" permission="r" mask="0x80000000" />
+            <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
+            <node id="ERROR_CNT" address="0x0" permission="r" mask="0x7fffffff" />
+          </node>
+          <node id="ELINK_9" address="0x12" >
+            <node id="PRBS_LOCKED" address="0x0" permission="r" mask="0x80000000" />
+            <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
+            <node id="ERROR_CNT" address="0x0" permission="r" mask="0x7fffffff" />
+          </node>
+          <node id="ELINK_10" address="0x14" >
+            <node id="PRBS_LOCKED" address="0x0" permission="r" mask="0x80000000" />
+            <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
+            <node id="ERROR_CNT" address="0x0" permission="r" mask="0x7fffffff" />
+          </node>
+          <node id="ELINK_11" address="0x16" >
+            <node id="PRBS_LOCKED" address="0x0" permission="r" mask="0x80000000" />
+            <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
+            <node id="ERROR_CNT" address="0x0" permission="r" mask="0x7fffffff" />
+          </node>
+          <node id="ELINK_12" address="0x18" >
+            <node id="PRBS_LOCKED" address="0x0" permission="r" mask="0x80000000" />
+            <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
+            <node id="ERROR_CNT" address="0x0" permission="r" mask="0x7fffffff" />
+          </node>
+          <node id="ELINK_13" address="0x1a" >
+            <node id="PRBS_LOCKED" address="0x0" permission="r" mask="0x80000000" />
+            <node id="MEGA_WORD_CNT" address="0x1" permission="r" />
+            <node id="ERROR_CNT" address="0x0" permission="r" mask="0x7fffffff" />
+          </node>
         </node>
       </node>
       <node id="VFAT_DAQ_MONITOR" address="0x2000" >

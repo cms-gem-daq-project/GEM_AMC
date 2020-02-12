@@ -1825,412 +1825,487 @@ package registers is
     -- This module is controlling various hardware tests e.g. fiber loopback
     --============================================================================
 
-    constant REG_GEM_TESTS_NUM_REGS : integer := 136;
+    constant REG_GEM_TESTS_NUM_REGS : integer := 114;
     constant REG_GEM_TESTS_ADDRESS_MSB : integer := 16;
     constant REG_GEM_TESTS_ADDRESS_LSB : integer := 0;
     constant REG_GEM_TESTS_CTRL_RESET_ADDR    : std_logic_vector(16 downto 0) := '0' & x"0000";
     constant REG_GEM_TESTS_CTRL_RESET_MSB    : integer := 31;
     constant REG_GEM_TESTS_CTRL_RESET_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_CTRL_LOOP_THROUGH_OH_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1000";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_CTRL_LOOP_THROUGH_OH_BIT    : integer := 0;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_CTRL_LOOP_THROUGH_OH_DEFAULT : std_logic := '0';
+    constant REG_GEM_TESTS_OH_LOOPBACK_CTRL_RESET_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1000";
+    constant REG_GEM_TESTS_OH_LOOPBACK_CTRL_RESET_MSB    : integer := 31;
+    constant REG_GEM_TESTS_OH_LOOPBACK_CTRL_RESET_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_0_SYNC_DONE_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1010";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_0_SYNC_DONE_BIT    : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_CTRL_OH_SELECT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1001";
+    constant REG_GEM_TESTS_OH_LOOPBACK_CTRL_OH_SELECT_MSB    : integer := 3;
+    constant REG_GEM_TESTS_OH_LOOPBACK_CTRL_OH_SELECT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_CTRL_OH_SELECT_DEFAULT : std_logic_vector(3 downto 0) := x"0";
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_0_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1011";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_0_MEGA_WORD_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_0_MEGA_WORD_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_CTRL_INJECT_ERR_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1002";
+    constant REG_GEM_TESTS_OH_LOOPBACK_CTRL_INJECT_ERR_MSB    : integer := 31;
+    constant REG_GEM_TESTS_OH_LOOPBACK_CTRL_INJECT_ERR_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_0_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1012";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_0_ERROR_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_0_ERROR_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_0_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1010";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_0_ERROR_CNT_MSB    : integer := 30;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_0_ERROR_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_1_SYNC_DONE_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1020";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_1_SYNC_DONE_BIT    : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_0_PRBS_LOCKED_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1010";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_0_PRBS_LOCKED_BIT    : integer := 31;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_1_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1021";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_1_MEGA_WORD_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_1_MEGA_WORD_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_0_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1011";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_0_MEGA_WORD_CNT_MSB    : integer := 31;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_0_MEGA_WORD_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_1_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1022";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_1_ERROR_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_1_ERROR_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_1_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1012";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_1_ERROR_CNT_MSB    : integer := 30;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_1_ERROR_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_2_SYNC_DONE_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1030";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_2_SYNC_DONE_BIT    : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_1_PRBS_LOCKED_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1012";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_1_PRBS_LOCKED_BIT    : integer := 31;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_2_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1031";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_2_MEGA_WORD_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_2_MEGA_WORD_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_1_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1013";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_1_MEGA_WORD_CNT_MSB    : integer := 31;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_1_MEGA_WORD_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_2_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1032";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_2_ERROR_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_2_ERROR_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_2_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1014";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_2_ERROR_CNT_MSB    : integer := 30;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_2_ERROR_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_3_SYNC_DONE_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1040";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_3_SYNC_DONE_BIT    : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_2_PRBS_LOCKED_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1014";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_2_PRBS_LOCKED_BIT    : integer := 31;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_3_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1041";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_3_MEGA_WORD_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_3_MEGA_WORD_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_2_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1015";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_2_MEGA_WORD_CNT_MSB    : integer := 31;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_2_MEGA_WORD_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_3_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1042";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_3_ERROR_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_3_ERROR_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_3_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1016";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_3_ERROR_CNT_MSB    : integer := 30;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_3_ERROR_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_4_SYNC_DONE_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1050";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_4_SYNC_DONE_BIT    : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_3_PRBS_LOCKED_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1016";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_3_PRBS_LOCKED_BIT    : integer := 31;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_4_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1051";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_4_MEGA_WORD_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_4_MEGA_WORD_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_3_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1017";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_3_MEGA_WORD_CNT_MSB    : integer := 31;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_3_MEGA_WORD_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_4_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1052";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_4_ERROR_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_4_ERROR_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_4_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1018";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_4_ERROR_CNT_MSB    : integer := 30;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_4_ERROR_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_5_SYNC_DONE_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1060";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_5_SYNC_DONE_BIT    : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_4_PRBS_LOCKED_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1018";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_4_PRBS_LOCKED_BIT    : integer := 31;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_5_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1061";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_5_MEGA_WORD_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_5_MEGA_WORD_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_4_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1019";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_4_MEGA_WORD_CNT_MSB    : integer := 31;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_4_MEGA_WORD_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_5_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1062";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_5_ERROR_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_5_ERROR_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_5_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"101a";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_5_ERROR_CNT_MSB    : integer := 30;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_5_ERROR_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_6_SYNC_DONE_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1070";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_6_SYNC_DONE_BIT    : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_5_PRBS_LOCKED_ADDR    : std_logic_vector(16 downto 0) := '0' & x"101a";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_5_PRBS_LOCKED_BIT    : integer := 31;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_6_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1071";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_6_MEGA_WORD_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_6_MEGA_WORD_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_5_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"101b";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_5_MEGA_WORD_CNT_MSB    : integer := 31;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_5_MEGA_WORD_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_6_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1072";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_6_ERROR_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_6_ERROR_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_6_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"101c";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_6_ERROR_CNT_MSB    : integer := 30;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_6_ERROR_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_7_SYNC_DONE_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1080";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_7_SYNC_DONE_BIT    : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_6_PRBS_LOCKED_ADDR    : std_logic_vector(16 downto 0) := '0' & x"101c";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_6_PRBS_LOCKED_BIT    : integer := 31;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_7_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1081";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_7_MEGA_WORD_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_7_MEGA_WORD_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_6_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"101d";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_6_MEGA_WORD_CNT_MSB    : integer := 31;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_6_MEGA_WORD_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_7_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1082";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_7_ERROR_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_7_ERROR_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_7_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"101e";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_7_ERROR_CNT_MSB    : integer := 30;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_7_ERROR_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_8_SYNC_DONE_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1090";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_8_SYNC_DONE_BIT    : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_7_PRBS_LOCKED_ADDR    : std_logic_vector(16 downto 0) := '0' & x"101e";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_7_PRBS_LOCKED_BIT    : integer := 31;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_8_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1091";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_8_MEGA_WORD_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_8_MEGA_WORD_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_7_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"101f";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_7_MEGA_WORD_CNT_MSB    : integer := 31;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_7_MEGA_WORD_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_8_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1092";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_8_ERROR_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_8_ERROR_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_8_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1020";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_8_ERROR_CNT_MSB    : integer := 30;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_8_ERROR_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_9_SYNC_DONE_ADDR    : std_logic_vector(16 downto 0) := '0' & x"10a0";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_9_SYNC_DONE_BIT    : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_8_PRBS_LOCKED_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1020";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_8_PRBS_LOCKED_BIT    : integer := 31;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_9_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"10a1";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_9_MEGA_WORD_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_9_MEGA_WORD_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_8_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1021";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_8_MEGA_WORD_CNT_MSB    : integer := 31;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_8_MEGA_WORD_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_9_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"10a2";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_9_ERROR_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_9_ERROR_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_9_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1022";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_9_ERROR_CNT_MSB    : integer := 30;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_9_ERROR_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_10_SYNC_DONE_ADDR    : std_logic_vector(16 downto 0) := '0' & x"10b0";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_10_SYNC_DONE_BIT    : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_9_PRBS_LOCKED_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1022";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_9_PRBS_LOCKED_BIT    : integer := 31;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_10_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"10b1";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_10_MEGA_WORD_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_10_MEGA_WORD_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_9_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1023";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_9_MEGA_WORD_CNT_MSB    : integer := 31;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_9_MEGA_WORD_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_10_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"10b2";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_10_ERROR_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_10_ERROR_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_10_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1024";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_10_ERROR_CNT_MSB    : integer := 30;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_10_ERROR_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_11_SYNC_DONE_ADDR    : std_logic_vector(16 downto 0) := '0' & x"10c0";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_11_SYNC_DONE_BIT    : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_10_PRBS_LOCKED_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1024";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_10_PRBS_LOCKED_BIT    : integer := 31;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_11_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"10c1";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_11_MEGA_WORD_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_11_MEGA_WORD_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_10_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1025";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_10_MEGA_WORD_CNT_MSB    : integer := 31;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_10_MEGA_WORD_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_11_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"10c2";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_11_ERROR_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_11_ERROR_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_11_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1026";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_11_ERROR_CNT_MSB    : integer := 30;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_11_ERROR_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_12_SYNC_DONE_ADDR    : std_logic_vector(16 downto 0) := '0' & x"10d0";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_12_SYNC_DONE_BIT    : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_11_PRBS_LOCKED_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1026";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_11_PRBS_LOCKED_BIT    : integer := 31;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_12_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"10d1";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_12_MEGA_WORD_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_12_MEGA_WORD_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_11_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1027";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_11_MEGA_WORD_CNT_MSB    : integer := 31;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_11_MEGA_WORD_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_12_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"10d2";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_12_ERROR_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_12_ERROR_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_12_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1028";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_12_ERROR_CNT_MSB    : integer := 30;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_12_ERROR_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_13_SYNC_DONE_ADDR    : std_logic_vector(16 downto 0) := '0' & x"10e0";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_13_SYNC_DONE_BIT    : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_12_PRBS_LOCKED_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1028";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_12_PRBS_LOCKED_BIT    : integer := 31;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_13_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"10e1";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_13_MEGA_WORD_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_13_MEGA_WORD_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_12_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1029";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_12_MEGA_WORD_CNT_MSB    : integer := 31;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_12_MEGA_WORD_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_13_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"10e2";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_13_ERROR_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_13_ERROR_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_13_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"102a";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_13_ERROR_CNT_MSB    : integer := 30;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_13_ERROR_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_14_SYNC_DONE_ADDR    : std_logic_vector(16 downto 0) := '0' & x"10f0";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_14_SYNC_DONE_BIT    : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_13_PRBS_LOCKED_ADDR    : std_logic_vector(16 downto 0) := '0' & x"102a";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_13_PRBS_LOCKED_BIT    : integer := 31;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_14_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"10f1";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_14_MEGA_WORD_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_14_MEGA_WORD_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_13_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"102b";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_13_MEGA_WORD_CNT_MSB    : integer := 31;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_0_ELINK_13_MEGA_WORD_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_14_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"10f2";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_14_ERROR_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_14_ERROR_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_0_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1110";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_0_ERROR_CNT_MSB    : integer := 30;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_0_ERROR_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_15_SYNC_DONE_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1100";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_15_SYNC_DONE_BIT    : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_0_PRBS_LOCKED_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1110";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_0_PRBS_LOCKED_BIT    : integer := 31;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_15_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1101";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_15_MEGA_WORD_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_15_MEGA_WORD_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_0_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1111";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_0_MEGA_WORD_CNT_MSB    : integer := 31;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_0_MEGA_WORD_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_15_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1102";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_15_ERROR_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_15_ERROR_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_1_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1112";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_1_ERROR_CNT_MSB    : integer := 30;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_1_ERROR_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_16_SYNC_DONE_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1110";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_16_SYNC_DONE_BIT    : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_1_PRBS_LOCKED_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1112";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_1_PRBS_LOCKED_BIT    : integer := 31;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_16_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1111";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_16_MEGA_WORD_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_16_MEGA_WORD_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_1_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1113";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_1_MEGA_WORD_CNT_MSB    : integer := 31;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_1_MEGA_WORD_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_16_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1112";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_16_ERROR_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_16_ERROR_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_2_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1114";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_2_ERROR_CNT_MSB    : integer := 30;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_2_ERROR_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_17_SYNC_DONE_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1120";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_17_SYNC_DONE_BIT    : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_2_PRBS_LOCKED_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1114";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_2_PRBS_LOCKED_BIT    : integer := 31;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_17_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1121";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_17_MEGA_WORD_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_17_MEGA_WORD_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_2_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1115";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_2_MEGA_WORD_CNT_MSB    : integer := 31;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_2_MEGA_WORD_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_17_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1122";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_17_ERROR_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_17_ERROR_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_3_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1116";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_3_ERROR_CNT_MSB    : integer := 30;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_3_ERROR_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_18_SYNC_DONE_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1130";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_18_SYNC_DONE_BIT    : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_3_PRBS_LOCKED_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1116";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_3_PRBS_LOCKED_BIT    : integer := 31;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_18_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1131";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_18_MEGA_WORD_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_18_MEGA_WORD_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_3_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1117";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_3_MEGA_WORD_CNT_MSB    : integer := 31;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_3_MEGA_WORD_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_18_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1132";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_18_ERROR_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_18_ERROR_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_4_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1118";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_4_ERROR_CNT_MSB    : integer := 30;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_4_ERROR_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_19_SYNC_DONE_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1140";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_19_SYNC_DONE_BIT    : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_4_PRBS_LOCKED_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1118";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_4_PRBS_LOCKED_BIT    : integer := 31;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_19_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1141";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_19_MEGA_WORD_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_19_MEGA_WORD_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_4_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1119";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_4_MEGA_WORD_CNT_MSB    : integer := 31;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_4_MEGA_WORD_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_19_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1142";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_19_ERROR_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_19_ERROR_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_5_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"111a";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_5_ERROR_CNT_MSB    : integer := 30;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_5_ERROR_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_20_SYNC_DONE_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1150";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_20_SYNC_DONE_BIT    : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_5_PRBS_LOCKED_ADDR    : std_logic_vector(16 downto 0) := '0' & x"111a";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_5_PRBS_LOCKED_BIT    : integer := 31;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_20_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1151";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_20_MEGA_WORD_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_20_MEGA_WORD_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_5_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"111b";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_5_MEGA_WORD_CNT_MSB    : integer := 31;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_5_MEGA_WORD_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_20_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1152";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_20_ERROR_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_20_ERROR_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_6_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"111c";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_6_ERROR_CNT_MSB    : integer := 30;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_6_ERROR_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_21_SYNC_DONE_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1160";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_21_SYNC_DONE_BIT    : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_6_PRBS_LOCKED_ADDR    : std_logic_vector(16 downto 0) := '0' & x"111c";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_6_PRBS_LOCKED_BIT    : integer := 31;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_21_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1161";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_21_MEGA_WORD_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_21_MEGA_WORD_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_6_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"111d";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_6_MEGA_WORD_CNT_MSB    : integer := 31;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_6_MEGA_WORD_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_21_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1162";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_21_ERROR_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_21_ERROR_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_7_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"111e";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_7_ERROR_CNT_MSB    : integer := 30;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_7_ERROR_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_22_SYNC_DONE_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1170";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_22_SYNC_DONE_BIT    : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_7_PRBS_LOCKED_ADDR    : std_logic_vector(16 downto 0) := '0' & x"111e";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_7_PRBS_LOCKED_BIT    : integer := 31;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_22_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1171";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_22_MEGA_WORD_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_22_MEGA_WORD_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_7_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"111f";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_7_MEGA_WORD_CNT_MSB    : integer := 31;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_7_MEGA_WORD_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_22_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1172";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_22_ERROR_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_22_ERROR_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_8_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1120";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_8_ERROR_CNT_MSB    : integer := 30;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_8_ERROR_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_23_SYNC_DONE_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1180";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_23_SYNC_DONE_BIT    : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_8_PRBS_LOCKED_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1120";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_8_PRBS_LOCKED_BIT    : integer := 31;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_23_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1181";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_23_MEGA_WORD_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_23_MEGA_WORD_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_8_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1121";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_8_MEGA_WORD_CNT_MSB    : integer := 31;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_8_MEGA_WORD_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_23_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1182";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_23_ERROR_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_23_ERROR_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_9_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1122";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_9_ERROR_CNT_MSB    : integer := 30;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_9_ERROR_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_24_SYNC_DONE_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1190";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_24_SYNC_DONE_BIT    : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_9_PRBS_LOCKED_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1122";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_9_PRBS_LOCKED_BIT    : integer := 31;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_24_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1191";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_24_MEGA_WORD_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_24_MEGA_WORD_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_9_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1123";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_9_MEGA_WORD_CNT_MSB    : integer := 31;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_9_MEGA_WORD_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_24_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1192";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_24_ERROR_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_24_ERROR_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_10_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1124";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_10_ERROR_CNT_MSB    : integer := 30;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_10_ERROR_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_25_SYNC_DONE_ADDR    : std_logic_vector(16 downto 0) := '0' & x"11a0";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_25_SYNC_DONE_BIT    : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_10_PRBS_LOCKED_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1124";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_10_PRBS_LOCKED_BIT    : integer := 31;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_25_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"11a1";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_25_MEGA_WORD_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_25_MEGA_WORD_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_10_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1125";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_10_MEGA_WORD_CNT_MSB    : integer := 31;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_10_MEGA_WORD_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_25_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"11a2";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_25_ERROR_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_25_ERROR_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_11_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1126";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_11_ERROR_CNT_MSB    : integer := 30;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_11_ERROR_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_26_SYNC_DONE_ADDR    : std_logic_vector(16 downto 0) := '0' & x"11b0";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_26_SYNC_DONE_BIT    : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_11_PRBS_LOCKED_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1126";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_11_PRBS_LOCKED_BIT    : integer := 31;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_26_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"11b1";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_26_MEGA_WORD_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_26_MEGA_WORD_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_11_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1127";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_11_MEGA_WORD_CNT_MSB    : integer := 31;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_11_MEGA_WORD_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_26_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"11b2";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_26_ERROR_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_26_ERROR_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_12_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1128";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_12_ERROR_CNT_MSB    : integer := 30;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_12_ERROR_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_27_SYNC_DONE_ADDR    : std_logic_vector(16 downto 0) := '0' & x"11c0";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_27_SYNC_DONE_BIT    : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_12_PRBS_LOCKED_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1128";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_12_PRBS_LOCKED_BIT    : integer := 31;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_27_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"11c1";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_27_MEGA_WORD_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_27_MEGA_WORD_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_12_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1129";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_12_MEGA_WORD_CNT_MSB    : integer := 31;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_12_MEGA_WORD_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_27_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"11c2";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_27_ERROR_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_27_ERROR_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_13_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"112a";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_13_ERROR_CNT_MSB    : integer := 30;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_13_ERROR_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_28_SYNC_DONE_ADDR    : std_logic_vector(16 downto 0) := '0' & x"11d0";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_28_SYNC_DONE_BIT    : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_13_PRBS_LOCKED_ADDR    : std_logic_vector(16 downto 0) := '0' & x"112a";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_13_PRBS_LOCKED_BIT    : integer := 31;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_28_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"11d1";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_28_MEGA_WORD_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_28_MEGA_WORD_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_13_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"112b";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_13_MEGA_WORD_CNT_MSB    : integer := 31;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_1_ELINK_13_MEGA_WORD_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_28_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"11d2";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_28_ERROR_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_28_ERROR_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_0_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1210";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_0_ERROR_CNT_MSB    : integer := 30;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_0_ERROR_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_29_SYNC_DONE_ADDR    : std_logic_vector(16 downto 0) := '0' & x"11e0";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_29_SYNC_DONE_BIT    : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_0_PRBS_LOCKED_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1210";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_0_PRBS_LOCKED_BIT    : integer := 31;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_29_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"11e1";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_29_MEGA_WORD_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_29_MEGA_WORD_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_0_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1211";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_0_MEGA_WORD_CNT_MSB    : integer := 31;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_0_MEGA_WORD_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_29_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"11e2";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_29_ERROR_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_29_ERROR_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_1_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1212";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_1_ERROR_CNT_MSB    : integer := 30;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_1_ERROR_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_30_SYNC_DONE_ADDR    : std_logic_vector(16 downto 0) := '0' & x"11f0";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_30_SYNC_DONE_BIT    : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_1_PRBS_LOCKED_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1212";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_1_PRBS_LOCKED_BIT    : integer := 31;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_30_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"11f1";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_30_MEGA_WORD_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_30_MEGA_WORD_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_1_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1213";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_1_MEGA_WORD_CNT_MSB    : integer := 31;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_1_MEGA_WORD_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_30_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"11f2";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_30_ERROR_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_30_ERROR_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_2_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1214";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_2_ERROR_CNT_MSB    : integer := 30;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_2_ERROR_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_31_SYNC_DONE_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1200";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_31_SYNC_DONE_BIT    : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_2_PRBS_LOCKED_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1214";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_2_PRBS_LOCKED_BIT    : integer := 31;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_31_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1201";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_31_MEGA_WORD_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_31_MEGA_WORD_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_2_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1215";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_2_MEGA_WORD_CNT_MSB    : integer := 31;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_2_MEGA_WORD_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_31_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1202";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_31_ERROR_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_31_ERROR_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_3_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1216";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_3_ERROR_CNT_MSB    : integer := 30;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_3_ERROR_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_32_SYNC_DONE_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1210";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_32_SYNC_DONE_BIT    : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_3_PRBS_LOCKED_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1216";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_3_PRBS_LOCKED_BIT    : integer := 31;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_32_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1211";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_32_MEGA_WORD_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_32_MEGA_WORD_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_3_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1217";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_3_MEGA_WORD_CNT_MSB    : integer := 31;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_3_MEGA_WORD_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_32_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1212";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_32_ERROR_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_32_ERROR_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_4_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1218";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_4_ERROR_CNT_MSB    : integer := 30;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_4_ERROR_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_33_SYNC_DONE_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1220";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_33_SYNC_DONE_BIT    : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_4_PRBS_LOCKED_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1218";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_4_PRBS_LOCKED_BIT    : integer := 31;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_33_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1221";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_33_MEGA_WORD_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_33_MEGA_WORD_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_4_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1219";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_4_MEGA_WORD_CNT_MSB    : integer := 31;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_4_MEGA_WORD_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_33_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1222";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_33_ERROR_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_33_ERROR_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_5_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"121a";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_5_ERROR_CNT_MSB    : integer := 30;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_5_ERROR_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_34_SYNC_DONE_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1230";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_34_SYNC_DONE_BIT    : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_5_PRBS_LOCKED_ADDR    : std_logic_vector(16 downto 0) := '0' & x"121a";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_5_PRBS_LOCKED_BIT    : integer := 31;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_34_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1231";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_34_MEGA_WORD_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_34_MEGA_WORD_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_5_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"121b";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_5_MEGA_WORD_CNT_MSB    : integer := 31;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_5_MEGA_WORD_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_34_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1232";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_34_ERROR_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_34_ERROR_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_6_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"121c";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_6_ERROR_CNT_MSB    : integer := 30;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_6_ERROR_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_35_SYNC_DONE_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1240";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_35_SYNC_DONE_BIT    : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_6_PRBS_LOCKED_ADDR    : std_logic_vector(16 downto 0) := '0' & x"121c";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_6_PRBS_LOCKED_BIT    : integer := 31;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_35_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1241";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_35_MEGA_WORD_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_35_MEGA_WORD_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_6_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"121d";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_6_MEGA_WORD_CNT_MSB    : integer := 31;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_6_MEGA_WORD_CNT_LSB     : integer := 0;
 
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_35_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1242";
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_35_ERROR_CNT_MSB    : integer := 31;
-    constant REG_GEM_TESTS_GBT_LOOPBACK_LINK_35_ERROR_CNT_LSB     : integer := 0;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_7_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"121e";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_7_ERROR_CNT_MSB    : integer := 30;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_7_ERROR_CNT_LSB     : integer := 0;
+
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_7_PRBS_LOCKED_ADDR    : std_logic_vector(16 downto 0) := '0' & x"121e";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_7_PRBS_LOCKED_BIT    : integer := 31;
+
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_7_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"121f";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_7_MEGA_WORD_CNT_MSB    : integer := 31;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_7_MEGA_WORD_CNT_LSB     : integer := 0;
+
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_8_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1220";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_8_ERROR_CNT_MSB    : integer := 30;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_8_ERROR_CNT_LSB     : integer := 0;
+
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_8_PRBS_LOCKED_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1220";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_8_PRBS_LOCKED_BIT    : integer := 31;
+
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_8_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1221";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_8_MEGA_WORD_CNT_MSB    : integer := 31;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_8_MEGA_WORD_CNT_LSB     : integer := 0;
+
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_9_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1222";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_9_ERROR_CNT_MSB    : integer := 30;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_9_ERROR_CNT_LSB     : integer := 0;
+
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_9_PRBS_LOCKED_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1222";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_9_PRBS_LOCKED_BIT    : integer := 31;
+
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_9_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1223";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_9_MEGA_WORD_CNT_MSB    : integer := 31;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_9_MEGA_WORD_CNT_LSB     : integer := 0;
+
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_10_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1224";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_10_ERROR_CNT_MSB    : integer := 30;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_10_ERROR_CNT_LSB     : integer := 0;
+
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_10_PRBS_LOCKED_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1224";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_10_PRBS_LOCKED_BIT    : integer := 31;
+
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_10_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1225";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_10_MEGA_WORD_CNT_MSB    : integer := 31;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_10_MEGA_WORD_CNT_LSB     : integer := 0;
+
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_11_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1226";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_11_ERROR_CNT_MSB    : integer := 30;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_11_ERROR_CNT_LSB     : integer := 0;
+
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_11_PRBS_LOCKED_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1226";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_11_PRBS_LOCKED_BIT    : integer := 31;
+
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_11_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1227";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_11_MEGA_WORD_CNT_MSB    : integer := 31;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_11_MEGA_WORD_CNT_LSB     : integer := 0;
+
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_12_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1228";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_12_ERROR_CNT_MSB    : integer := 30;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_12_ERROR_CNT_LSB     : integer := 0;
+
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_12_PRBS_LOCKED_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1228";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_12_PRBS_LOCKED_BIT    : integer := 31;
+
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_12_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"1229";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_12_MEGA_WORD_CNT_MSB    : integer := 31;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_12_MEGA_WORD_CNT_LSB     : integer := 0;
+
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_13_ERROR_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"122a";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_13_ERROR_CNT_MSB    : integer := 30;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_13_ERROR_CNT_LSB     : integer := 0;
+
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_13_PRBS_LOCKED_ADDR    : std_logic_vector(16 downto 0) := '0' & x"122a";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_13_PRBS_LOCKED_BIT    : integer := 31;
+
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_13_MEGA_WORD_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"122b";
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_13_MEGA_WORD_CNT_MSB    : integer := 31;
+    constant REG_GEM_TESTS_OH_LOOPBACK_GBT_2_ELINK_13_MEGA_WORD_CNT_LSB     : integer := 0;
 
     constant REG_GEM_TESTS_VFAT_DAQ_MONITOR_CTRL_RESET_ADDR    : std_logic_vector(16 downto 0) := '0' & x"2000";
     constant REG_GEM_TESTS_VFAT_DAQ_MONITOR_CTRL_RESET_MSB    : integer := 31;

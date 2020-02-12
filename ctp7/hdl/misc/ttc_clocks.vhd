@@ -88,6 +88,7 @@ END COMPONENT  ;
     signal clk_40               : std_logic;
     signal clk_80               : std_logic;
     signal clk_160              : std_logic;
+    signal clk_320              : std_logic;
     signal clk_gbt_mgt_usrclk   : std_logic;
 
     signal ttc_clocks_bufg      : t_ttc_clks;
@@ -229,7 +230,7 @@ begin
             CLKOUT3_PHASE        => 0.000,
             CLKOUT3_DUTY_CYCLE   => 0.500,
             CLKOUT3_USE_FINE_PS  => false,
-            CLKOUT4_DIVIDE       => 6,
+            CLKOUT4_DIVIDE       => 3,
             CLKOUT4_PHASE        => 0.000,
             CLKOUT4_DUTY_CYCLE   => 0.500,
             CLKOUT4_USE_FINE_PS  => false,
@@ -247,7 +248,7 @@ begin
             CLKOUT2B     => open,
             CLKOUT3      => clk_160,
             CLKOUT3B     => open,
-            CLKOUT4      => open,
+            CLKOUT4      => clk_320,
             CLKOUT5      => open,
             CLKOUT6      => open,
             -- Input clock control
@@ -299,7 +300,13 @@ begin
             I => clk_160
         );
 
-    i_bufg_clk_120 : BUFG
+    i_bufg_clk_320 : BUFG
+        port map(
+            O => ttc_clocks_bufg.clk_320,
+            I => clk_320
+        );
+
+    i_bufg_clk_gbt : BUFG
         port map(
             O => ttc_clocks_bufg.clk_gbt_mgt_usrclk,
             I => clk_gbt_mgt_usrclk

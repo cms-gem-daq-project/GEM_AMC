@@ -447,27 +447,37 @@
               fw_write_pulse_signal="reset_local"/>
       </node>
 
-      <node id="GBT_LOOPBACK" address="0x1000"
-              description="GBT loopback test submodule">
+      <node id="OH_LOOPBACK" address="0x1000"
+              description="This module controls the OH PRBS loopback tester (this tester can be connected to one OH at a time by using the OH_SELECT register). This module sends a PRBS7 8b sequence to all elinks of the chosen OH, and checks each elink of that OH with the same sequence checker">
         <node id="CTRL" address="0x0">
-	      <node id="LOOP_THROUGH_OH" address="0x0" mask="0x00000001" permission="rw"
-		        description="This flag is used to indicate if the loopback test goes through OH or not.
-                             If it's set to 1 then only elinks that go to OH FPGA are checked."
-		        fw_signal="gbt_loop_through_oh" fw_default="0b0"/>
+          <node id="RESET" address="0x0" permission="w"
+                description="reset the PRBS loopback module"
+                fw_write_pulse_signal="gbt_loop_reset"/>
+          <node id="OH_SELECT" address="0x1" mask="0x0000000f" permission="rw"
+		        description="This register sets the index of the OH that the loopback tester is going to be testing"
+		        fw_signal="gbt_loop_oh_select" fw_default="0x0"/>
+          <node id="INJECT_ERR" address="0x2" permission="w"
+		        description="Writing to this register will result in one error being injected to the PRBS TX data going to the OH"
+            fw_write_pulse_signal="gbt_loop_err_inject"/>
         </node>
-        <node id="LINK_${GBT_IDX}"  address="0x10"
-              description="Link specific registers for GBT ${GBT_IDX}"
-              generate="true" generate_size="36" generate_address_step="0x10" generate_idx_var="GBT_IDX">
+        <node id="GBT_${GBT_IN_OH_IDX}"  address="0x10"
+              description="Link specific registers for GBT ${GBT_IN_OH_IDX}"
+              generate="true" generate_size="3" generate_address_step="0x100" generate_idx_var="GBT_IN_OH_IDX">
 
-          <node id="SYNC_DONE" mask="0x00000001" permission="r" address="0x0"
-                description="Indicates whether or not the sync has been acquired between TX and RX"
-                fw_signal="gbt_loop_sync_done_arr(${GBT_IDX})"/>
-          <node id="MEGA_WORD_CNT" permission="r" address="0x1"
-                description="Number of generated data words received by the loopback RX"
-                fw_signal="gbt_loop_mega_word_cnt_arr(${GBT_IDX})"/>
-          <node id="ERROR_CNT" permission="r" address="0x2"
-                description="Number of errors found in the received loopback data"
-                fw_signal="gbt_loop_error_cnt_arr(${GBT_IDX})"/>
+          <node id="ELINK_${ELINK_IDX}"  address="0x0"
+                description="E-link specific registers for e-link ${ELINK_IDX}"
+                generate="true" generate_size="14" generate_address_step="0x2" generate_idx_var="ELINK_IDX">
+
+            <node id="PRBS_LOCKED" mask="0x80000000" permission="r" address="0x0"
+                  description="Indicates whether or not the PRBS7 checker is locked on this elink"
+                  fw_signal="gbt_loop_locked_arr(${GBT_IN_OH_IDX} * 14 + ${ELINK_IDX})"/>
+            <node id="MEGA_WORD_CNT" permission="r" address="0x1"
+                  description="Number of generated data words in units of one million received by this RX elink after PRBS checker has locked"
+                  fw_signal="gbt_loop_mega_word_cnt_arr(${GBT_IN_OH_IDX} * 14 + ${ELINK_IDX})"/>
+            <node id="ERROR_CNT" mask="0x7fffffff" permission="r" address="0x0"
+                  description="Number of PRBS7 errors found in the received data for this elink"
+                  fw_signal="gbt_loop_error_cnt_arr(${GBT_IN_OH_IDX} * 14 + ${ELINK_IDX})(30 downto 0)"/>
+          </node>
         </node>
       </node>
 

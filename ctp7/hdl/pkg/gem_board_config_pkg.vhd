@@ -21,13 +21,16 @@ package gem_board_config_package is
 
     function get_num_gbts_per_oh(gem_station : integer) return integer;
     function get_num_vfats_per_oh(gem_station : integer) return integer;
+    function get_gbt_widebus(gem_station, oh_version : integer) return integer;
     
     ----------------------------------------------------------------------------------------------
     
     constant CFG_GEM_STATION        : integer range 0 to 2 := 1; -- 0 = ME0; 1 = GE1/1; 2 = GE2/1
+    constant CFG_OH_VERSION         : integer := 1; -- for now this is only relevant to GE2/1 where v2 OH has different elink map, and uses widebus mode
     constant CFG_NUM_OF_OHs         : integer := 12;   -- total number of OHs to instanciate (remember to adapt the CFG_OH_LINK_CONFIG_ARR accordingly)
     constant CFG_NUM_GBTS_PER_OH    : integer := get_num_gbts_per_oh(CFG_GEM_STATION);
     constant CFG_NUM_VFATS_PER_OH   : integer := get_num_vfats_per_oh(CFG_GEM_STATION);
+    constant CFG_GBT_WIDEBUS        : integer := get_gbt_widebus(CFG_GEM_STATION, CFG_OH_VERSION);
 
     constant CFG_USE_TRIG_TX_LINKS  : boolean := false; -- if true, then trigger transmitters will be instantiated (used to connect to EMTF)
     constant CFG_NUM_TRIG_TX        : integer := 12; -- number of trigger transmitters used to connect to EMTF
@@ -255,6 +258,15 @@ package body gem_board_config_package is
             return ge11_config;  
         end if;
     end function get_oh_link_config_arr;
+    
+    function get_gbt_widebus(gem_station, oh_version : integer) return integer is
+    begin
+        if gem_station = 2 and oh_version > 1 then
+            return 1;
+        else
+            return 0;
+        end if;
+    end function get_gbt_widebus;
     
 end gem_board_config_package;
 --============================================================================
