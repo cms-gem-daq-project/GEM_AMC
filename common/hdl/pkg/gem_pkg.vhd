@@ -10,10 +10,10 @@ package gem_pkg is
     --==  Firmware version  ==--
     --========================-- 
 
-    constant C_FIRMWARE_DATE    : std_logic_vector(31 downto 0) := x"20200127";
+    constant C_FIRMWARE_DATE    : std_logic_vector(31 downto 0) := x"20200219";
     constant C_FIRMWARE_MAJOR   : integer range 0 to 255        := 3;
     constant C_FIRMWARE_MINOR   : integer range 0 to 255        := 9;
-    constant C_FIRMWARE_BUILD   : integer range 0 to 255        := 9;
+    constant C_FIRMWARE_BUILD   : integer range 0 to 255        := 10;
     
     ------ Change log ------
     -- 1.8.6 no gbt sync procedure with oh
@@ -117,6 +117,7 @@ package gem_pkg is
     -- 3.9.7  Reversed the IC and EC bits for LpGBT (possible cause for IC not working before). Also for ME0 VFATs 0 and 4 fixed for PIZZA classic slot, and VFAT 3 fixed for PIZZA spicy slot (were on the wrong LpGBT before)
     -- 3.9.8  GE2/1 OHv2 support added, and FPGA loader max firmware size increased to support 200T
     -- 3.9.9  Reworked loopback tester, now tests all elinks of a single selected OH with PRBS7 sequence    
+    -- 3.9.10 Added a switch to choose the backplane TTC clock as the source for the main MMCM (the switch is called CFG_USE_BACKPLANE_CLK). Also made the OH loader use the bitstream size from the gemloader IP, and also added some registers reporting the loader statistics.
 
     --======================--
     --==      General     ==--
@@ -480,7 +481,16 @@ package gem_pkg is
         data    : std_logic_vector(7 downto 0);
         first   : std_logic;
         last    : std_logic;
-        error   : std_logic;        
+        error   : std_logic;
+        size    : std_logic_vector(31 downto 0);  
+    end record;
+   
+    type t_gem_loader_stats is record
+        load_request_cnt    : std_logic_vector(15 downto 0);
+        success_cnt         : std_logic_vector(15 downto 0);
+        fail_cnt            : std_logic_vector(15 downto 0);
+        gap_detect_cnt      : std_logic_vector(15 downto 0);
+        loader_ovf_unf_cnt  : std_logic_vector(15 downto 0);
     end record;
         	
 end gem_pkg;

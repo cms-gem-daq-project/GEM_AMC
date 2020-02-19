@@ -182,7 +182,8 @@ architecture system_arch of system is
       gem_loader_data   : out std_logic_vector(7 downto 0);
       gem_loader_first  : out std_logic;
       gem_loader_last   : out std_logic;
-      gem_loader_error  : out std_logic
+      gem_loader_error  : out std_logic;
+      gem_loader_size   : out std_logic_vector(31 downto 0)
       
   );
   end component v7_bd;
@@ -429,7 +430,8 @@ begin
       gem_loader_data   => from_gem_loader_o.data,
       gem_loader_first  => from_gem_loader_o.first,
       gem_loader_last   => from_gem_loader_o.last,
-      gem_loader_error  => from_gem_loader_o.error
+      gem_loader_error  => from_gem_loader_o.error,
+      gem_loader_size   => from_gem_loader_o.size
       
     );
 

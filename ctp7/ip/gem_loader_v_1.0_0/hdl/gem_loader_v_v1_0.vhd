@@ -36,8 +36,9 @@ entity gem_loader_v_v1_0 is
     reload_data_first  : out std_logic;
     reload_data_last   : out std_logic;
 
-    reload_ready : out std_logic;
-    reload_error : out std_logic;
+    reload_ready       : out std_logic;
+    reload_error       : out std_logic;
+    reload_size        : out std_logic_vector(31 downto 0);
 
     reload_request_remote   : out std_logic;
     reload_fifo_full_remote : out std_logic;
@@ -395,6 +396,7 @@ begin
       
       );
 
+  reload_size <= s_reload_byte_cnt_requested;
   s_fifo_prog_full_thresh <= std_logic_vector(to_unsigned(2048, 12));
 
   i_gem_loader_v_fifo : gem_loader_v_fifo

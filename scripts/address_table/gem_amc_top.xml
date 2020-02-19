@@ -412,6 +412,24 @@
               sw_ctrl_configure_set="0x0" sw_ctrl_start_set="0x0"/>
       </node>
 
+      <node id="GEM_LOADER" address="0x400">
+        <node id="LOAD_REQUEST_CNT" address="0x0" mask="0x0000ffff" permission="r"
+              description="Number of OH programming requests (note, the counter is 16bit rolling)"
+              fw_signal="gemloader_stats_i.load_request_cnt"/>
+        <node id="LOAD_SUCCESS_CNT" address="0x0" mask="0xffff0000" permission="r"
+              description="Number of successful OH programming attempts (note, the counter is 16bit rolling)"
+              fw_signal="gemloader_stats_i.success_cnt"/>
+        <node id="LOAD_FAIL_CNT" address="0x1" mask="0x0000ffff" permission="r"
+              description="Number of failed OH programming attempts (note, the counter is 16bit rolling)"
+              fw_signal="gemloader_stats_i.fail_cnt"/>
+        <node id="STREAM_GAP_CNT" address="0x1" mask="0xffff0000" permission="r"
+              description="Number of times that a gap has been detected in the bitfile stream before reaching the end (note, the counter is 16bit rolling)"
+              fw_signal="gemloader_stats_i.gap_detect_cnt"/>
+        <node id="LOADER_OVF_UNF_CNT" address="0x2" mask="0x0000ffff" permission="r"
+              description="Number of times that the gemloader IP has reported a FIFO overflow or underflow (note, the counter is 16bit rolling)"
+              fw_signal="gemloader_stats_i.loader_ovf_unf_cnt"/>
+      </node>
+
       <node id="LEGACY_SYSTEM" address="0x10000"
             description="Legacy system registers (taken from GLIB system core). These should be removed once the software is
                          made compatible with the new system registers.">

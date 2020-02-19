@@ -29,7 +29,9 @@ entity oh_fpga_loader is
         from_gem_loader_i   : in  t_from_gem_loader;
         
         elink_data_o        : out std_logic_vector(15 downto 0);
-        hard_reset_i        : in std_logic
+        hard_reset_i        : in std_logic;
+        
+        gem_loader_stats_o  : out t_gem_loader_stats
     );
 end oh_fpga_loader;
 
@@ -78,7 +80,7 @@ architecture Behavioral of oh_fpga_loader is
     ------------- signals -------------
 
 --    constant FIRMWARE_SIZE      : unsigned(31 downto 0) := x"0029b1f9"; -- 16bit words for 80MHz
-    constant FIRMWARE_SIZE      : unsigned(31 downto 0) := x"005363f2"; -- 8bit words for 40MHz
+--    constant FIRMWARE_SIZE      : unsigned(31 downto 0) := x"005363f2"; -- 8bit words for 40MHz
     --constant FIRMWARE_SIZE      : unsigned(31 downto 0) := x"00756767"; -- TODO: only need 32 bits for testing, in normal operation 24 bits should be fine, for 160T the size = x"536403", for 195T the size = x"756767"
 --    constant FIRMWARE_SIZE      : unsigned(31 downto 0) := x"00947ab7"; -- 8bit words for 40MHz
     constant WAIT_DATA_TIMEOUT  : unsigned(31 downto 0) := x"00001f40"; -- TODO: should be around 100us
@@ -90,8 +92,6 @@ architecture Behavioral of oh_fpga_loader is
     signal wait_init_timer  : unsigned(19 downto 0) := (others => '0');
     signal wait_data_timer  : unsigned(31 downto 0) := (others => '0');
     signal byte_cnt         : unsigned(31 downto 0) := (others => '0');
-    signal success_cnt      : unsigned(7 downto 0) := (others => '0');
-    signal fail_cnt         : unsigned(7 downto 0) := (others => '0');
     signal loading_started  : std_logic := '0';
     signal gap_detected     : std_logic := '0';
     
@@ -105,6 +105,13 @@ architecture Behavioral of oh_fpga_loader is
     signal loader_valid     : std_logic;
     signal loader_rden      : std_logic;
     signal fifo_reset       : std_logic;
+    signal loader_err_os    : std_logic;
+
+    signal load_req_cnt     : unsigned(15 downto 0) := (others => '0');
+    signal success_cnt      : unsigned(15 downto 0) := (others => '0');
+    signal fail_cnt         : unsigned(15 downto 0) := (others => '0');
+    signal gap_det_cnt      : unsigned(15 downto 0) := (others => '0');
+    signal loader_err_cnt   : std_logic_vector(15 downto 0) := (others => '0');
     
 begin
 
@@ -125,6 +132,8 @@ begin
                 loader_rden <= '0';
                 loading_started <= '0';
                 fifo_reset <= '1';
+                load_req_cnt <= (others => '0');
+                gap_det_cnt <= (others => '0');
             else
                 case state is
                     when IDLE =>
@@ -137,6 +146,9 @@ begin
                         byte_cnt <= (others => '0');
                         wait_data_timer <= (others => '0');
                         wait_init_timer <= (others => '0');
+                        if (gap_detected = '1') then
+                            gap_det_cnt <= gap_det_cnt + 1;
+                        end if;
                         hard_reset_prev <= hard_reset;
                         if ((hard_reset_prev = '0') and (hard_reset = '1')) then
                             state <= RESET_OH;
@@ -154,6 +166,7 @@ begin
                         byte_cnt <= (others => '0');
                         wait_data_timer <= (others => '0');
                         wait_init_timer <= (others => '0');
+                        load_req_cnt <= load_req_cnt + 1;
                         state <= WAIT_FOR_INIT; 
                         
                     -- wait for the FPGA to initialize (until INIT_B goes high)
@@ -199,8 +212,6 @@ begin
 
                         if ((loader_valid = '0') and (loading_started = '1')) then
                             gap_detected <= '1';
-                        else
-                            gap_detected <= '0';
                         end if;
                         
                         if (wait_data_timer = WAIT_DATA_TIMEOUT) then
@@ -208,7 +219,7 @@ begin
                             state <= IDLE;
                         end if;
                         
-                        if (byte_cnt >= FIRMWARE_SIZE) then
+                        if (byte_cnt >= unsigned(from_gem_loader_i.size)) then
                             state <= IDLE;
                             success_cnt <= success_cnt + 1;
                         end if;
@@ -258,6 +269,32 @@ begin
         loader_valid <= from_gem_loader_i.valid;
     end generate;
 
+    i_gemloader_err_oneshot : entity work.oneshot
+        port map(
+            reset_i   => reset_i,
+            clk_i     => loader_clk_i,
+            input_i   => from_gem_loader_i.error,
+            oneshot_o => loader_err_os
+        );
+        
+    i_gemloader_err_cnt : entity work.counter
+        generic map(
+            g_COUNTER_WIDTH  => 16,
+            g_ALLOW_ROLLOVER => true
+        )
+        port map(
+            ref_clk_i => loader_clk_i,
+            reset_i   => reset_i,
+            en_i      => loader_err_os,
+            count_o   => loader_err_cnt
+        );
+
+    gem_loader_stats_o.load_request_cnt <= std_logic_vector(load_req_cnt);
+    gem_loader_stats_o.success_cnt <= std_logic_vector(success_cnt);
+    gem_loader_stats_o.fail_cnt <= std_logic_vector(fail_cnt);
+    gem_loader_stats_o.gap_detect_cnt <= std_logic_vector(gap_det_cnt);
+    gem_loader_stats_o.loader_ovf_unf_cnt <= loader_err_cnt;
+
     i_ila : ila_gem_loader
         port map(
             clk    => loader_clk_i,
@@ -274,8 +311,8 @@ begin
     i_vio : vio_gem_loader
         port map(
             clk        => gbt_clk_i,
-            probe_in0  => std_logic_vector(success_cnt),
-            probe_in1  => std_logic_vector(fail_cnt),
+            probe_in0  => std_logic_vector(success_cnt(7 downto 0)),
+            probe_in1  => std_logic_vector(fail_cnt(7 downto 0)),
             probe_out0 => hard_reset_local
         );
 

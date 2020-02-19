@@ -26,11 +26,13 @@ package gem_board_config_package is
     ----------------------------------------------------------------------------------------------
     
     constant CFG_GEM_STATION        : integer range 0 to 2 := 1; -- 0 = ME0; 1 = GE1/1; 2 = GE2/1
-    constant CFG_OH_VERSION         : integer := 1; -- for now this is only relevant to GE2/1 where v2 OH has different elink map, and uses widebus mode
+    constant CFG_OH_VERSION         : integer := 2; -- for now this is only relevant to GE2/1 where v2 OH has different elink map, and uses widebus mode
     constant CFG_NUM_OF_OHs         : integer := 12;   -- total number of OHs to instanciate (remember to adapt the CFG_OH_LINK_CONFIG_ARR accordingly)
     constant CFG_NUM_GBTS_PER_OH    : integer := get_num_gbts_per_oh(CFG_GEM_STATION);
     constant CFG_NUM_VFATS_PER_OH   : integer := get_num_vfats_per_oh(CFG_GEM_STATION);
     constant CFG_GBT_WIDEBUS        : integer := get_gbt_widebus(CFG_GEM_STATION, CFG_OH_VERSION);
+    
+    constant CFG_USE_BACKPLANE_CLK  : boolean := true; -- when set to true the source of all clocks will be the backplane TTC clock; if false, the source is MGT refclk, aligned in phase with the TTC backplane clock
 
     constant CFG_USE_TRIG_TX_LINKS  : boolean := false; -- if true, then trigger transmitters will be instantiated (used to connect to EMTF)
     constant CFG_NUM_TRIG_TX        : integer := 12; -- number of trigger transmitters used to connect to EMTF
@@ -89,6 +91,22 @@ package gem_board_config_package is
         (20, 21, 72, 68, 69), 
         (22, 23, 72, 70, 71) 
     );
+-- old GE2/1 map for 904:
+--    constant CFG_OH_LINK_CONFIG_ARR_GE21 : t_oh_link_config_arr := (
+--        (0, 1, 72, 40, 41), 
+--        (3, 4, 72, 42, 43),
+--        (6, 7, 72, 44, 45), 
+--        (9, 10, 72, 46, 47),
+--        (12, 13, 72, 48, 49), 
+--        (15, 16, 72, 50, 51),
+--         
+--        (18, 19, 72, 52, 53), 
+--        (21, 22, 72, 54, 55), 
+--        (24, 25, 72, 56, 57), 
+--        (27, 28, 72, 58, 59), 
+--        (30, 31, 72, 68, 69), 
+--        (33, 34, 72, 70, 71) 
+--    );
 
     constant CFG_OH_LINK_CONFIG_ARR_ME0 : t_oh_link_config_arr := (
         (0, 1, 72, 72, 72), 

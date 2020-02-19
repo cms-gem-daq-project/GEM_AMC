@@ -228,6 +228,7 @@ architecture gem_amc_arch of gem_amc is
     signal loopback_gbt_test_en         : std_logic; 
     
     --== Other ==--
+    signal gemloader_stats              : t_gem_loader_stats;
     signal ipb_miso_arr                 : ipb_rbus_array(g_NUM_IPB_SLAVES - 1 downto 0) := (others => (ipb_rdata => (others => '0'), ipb_ack => '0', ipb_err => '0'));
     
     --== Debug ==--
@@ -515,7 +516,8 @@ begin
             loopback_gbt_test_en_o      => loopback_gbt_test_en,
             vfat3_sc_only_mode_o        => vfat3_sc_only_mode,
             use_v3b_elink_mapping_o     => use_v3b_elink_mapping,
-            manual_link_reset_o         => manual_link_reset
+            manual_link_reset_o         => manual_link_reset,
+            gemloader_stats_i           => gemloader_stats
         );
 
     --===============================--
@@ -775,13 +777,14 @@ begin
                     g_LOADER_CLK_80_MHZ => true
                 )
             port map(
-                reset_i           => reset_i,
-                gbt_clk_i         => ttc_clocks_i.clk_40,
-                loader_clk_i      => ttc_clocks_i.clk_80,
-                to_gem_loader_o   => to_gem_loader_o,
-                from_gem_loader_i => from_gem_loader_i,
-                elink_data_o      => promless_tx_data,
-                hard_reset_i      => ttc_cmd.hard_reset
+                reset_i            => reset_i,
+                gbt_clk_i          => ttc_clocks_i.clk_40,
+                loader_clk_i       => ttc_clocks_i.clk_80,
+                to_gem_loader_o    => to_gem_loader_o,
+                from_gem_loader_i  => from_gem_loader_i,
+                elink_data_o       => promless_tx_data,
+                hard_reset_i       => ttc_cmd.hard_reset,
+                gem_loader_stats_o => gemloader_stats
             );
     end generate;
         

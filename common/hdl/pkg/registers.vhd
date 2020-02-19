@@ -1750,7 +1750,7 @@ package registers is
     -- This module is controlling GEM AMC System wide settings
     --============================================================================
 
-    constant REG_GEM_SYSTEM_NUM_REGS : integer := 11;
+    constant REG_GEM_SYSTEM_NUM_REGS : integer := 14;
     constant REG_GEM_SYSTEM_ADDRESS_MSB : integer := 16;
     constant REG_GEM_SYSTEM_ADDRESS_LSB : integer := 0;
     constant REG_GEM_SYSTEM_BOARD_ID_ADDR    : std_logic_vector(16 downto 0) := '0' & x"0002";
@@ -1805,6 +1805,26 @@ package registers is
     constant REG_GEM_SYSTEM_TESTS_GBT_LOOPBACK_EN_ADDR    : std_logic_vector(16 downto 0) := '0' & x"0200";
     constant REG_GEM_SYSTEM_TESTS_GBT_LOOPBACK_EN_BIT    : integer := 0;
     constant REG_GEM_SYSTEM_TESTS_GBT_LOOPBACK_EN_DEFAULT : std_logic := '0';
+
+    constant REG_GEM_SYSTEM_GEM_LOADER_LOAD_REQUEST_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"0400";
+    constant REG_GEM_SYSTEM_GEM_LOADER_LOAD_REQUEST_CNT_MSB    : integer := 15;
+    constant REG_GEM_SYSTEM_GEM_LOADER_LOAD_REQUEST_CNT_LSB     : integer := 0;
+
+    constant REG_GEM_SYSTEM_GEM_LOADER_LOAD_SUCCESS_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"0400";
+    constant REG_GEM_SYSTEM_GEM_LOADER_LOAD_SUCCESS_CNT_MSB    : integer := 31;
+    constant REG_GEM_SYSTEM_GEM_LOADER_LOAD_SUCCESS_CNT_LSB     : integer := 16;
+
+    constant REG_GEM_SYSTEM_GEM_LOADER_LOAD_FAIL_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"0401";
+    constant REG_GEM_SYSTEM_GEM_LOADER_LOAD_FAIL_CNT_MSB    : integer := 15;
+    constant REG_GEM_SYSTEM_GEM_LOADER_LOAD_FAIL_CNT_LSB     : integer := 0;
+
+    constant REG_GEM_SYSTEM_GEM_LOADER_STREAM_GAP_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"0401";
+    constant REG_GEM_SYSTEM_GEM_LOADER_STREAM_GAP_CNT_MSB    : integer := 31;
+    constant REG_GEM_SYSTEM_GEM_LOADER_STREAM_GAP_CNT_LSB     : integer := 16;
+
+    constant REG_GEM_SYSTEM_GEM_LOADER_LOADER_OVF_UNF_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"0402";
+    constant REG_GEM_SYSTEM_GEM_LOADER_LOADER_OVF_UNF_CNT_MSB    : integer := 15;
+    constant REG_GEM_SYSTEM_GEM_LOADER_LOADER_OVF_UNF_CNT_LSB     : integer := 0;
 
     constant REG_GEM_SYSTEM_LEGACY_SYSTEM_BOARD_ID_ADDR    : std_logic_vector(16 downto 0) := '1' & x"0000";
     constant REG_GEM_SYSTEM_LEGACY_SYSTEM_BOARD_ID_MSB    : integer := 31;

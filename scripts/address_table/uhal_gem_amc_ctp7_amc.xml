@@ -496,6 +496,13 @@
       <node id="TESTS" address="0x200" >
         <node id="GBT_LOOPBACK_EN" address="0x0" permission="rw" mask="0x1" />
       </node>
+      <node id="GEM_LOADER" address="0x400" >
+        <node id="LOAD_REQUEST_CNT" address="0x0" permission="r" mask="0xffff" />
+        <node id="LOAD_SUCCESS_CNT" address="0x0" permission="r" mask="0xffff0000" />
+        <node id="LOAD_FAIL_CNT" address="0x1" permission="r" mask="0xffff" />
+        <node id="STREAM_GAP_CNT" address="0x1" permission="r" mask="0xffff0000" />
+        <node id="LOADER_OVF_UNF_CNT" address="0x2" permission="r" mask="0xffff" />
+      </node>
       <node id="LEGACY_SYSTEM" address="0x10000" >
         <node id="BOARD_ID" address="0x0" permission="r" />
         <node id="SYSTEM_ID" address="0x1" permission="r" />
