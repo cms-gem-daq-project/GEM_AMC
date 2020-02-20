@@ -189,6 +189,8 @@ def findRegisters(node, baseName, baseAddress, modules, currentModule, vars, isG
             generateSize = num_of_oh
         elif node.get('generate_idx_var') == 'GBT_IDX':
             generateSize = num_of_oh * 3 if station == "1" else num_of_oh * 2
+        elif node.get('generate_idx_var') == 'GBT_IN_OH_IDX':
+            generateSize = 3 if station == "1" else 2
         else:
             generateSize = parseInt(node.get('generate_size'))
 
