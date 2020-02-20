@@ -10,10 +10,10 @@ package gem_pkg is
     --==  Firmware version  ==--
     --========================-- 
 
-    constant C_FIRMWARE_DATE    : std_logic_vector(31 downto 0) := x"20190829";
+    constant C_FIRMWARE_DATE    : std_logic_vector(31 downto 0) := x"20200219";
     constant C_FIRMWARE_MAJOR   : integer range 0 to 255        := 3;
     constant C_FIRMWARE_MINOR   : integer range 0 to 255        := 9;
-    constant C_FIRMWARE_BUILD   : integer range 0 to 255        := 1;
+    constant C_FIRMWARE_BUILD   : integer range 0 to 255        := 10;
     
     ------ Change log ------
     -- 1.8.6 no gbt sync procedure with oh
@@ -109,6 +109,15 @@ package gem_pkg is
     -- 3.8.6  Small fix in DAQ input processor: previously a condition existed for event word count to be lower by one VFAT if a new event came exactly at the clock cycle when the old one timed out. Hopefully this will solve the EC/BC mismatch problem seen at GE1/1 QC8 cosmic stand
     -- 3.9.0  Calibration mode data format added - it's a very aggressive bandwidth saving mode designed for calibration runs, which drops most of the VFAT data, except for the VFAT position, 2 bits of EC, and just one channel bit for the selected channel number, so each VFAT only takes up 8 bits. Note: addresses of existing DAQ registers have been changed in order to accomodate the new registers, so it's necessary to update the address table for this version
     -- 3.9.1  LpGBT and ME0 support added (no trigger data yet, but all other features should work)! The firmware has been restructured to better support different GEM stations.
+    -- 3.9.2  Fixed a bug in LpGBT MGTs -- the data buses weren't actually connected before
+    -- 3.9.3  Increased the I2C address range from 4 bits to 7 bits to support the LpGBT default address of 0x70
+    -- 3.9.4  Fixed LpGBT downlink and uplink by setting the MULTICYCLE_DELAY to 0
+    -- 3.9.5  Fixed VFAT elink inversions for ME0 (though note that positions 5 and 1 on the classic slot, and 1 and 2 on the spicy slot won't work since they are inverted in the asiago pizza differently than the VFATs that they share the connection to)
+    -- 3.9.6  Fixed LpGBT header flag latency going into the rxGearbox; also updated the LpGBT ILA to split off the IC and EC
+    -- 3.9.7  Reversed the IC and EC bits for LpGBT (possible cause for IC not working before). Also for ME0 VFATs 0 and 4 fixed for PIZZA classic slot, and VFAT 3 fixed for PIZZA spicy slot (were on the wrong LpGBT before)
+    -- 3.9.8  GE2/1 OHv2 support added, and FPGA loader max firmware size increased to support 200T
+    -- 3.9.9  Reworked loopback tester, now tests all elinks of a single selected OH with PRBS7 sequence    
+    -- 3.9.10 Added a switch to choose the backplane TTC clock as the source for the main MMCM (the switch is called CFG_USE_BACKPLANE_CLK). Also made the OH loader use the bitstream size from the gemloader IP, and also added some registers reporting the loader statistics.
 
     --======================--
     --==      General     ==--
@@ -137,6 +146,8 @@ package gem_pkg is
 
     type t_std234_array is array(integer range <>) of std_logic_vector(233 downto 0);
 
+    type t_std33_array is array(integer range <>) of std_logic_vector(32 downto 0);
+
     type t_std256_array is array(integer range <>) of std_logic_vector(255 downto 0);
   
     type t_std64_array is array(integer range <>) of std_logic_vector(63 downto 0);
@@ -153,6 +164,8 @@ package gem_pkg is
 
     type t_std8_array is array(integer range <>) of std_logic_vector(7 downto 0);
 
+    type t_std6_array is array(integer range <>) of std_logic_vector(5 downto 0);
+
     type t_std4_array is array(integer range <>) of std_logic_vector(3 downto 0);
 
     type t_std3_array is array(integer range <>) of std_logic_vector(2 downto 0);
@@ -166,6 +179,7 @@ package gem_pkg is
     --============--   
 
     type t_gbt_frame_array is array(integer range <>) of std_logic_vector(83 downto 0);
+    type t_gbt_wide_frame_array is array(integer range <>) of std_logic_vector(115 downto 0);
 
     --============--
     --==   LpGBT  ==--
@@ -191,6 +205,7 @@ package gem_pkg is
     --=============--
     
     type t_vfat3_elinks_arr is array(integer range<>) of t_std8_array(23 downto 0);   
+    type t_vfat3_sbits_arr is array(integer range<>) of t_std64_array(5 downto 0);
 
     --========================--
     --== GTH/GTX link types ==--
@@ -258,6 +273,12 @@ package gem_pkg is
 
     type t_oh_sbit_links is array(1 downto 0) of t_sbit_link_status;    
     type t_oh_sbit_links_arr is array(integer range <>) of t_oh_sbit_links;
+
+    --===================--
+    --==  ME0 trigger  ==--
+    --===================--
+    
+    type t_vfat_trigger_cnt_arr is array(integer range<>) of t_std16_array(5 downto 0);
 
     --====================--
     --==     DAQLink    ==--
@@ -403,6 +424,7 @@ package gem_pkg is
         gbt_rx_header_had_unlock    : std_logic;
         gbt_rx_gearbox_ready        : std_logic;
         gbt_rx_correction_cnt       : std_logic_vector(7 downto 0);
+        gbt_rx_correction_flag      : std_logic;
     end record;
     
     type t_vfat_link_status is record
@@ -459,7 +481,16 @@ package gem_pkg is
         data    : std_logic_vector(7 downto 0);
         first   : std_logic;
         last    : std_logic;
-        error   : std_logic;        
+        error   : std_logic;
+        size    : std_logic_vector(31 downto 0);  
+    end record;
+   
+    type t_gem_loader_stats is record
+        load_request_cnt    : std_logic_vector(15 downto 0);
+        success_cnt         : std_logic_vector(15 downto 0);
+        fail_cnt            : std_logic_vector(15 downto 0);
+        gap_detect_cnt      : std_logic_vector(15 downto 0);
+        loader_ovf_unf_cnt  : std_logic_vector(15 downto 0);
     end record;
         	
 end gem_pkg;

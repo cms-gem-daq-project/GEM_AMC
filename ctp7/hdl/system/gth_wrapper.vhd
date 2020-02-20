@@ -524,10 +524,13 @@ begin
     end generate;
     
     gen_gth_10p24g : if c_gth_config_arr(n).gth_link_type = gth_10p24g generate
-        
-      s_gth_tx_data_arr(n) <= gth_tx_data_arr_i(n);
-      gth_rx_data_arr_o(n) <= s_gth_rx_data_arr(n);
-
+      
+      gth_gbt_rx_data_arr_o(n)(31 downto 0) <= s_gth_rx_data_arr(n).rxdata;
+      s_gth_tx_data_arr(n).txdata <= gth_gbt_tx_data_arr_i(n)(31 downto 0);
+      s_gth_tx_data_arr(n).txchardispmode <= (others => '0');
+      s_gth_tx_data_arr(n).txchardispval <= (others => '0');
+      s_gth_tx_data_arr(n).txcharisk <= (others => '0');
+            
       i_gth_single_10p24g : entity work.gth_single_10p24g
         generic map
         (
@@ -564,8 +567,11 @@ begin
 
     gen_gth_2p56g : if c_gth_config_arr(n).gth_link_type = gth_2p56g generate
         
-      s_gth_tx_data_arr(n) <= gth_tx_data_arr_i(n);
-      gth_rx_data_arr_o(n) <= s_gth_rx_data_arr(n);
+      gth_gbt_rx_data_arr_o(n)(31 downto 0) <= s_gth_rx_data_arr(n).rxdata;
+      s_gth_tx_data_arr(n).txdata <= gth_gbt_tx_data_arr_i(n)(31 downto 0);
+      s_gth_tx_data_arr(n).txchardispmode <= (others => '0');
+      s_gth_tx_data_arr(n).txchardispval <= (others => '0');
+      s_gth_tx_data_arr(n).txcharisk <= (others => '0');
 
       i_gth_single_2p56g : entity work.gth_single_2p56g
         generic map

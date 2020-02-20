@@ -30,6 +30,8 @@ entity lpgbt is
     );
     port(
         reset_i                     : in  std_logic;
+        reset_tx_i                  : in  std_logic;
+        reset_rx_i                  : in  std_logic;
         cnt_reset_i                 : in  std_logic;
 
         --========--
@@ -74,15 +76,15 @@ end lpgbt;
 
 architecture lpgbt_arch of lpgbt is
     
-    component sync_fifo_gth_32
+    component sync_fifo_gbt_mgt_33
         port (
             rst       : in  std_logic;
             wr_clk    : in  std_logic;
             rd_clk    : in  std_logic;
-            din       : in  std_logic_vector(31 downto 0);
+            din       : in  std_logic_vector(32 downto 0);
             wr_en     : in  std_logic;
             rd_en     : in  std_logic;
-            dout      : out std_logic_vector(31 downto 0);
+            dout      : out std_logic_vector(32 downto 0);
             full      : out std_logic;
             overflow  : out std_logic;
             empty     : out std_logic;
@@ -107,7 +109,7 @@ architecture lpgbt_arch of lpgbt is
     signal rx_sync_ovf      : std_logic_vector(g_NUM_LINKS - 1 downto 0);
     signal rx_sync_unf      : std_logic_vector(g_NUM_LINKS - 1 downto 0);
     signal rx_mgt_data      : t_std32_array(g_NUM_LINKS - 1 downto 0);
-    signal rx_mgt_data_sync : t_std32_array(g_NUM_LINKS - 1 downto 0);
+    signal rx_mgt_data_sync : t_std33_array(g_NUM_LINKS - 1 downto 0); -- top bit is header flag, and lower 32 bits is mgt data
     signal rx_mgt_clk_sync  : std_logic_vector(g_NUM_LINKS - 1 downto 0);
 
     --------- TX gearbox ---------
@@ -119,6 +121,7 @@ architecture lpgbt_arch of lpgbt is
     signal rx_dp_reset      : std_logic_vector(g_NUM_LINKS - 1 downto 0);
     signal rx_dp_ready      : std_logic_vector(g_NUM_LINKS - 1 downto 0);
     signal rx_corr_flags    : t_std234_array(g_NUM_LINKS - 1 downto 0);
+    signal rx_corr_flag     : std_logic_vector(g_NUM_LINKS - 1 downto 0);
     signal rx_corr_cnt      : t_std8_array(g_NUM_LINKS - 1 downto 0);
 
     --------- RX frame aligner ---------
@@ -138,7 +141,7 @@ begin
         gen_skip_even_tx : if (not g_SKIP_ODD_TX) or (i mod 2 = 0) generate
 
             --------- Resets ---------
-            tx_gb_reset(i) <= not (mgt_status_arr_i(i).tx_reset_done and mgt_status_arr_i(i).tx_cpll_locked);
+            tx_gb_reset(i) <= (not (mgt_status_arr_i(i).tx_reset_done and mgt_status_arr_i(i).tx_cpll_locked)) or reset_tx_i;
             tx_dp_reset(i) <= not tx_gb_ready(i);
 
             --------- Status ---------
@@ -156,6 +159,9 @@ begin
             --------- TX datapath ---------
 
             i_tx_datapath : entity work.LpGBT_FPGA_Downlink_datapath
+                    generic map (
+                        MULTICYCLE_DELAY => 0
+                    )
                 port map(
                     donwlinkClk_i               => tx_frame_clk_i,
                     downlinkClkEn_i             => '1',
@@ -221,12 +227,12 @@ begin
             rx_sync_reset(i) <= reset_i or not (mgt_status_arr_i(i).rx_reset_done and mgt_status_arr_i(i).rx_cpll_locked and rx_header_locked(i)); -- TODO: consider resetting this on other conditions too e.g. overflow
             rx_mgt_clk_sync(i) <= rx_word_common_clk_i;
         
-            i_rx_sync_fifo : component sync_fifo_gth_32
+            i_rx_sync_fifo : component sync_fifo_gbt_mgt_33
                 port map(
                     rst       => rx_sync_reset(i),
                     wr_clk    => rx_word_clk_arr_i(i),
                     rd_clk    => rx_word_common_clk_i,
-                    din       => rx_mgt_data(i),
+                    din       => rx_header_flag(i) & rx_mgt_data(i),
                     wr_en     => '1',
                     rd_en     => '1',
                     dout      => rx_mgt_data_sync(i),
@@ -257,7 +263,8 @@ begin
 
         gen_no_rx_sync_fifos : if not g_USE_RX_SYNC_FIFOS generate
             rx_mgt_clk_sync(i) <= rx_word_clk_arr_i(i);
-            rx_mgt_data_sync(i) <= rx_mgt_data(i);
+            rx_mgt_data_sync(i)(32) <= rx_header_flag(i);
+            rx_mgt_data_sync(i)(31 downto 0) <= rx_mgt_data(i);
             rx_sync_valid(i) <= '1';
             link_status_arr_o(i).gbt_rx_sync_status.had_ovf <= '0';
             link_status_arr_o(i).gbt_rx_sync_status.had_unf <= '0';
@@ -272,7 +279,7 @@ begin
     g_gbt_rx_link : for i in 0 to g_NUM_LINKS - 1 generate
 
         --------- Resets ---------
-        rx_fa_reset(i) <= not (mgt_status_arr_i(i).rx_reset_done and mgt_status_arr_i(i).rx_cpll_locked);
+        rx_fa_reset(i) <= (not (mgt_status_arr_i(i).rx_reset_done and mgt_status_arr_i(i).rx_cpll_locked)) or reset_rx_i;
         rx_gb_reset(i) <= not (rx_header_locked(i) and rx_sync_valid(i));
         rx_dp_reset(i) <= not rx_gb_ready(i);
 
@@ -280,6 +287,7 @@ begin
         link_status_arr_o(i).gbt_rx_ready <= rx_gb_ready(i) and rx_dp_ready(i);
         link_status_arr_o(i).gbt_rx_gearbox_ready <= rx_gb_ready(i);
         link_status_arr_o(i).gbt_rx_header_locked <= rx_header_locked(i);
+        link_status_arr_o(i).gbt_rx_correction_flag <= rx_corr_flag(i);
         link_status_arr_o(i).gbt_rx_correction_cnt <= rx_corr_cnt(i);
         
         i_rx_not_ready_latch : entity work.latch
@@ -310,12 +318,12 @@ begin
             port map(
                 clk_inClk_i    => rx_mgt_clk_sync(i),
                 clk_outClk_i   => rx_frame_clk_i,
-                clk_clkEn_i    => rx_header_flag(i),
+                clk_clkEn_i    => rx_mgt_data_sync(i)(32),
                 clk_dataFlag_o => open,
                 
                 rst_gearbox_i  => rx_gb_reset(i),
                 
-                dat_inFrame_i  => rx_mgt_data_sync(i),
+                dat_inFrame_i  => rx_mgt_data_sync(i)(31 downto 0),
                 dat_outFrame_o => rx_gb_out_data(i),
                 
                 sta_gbRdy_o    => rx_gb_ready(i)
@@ -326,7 +334,8 @@ begin
         i_rx_datapath : entity work.LpGBT_FPGA_Uplink_datapath
             generic map(
                 DATARATE         => g_RX_RATE,
-                FEC              => g_RX_ENCODING
+                FEC              => g_RX_ENCODING,
+                MULTICYCLE_DELAY => 0
             )
             port map(
                 uplinkClk_i                     => rx_frame_clk_i,
@@ -354,7 +363,7 @@ begin
             );
 
         --------- Bit correction counter ---------
-        
+                
         g_corr_cnt : if g_USE_RX_CORRECTION_CNT generate
             
             i_corr_cnt : entity work.counter
@@ -365,14 +374,17 @@ begin
                 port map(
                     ref_clk_i => rx_frame_clk_i,
                     reset_i   => reset_i or cnt_reset_i,
-                    en_i      => or_reduce(rx_corr_flags(i)),
+                    en_i      => rx_corr_flag(i),
                     count_o   => rx_corr_cnt(i)
                 );
+
+            rx_corr_flag(i) <= or_reduce(rx_corr_flags(i));
             
         end generate;
 
         g_no_corr_cnt : if not g_USE_RX_CORRECTION_CNT generate
             rx_corr_cnt(i) <= (others => '0');
+            rx_corr_flag(i) <= '0';
         end generate;
 
         --------- Frame aligner ---------
@@ -405,6 +417,8 @@ begin
                 
                 dat_word_i              => rx_mgt_data(i)(1 downto 0)
             );
+
+        mgt_ctrl_arr_o(i).txreset <= '0';
 
         g_use_mgt_reset_on_even : if g_RESET_MGT_ON_EVEN = 1 generate
             mgt_ctrl_arr_o(i).rxreset <= rx_mgt_reset(i);

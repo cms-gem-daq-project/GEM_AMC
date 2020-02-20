@@ -83,6 +83,30 @@ end gem_ctp7;
 --============================================================================
 architecture gem_ctp7_arch of gem_ctp7 is
 
+    component ila_gbt_mgt
+        port(
+            clk    : in std_logic;
+            probe0 : in std_logic_vector(39 downto 0)
+        );
+    end component;
+
+    component vio_lpgbt_loopback
+        port(
+            clk        : in  std_logic;
+            probe_in0  : in  std_logic;
+            probe_in1  : in  std_logic;
+            probe_out0 : out std_logic_vector(31 downto 0);
+            probe_out1 : out std_logic_vector(31 downto 0);
+            probe_out2 : out std_logic;
+            probe_out3 : out std_logic;
+            probe_out4 : out std_logic;
+            probe_out5 : out std_logic;
+            probe_out6 : out std_logic;
+            probe_out7 : out std_logic_vector(1 downto 0);
+            probe_out8 : out std_logic_vector(1 downto 0)
+        );
+    end component;
+
     --============================================================================
     --                                                         Signal declarations
     --============================================================================
@@ -149,6 +173,28 @@ architecture gem_ctp7_arch of gem_ctp7 is
     -------------------- GEM loader ---------------------------------
     signal to_gem_loader        : t_to_gem_loader := (clk => '0', en => '0');
     signal from_gem_loader      : t_from_gem_loader;
+
+    -------------------- LpGBT loopback ---------------------------------
+    constant LB_PATTERN_LENGTH          : integer := 2;
+    constant LB_GBT_USE_CLK_EN          : boolean := false;
+    
+    signal lb_tx_clk                    : std_logic;
+    signal lb_pattern_idx               : integer range 0 to LB_PATTERN_LENGTH - 1 := 0;
+    signal lb_pattern                   : t_std32_array(1 downto 0);
+    signal lb_tx_data                   : std_logic_vector(31 downto 0);
+    signal lb_use_lpgbt_core            : std_logic;
+    signal lb_gbt_ic_pattern            : std_logic_vector(1 downto 0);
+    signal lb_gbt_ec_pattern            : std_logic_vector(1 downto 0);
+    signal lb_gbt_reset                 : std_logic;
+    signal lb_gbt_tx_dp_reset           : std_logic;
+    signal lb_gbt_tx_gb_reset           : std_logic;
+    signal lb_gbt_tx_frame              : std_logic_vector(63 downto 0);
+    signal lb_gbt_tx_mgt_word           : std_logic_vector(31 downto 0);
+    signal lb_gbt_dp_ready              : std_logic;
+    signal lb_gbt_gb_ready              : std_logic;
+    signal lb_gbt_bypass_interleaver    : std_logic;
+    signal lb_gbt_bypass_fec            : std_logic;
+    signal lb_gbt_bypass_scrambler      : std_logic;
 
 --============================================================================
 --                                                          Architecture begin
@@ -347,13 +393,13 @@ begin
             gt_gbt_ctrl_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt1_link).rx).rxslide <= gem_gt_gbt_ctrl_arr(i * CFG_NUM_GBTS_PER_OH + 1).rxslide;
             gem_gt_gbt_status_arr(i * CFG_NUM_GBTS_PER_OH + 1).rx_reset_done <= gt_gbt_status_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt1_link).rx).rx_reset_done;
             gem_gt_gbt_status_arr(i * CFG_NUM_GBTS_PER_OH + 1).rx_cpll_locked <= gt_gbt_status_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt1_link).rx).rx_cpll_locked;
-            g_non_me0_gbt1_tx_links: if CFG_GEM_STATION /= 0 generate        
+--            g_non_me0_gbt1_tx_links: if CFG_GEM_STATION /= 0 generate        
                 gth_gbt_tx_data_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt1_link).tx) <= gem_gt_gbt_tx_data_arr(i * CFG_NUM_GBTS_PER_OH + 1);
                 gem_gt_gbt_tx_clk_arr(i * CFG_NUM_GBTS_PER_OH + 1) <= clk_gth_tx_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt1_link).tx);
                 gt_gbt_ctrl_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt1_link).tx).txreset <= gem_gt_gbt_ctrl_arr(i * CFG_NUM_GBTS_PER_OH + 1).txreset;
                 gem_gt_gbt_status_arr(i * CFG_NUM_GBTS_PER_OH + 1).tx_reset_done <= gt_gbt_status_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt1_link).tx).tx_reset_done;
                 gem_gt_gbt_status_arr(i * CFG_NUM_GBTS_PER_OH + 1).tx_cpll_locked <= gt_gbt_status_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(i).gbt1_link).tx).tx_cpll_locked;
-            end generate;
+--            end generate;
             
             --=== GBT2 (GE1/1 only) ===--
             g_ge11_gbt2_links: if CFG_GEM_STATION = 1 generate        
@@ -389,11 +435,156 @@ begin
     -------------------------- LpGBT loopback test without GEM logic ---------------------------------
     
     g_lpgbt_loopback_logic : if CFG_LPGBT_2P56G_LOOPBACK_TEST generate
-        g_fake_gth_data : for i in 0 to g_NUM_OF_GTH_GTs - 1 generate
-            gth_gbt_tx_data_arr(i) <= x"5555555555";
-            daq_to_daqlink <= (reset => '1', ttc_clk => ttc_clocks.clk_40, ttc_bc0 => '0', trig => (others => '0'), tts_clk => ttc_clocks.clk_40, tts_state => x"8", resync => '0', event_clk => clk_62p5, event_valid => '0', event_header => '0', event_trailer => '0', event_data => (others => '0'));
-            LEDs <= "00";
+        
+        lb_tx_clk <= clk_gth_tx_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(0).gbt0_link).tx);
+        
+        i_vio_lpgbt_loopback : vio_lpgbt_loopback
+            port map(
+                clk         => lb_tx_clk,
+                probe_in0   => lb_gbt_dp_ready,
+                probe_in1   => lb_gbt_gb_ready,
+                probe_out0  => lb_pattern(0),
+                probe_out1  => lb_pattern(1),
+                probe_out2  => lb_gbt_bypass_interleaver,
+                probe_out3  => lb_gbt_bypass_fec,
+                probe_out4  => lb_gbt_bypass_scrambler,
+                probe_out5  => lb_gbt_reset,
+                probe_out6  => lb_use_lpgbt_core,
+                probe_out7  => lb_gbt_ic_pattern,
+                probe_out8  => lb_gbt_ec_pattern
+            );
+        
+        daq_to_daqlink <= (reset => '1', ttc_clk => ttc_clocks.clk_40, ttc_bc0 => '0', trig => (others => '0'), tts_clk => ttc_clocks.clk_40, tts_state => x"8", resync => '0', event_clk => clk_62p5, event_valid => '0', event_header => '0', event_trailer => '0', event_data => (others => '0'));
+        LEDs <= "00";
+        g_gth_signals_cxp0 : for i in 0 to 11 generate
+            gth_gbt_tx_data_arr(i)(39 downto 32) <= (others => '0');
+            gth_gbt_tx_data_arr(i)(31 downto 0) <= lb_gbt_tx_mgt_word when lb_use_lpgbt_core = '1' else lb_tx_data;
         end generate;
+        g_gth_signals_fake : for i in 12 to g_NUM_OF_GTH_GTs - 1 generate
+            gth_gbt_tx_data_arr(i) <= x"0055555555";
+        end generate;
+        
+        p_lb_const_pattern:
+        process(lb_tx_clk)
+        begin
+            if rising_edge(lb_tx_clk) then
+                if lb_pattern_idx = LB_PATTERN_LENGTH - 1 then
+                   lb_pattern_idx <= 0; 
+                else
+                   lb_pattern_idx <= lb_pattern_idx + 1;
+                end if;
+               
+                lb_tx_data <= lb_pattern(lb_pattern_idx);
+                
+            end if;
+        end process;
+        
+        -- LpGBT TX core
+        
+        lb_gbt_tx_gb_reset <= (not gt_gbt_status_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(0).gbt0_link).tx).tx_reset_done) or lb_gbt_reset;
+        lb_gbt_tx_dp_reset <= not lb_gbt_gb_ready;
+        
+        g_gbt_not_use_clk_en : if not LB_GBT_USE_CLK_EN generate
+            i_tx_datapath : entity work.LpGBT_FPGA_Downlink_datapath
+                    generic map (
+                        MULTICYCLE_DELAY => 0
+                    )
+                port map(
+                    donwlinkClk_i               => ttc_clocks.clk_40,
+                    downlinkClkEn_i             => '1',
+                    downlinkRst_i               => lb_gbt_tx_dp_reset,
+                    
+                    downlinkUserData_i          => lb_pattern(0),
+                    downlinkEcData_i            => lb_gbt_ec_pattern,
+                    downlinkIcData_i            => lb_gbt_ic_pattern,
+                    
+                    downLinkFrame_o             => lb_gbt_tx_frame,
+                    
+                    downLinkBypassInterleaver_i => lb_gbt_bypass_interleaver,
+                    downLinkBypassFECEncoder_i  => lb_gbt_bypass_fec,
+                    downLinkBypassScrambler_i   => lb_gbt_bypass_scrambler,
+                    
+                    downlinkReady_o             => lb_gbt_dp_ready
+                );
+                        
+            i_tx_gearbox : entity work.txGearbox
+                generic map(
+                    c_clockRatio  => 2,
+                    c_inputWidth  => 64,
+                    c_outputWidth => 32
+                )
+                port map(
+                    clk_inClk_i    => ttc_clocks.clk_40,
+                    clk_clkEn_i    => '1',
+                    clk_outClk_i   => lb_tx_clk,
+                    
+                    rst_gearbox_i  => lb_gbt_tx_gb_reset,
+                    
+                    dat_inFrame_i  => lb_gbt_tx_frame,
+                    dat_outFrame_o => lb_gbt_tx_mgt_word,
+                    
+                    sta_gbRdy_o    => lb_gbt_gb_ready
+                );
+        end generate;
+
+        g_gbt_use_clk_en : if LB_GBT_USE_CLK_EN generate
+            i_tx_datapath : entity work.LpGBT_FPGA_Downlink_datapath
+                    generic map (
+                        MULTICYCLE_DELAY => 1
+                    )
+                port map(
+                    donwlinkClk_i               => lb_tx_clk,
+                    downlinkClkEn_i             => lb_tx_clk and ttc_clocks.clk_40,
+                    downlinkRst_i               => lb_gbt_tx_dp_reset,
+                    
+                    downlinkUserData_i          => lb_pattern(0),
+                    downlinkEcData_i            => lb_gbt_ec_pattern,
+                    downlinkIcData_i            => lb_gbt_ic_pattern,
+                    
+                    downLinkFrame_o             => lb_gbt_tx_frame,
+                    
+                    downLinkBypassInterleaver_i => lb_gbt_bypass_interleaver,
+                    downLinkBypassFECEncoder_i  => lb_gbt_bypass_fec,
+                    downLinkBypassScrambler_i   => lb_gbt_bypass_scrambler,
+                    
+                    downlinkReady_o             => lb_gbt_dp_ready
+                );
+                        
+            i_tx_gearbox : entity work.txGearbox
+                generic map(
+                    c_clockRatio  => 2,
+                    c_inputWidth  => 64,
+                    c_outputWidth => 32
+                )
+                port map(
+                    clk_inClk_i    => lb_tx_clk,
+                    clk_clkEn_i    => lb_tx_clk and ttc_clocks.clk_40,
+                    clk_outClk_i   => lb_tx_clk,
+                    
+                    rst_gearbox_i  => lb_gbt_tx_gb_reset,
+                    
+                    dat_inFrame_i  => lb_gbt_tx_frame,
+                    dat_outFrame_o => lb_gbt_tx_mgt_word,
+                    
+                    sta_gbRdy_o    => lb_gbt_gb_ready
+                );
+        end generate;
+        
+    end generate;
+
+    -------------------------- DEBUG ---------------------------------
+    
+    g_ila_gbt0_mgt : if CFG_ILA_GBT0_MGT_EN generate
+        i_ila_gbt0_mgt_tx : ila_gbt_mgt
+            port map(
+                clk    => clk_gth_tx_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(0).gbt0_link).tx),
+                probe0 => gth_gbt_tx_data_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(0).gbt0_link).tx)
+            );
+        i_ila_gbt0_mgt_rx : ila_gbt_mgt
+            port map(
+                clk    => clk_gth_rx_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(0).gbt0_link).rx),
+                probe0 => gth_gbt_rx_data_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_OH_LINK_CONFIG_ARR(0).gbt0_link).rx)
+            );
     end generate;
     
 end gem_ctp7_arch;

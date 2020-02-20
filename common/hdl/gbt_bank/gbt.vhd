@@ -33,7 +33,8 @@ entity gbt is
         TX_OPTIMIZATION : integer range 0 to 1 := STANDARD;
         RX_OPTIMIZATION : integer range 0 to 1 := STANDARD;
         TX_ENCODING     : integer range 0 to 1 := GBT_FRAME;
-        RX_ENCODING     : integer range 0 to 1 := GBT_FRAME
+        RX_ENCODING_ODD : integer range 0 to 1 := GBT_FRAME;
+        RX_ENCODING_EVEN: integer range 0 to 1 := GBT_FRAME
     );
     port(
         reset_i                     : in  std_logic;
@@ -71,6 +72,7 @@ entity gbt is
         rx_header_locked_arr_o      : out std_logic_vector(NUM_LINKS - 1 downto 0);
         rx_data_valid_arr_o         : out std_logic_vector(NUM_LINKS - 1 downto 0);
         rx_data_arr_o               : out t_gbt_frame_array(NUM_LINKS - 1 downto 0);
+        rx_data_widebus_arr_o       : out t_std32_array(NUM_LINKS - 1 downto 0); -- extra 32 bits of data if RX_ENCODING is set to WIDEBUS
         
         --========--              
         --   MGT  --              
@@ -94,6 +96,9 @@ end gbt;
 --=================================================================================================--
 
 architecture gbt_arch of gbt is
+
+    type t_int_array is array (integer range <>) of integer;
+    constant RX_ENCODING_EVEN_ODD   : t_int_array(0 to 1) := (RX_ENCODING_EVEN, RX_ENCODING_ODD);
 
     --================================ Component Declarations ================================--
     
@@ -151,6 +156,7 @@ architecture gbt_arch of gbt is
     signal mgt_sync_rx_valid_arr     : std_logic_vector(NUM_LINKS - 1 downto 0);
    
     signal rx_data_arr               : t_gbt_frame_array(NUM_LINKS - 1 downto 0);
+    signal rx_data_widebus_arr       : t_std32_array(NUM_LINKS - 1 downto 0); -- extra 32 bits of data if RX_ENCODING is set to WIDEBUS
     
     signal rx_ready_arr              : std_logic_vector(NUM_LINKS - 1 downto 0);
     signal rx_ovf_arr                : std_logic_vector(NUM_LINKS - 1 downto 0);
@@ -168,6 +174,7 @@ begin                                   --========####   Architecture Body   ###
 --=================================================================================================--
 
     rx_data_arr_o <= rx_data_arr;
+    rx_data_widebus_arr_o <= rx_data_widebus_arr;
 
     -- constant signals
     tied_to_ground <= '0';
@@ -227,12 +234,12 @@ begin                                   --========####   Architecture Body   ###
 		gbtTx_gen: for i in 0 to NUM_LINKS -1 generate 
 			gbtTx: entity work.gbt_tx        
 				generic map (			
-						GBT_BANK_ID                         => GBT_BANK_ID,
-						NUM_LINKS									=> NUM_LINKS,
-						TX_OPTIMIZATION							=> TX_OPTIMIZATION,
-						RX_OPTIMIZATION							=> RX_OPTIMIZATION,
-						TX_ENCODING									=> TX_ENCODING,
-						RX_ENCODING									=> RX_ENCODING
+						GBT_BANK_ID       => GBT_BANK_ID,
+						NUM_LINKS         => NUM_LINKS,
+						TX_OPTIMIZATION   => TX_OPTIMIZATION,
+						RX_OPTIMIZATION   => RX_OPTIMIZATION,
+						TX_ENCODING       => TX_ENCODING,
+						RX_ENCODING       => RX_ENCODING_EVEN_ODD(i mod 2)
 				)
 				port map (            
 					-- Reset & Clocks:
@@ -286,12 +293,12 @@ begin                                   --========####   Architecture Body   ###
 		
 			gbtRx: entity work.gbt_rx            
 				generic map (
-					GBT_BANK_ID                         => GBT_BANK_ID,
-					NUM_LINKS									=> NUM_LINKS,
-					TX_OPTIMIZATION							=> TX_OPTIMIZATION,
-					RX_OPTIMIZATION							=> RX_OPTIMIZATION,
-					TX_ENCODING									=> TX_ENCODING,
-					RX_ENCODING									=> RX_ENCODING
+					GBT_BANK_ID        => GBT_BANK_ID,
+					NUM_LINKS          => NUM_LINKS,
+					TX_OPTIMIZATION    => TX_OPTIMIZATION,
+					RX_OPTIMIZATION    => RX_OPTIMIZATION,
+					TX_ENCODING        => TX_ENCODING,
+					RX_ENCODING        => RX_ENCODING_EVEN_ODD(i mod 2)
 				)         
 				port map (              
 					-- Reset & Clocks:
@@ -312,7 +319,7 @@ begin                                   --========####   Architecture Body   ###
 					RX_WORD_I                           => mgt_sync_rx_data_arr(i),                  
 					RX_DATA_O                           => rx_data_arr(i),
 					------------------------------------
-					RX_EXTRA_DATA_WIDEBUS_O             => open
+					RX_EXTRA_DATA_WIDEBUS_O             => rx_data_widebus_arr(i)
 				);             
 				
 

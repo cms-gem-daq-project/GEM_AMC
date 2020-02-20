@@ -36,7 +36,9 @@ port(
     use_v3b_elink_mapping_o     : out std_logic;
 
     vfat3_sc_only_mode_o        : out std_logic;
-    manual_link_reset_o         : out std_logic 
+    manual_link_reset_o         : out std_logic;
+    
+    gemloader_stats_i           : in  t_gem_loader_stats
 );
 end gem_system_regs;
 
@@ -152,9 +154,12 @@ begin
     regs_addresses(5)(REG_GEM_SYSTEM_ADDRESS_MSB downto REG_GEM_SYSTEM_ADDRESS_LSB) <= '0' & x"0100";
     regs_addresses(6)(REG_GEM_SYSTEM_ADDRESS_MSB downto REG_GEM_SYSTEM_ADDRESS_LSB) <= '0' & x"0101";
     regs_addresses(7)(REG_GEM_SYSTEM_ADDRESS_MSB downto REG_GEM_SYSTEM_ADDRESS_LSB) <= '0' & x"0200";
-    regs_addresses(8)(REG_GEM_SYSTEM_ADDRESS_MSB downto REG_GEM_SYSTEM_ADDRESS_LSB) <= '1' & x"0000";
-    regs_addresses(9)(REG_GEM_SYSTEM_ADDRESS_MSB downto REG_GEM_SYSTEM_ADDRESS_LSB) <= '1' & x"0001";
-    regs_addresses(10)(REG_GEM_SYSTEM_ADDRESS_MSB downto REG_GEM_SYSTEM_ADDRESS_LSB) <= '1' & x"0002";
+    regs_addresses(8)(REG_GEM_SYSTEM_ADDRESS_MSB downto REG_GEM_SYSTEM_ADDRESS_LSB) <= '0' & x"0400";
+    regs_addresses(9)(REG_GEM_SYSTEM_ADDRESS_MSB downto REG_GEM_SYSTEM_ADDRESS_LSB) <= '0' & x"0401";
+    regs_addresses(10)(REG_GEM_SYSTEM_ADDRESS_MSB downto REG_GEM_SYSTEM_ADDRESS_LSB) <= '0' & x"0402";
+    regs_addresses(11)(REG_GEM_SYSTEM_ADDRESS_MSB downto REG_GEM_SYSTEM_ADDRESS_LSB) <= '1' & x"0000";
+    regs_addresses(12)(REG_GEM_SYSTEM_ADDRESS_MSB downto REG_GEM_SYSTEM_ADDRESS_LSB) <= '1' & x"0001";
+    regs_addresses(13)(REG_GEM_SYSTEM_ADDRESS_MSB downto REG_GEM_SYSTEM_ADDRESS_LSB) <= '1' & x"0002";
 
     -- Connect read signals
     regs_read_arr(0)(REG_GEM_SYSTEM_BOARD_ID_MSB downto REG_GEM_SYSTEM_BOARD_ID_LSB) <= board_id;
@@ -168,9 +173,14 @@ begin
     regs_read_arr(4)(REG_GEM_SYSTEM_VFAT3_SC_ONLY_MODE_BIT) <= vfat3_sc_only_mode;
     regs_read_arr(4)(REG_GEM_SYSTEM_VFAT3_USE_OH_V3B_MAPPING_BIT) <= use_v3b_elink_mapping;
     regs_read_arr(7)(REG_GEM_SYSTEM_TESTS_GBT_LOOPBACK_EN_BIT) <= loopback_gbt_test_en;
-    regs_read_arr(8)(REG_GEM_SYSTEM_LEGACY_SYSTEM_BOARD_ID_MSB downto REG_GEM_SYSTEM_LEGACY_SYSTEM_BOARD_ID_LSB) <= legacy_board_id;
-    regs_read_arr(9)(REG_GEM_SYSTEM_LEGACY_SYSTEM_SYSTEM_ID_MSB downto REG_GEM_SYSTEM_LEGACY_SYSTEM_SYSTEM_ID_LSB) <= legacy_sys_id;
-    regs_read_arr(10)(REG_GEM_SYSTEM_LEGACY_SYSTEM_FIRMWARE_VERSION_MSB downto REG_GEM_SYSTEM_LEGACY_SYSTEM_FIRMWARE_VERSION_LSB) <= legacy_fw_version;
+    regs_read_arr(8)(REG_GEM_SYSTEM_GEM_LOADER_LOAD_REQUEST_CNT_MSB downto REG_GEM_SYSTEM_GEM_LOADER_LOAD_REQUEST_CNT_LSB) <= gemloader_stats_i.load_request_cnt;
+    regs_read_arr(8)(REG_GEM_SYSTEM_GEM_LOADER_LOAD_SUCCESS_CNT_MSB downto REG_GEM_SYSTEM_GEM_LOADER_LOAD_SUCCESS_CNT_LSB) <= gemloader_stats_i.success_cnt;
+    regs_read_arr(9)(REG_GEM_SYSTEM_GEM_LOADER_LOAD_FAIL_CNT_MSB downto REG_GEM_SYSTEM_GEM_LOADER_LOAD_FAIL_CNT_LSB) <= gemloader_stats_i.fail_cnt;
+    regs_read_arr(9)(REG_GEM_SYSTEM_GEM_LOADER_STREAM_GAP_CNT_MSB downto REG_GEM_SYSTEM_GEM_LOADER_STREAM_GAP_CNT_LSB) <= gemloader_stats_i.gap_detect_cnt;
+    regs_read_arr(10)(REG_GEM_SYSTEM_GEM_LOADER_LOADER_OVF_UNF_CNT_MSB downto REG_GEM_SYSTEM_GEM_LOADER_LOADER_OVF_UNF_CNT_LSB) <= gemloader_stats_i.loader_ovf_unf_cnt;
+    regs_read_arr(11)(REG_GEM_SYSTEM_LEGACY_SYSTEM_BOARD_ID_MSB downto REG_GEM_SYSTEM_LEGACY_SYSTEM_BOARD_ID_LSB) <= legacy_board_id;
+    regs_read_arr(12)(REG_GEM_SYSTEM_LEGACY_SYSTEM_SYSTEM_ID_MSB downto REG_GEM_SYSTEM_LEGACY_SYSTEM_SYSTEM_ID_LSB) <= legacy_sys_id;
+    regs_read_arr(13)(REG_GEM_SYSTEM_LEGACY_SYSTEM_FIRMWARE_VERSION_MSB downto REG_GEM_SYSTEM_LEGACY_SYSTEM_FIRMWARE_VERSION_LSB) <= legacy_fw_version;
 
     -- Connect write signals
     board_id <= regs_write_arr(0)(REG_GEM_SYSTEM_BOARD_ID_MSB downto REG_GEM_SYSTEM_BOARD_ID_LSB);

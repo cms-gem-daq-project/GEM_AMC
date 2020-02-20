@@ -26,7 +26,7 @@ entity gbtx_ic_controller is
         gbt_clk_i               : in std_logic;
         
         -- GBTx I2C address (for OHv2b it should be always 0x1 because that's hardwired on the board), but 0 can be used for broadcast
-        gbtx_i2c_address        : in std_logic_vector(3 downto 0);
+        gbtx_i2c_address        : in std_logic_vector(6 downto 0);
         
         -- GBTx IC elinks
         gbt_rx_ic_elink_i       : in  std_logic_vector(1 downto 0);
@@ -97,7 +97,7 @@ begin
                             -- we assign the beginning of the frame here because there's no chance of bit stuffing here
                             tx_frame(47 downto 0) <= x"000" & "0" & ic_rw_length_i &                     -- LENGTH
                                                      x"01" &                                             -- CMD
-                                                     "000" & gbtx_i2c_address & not ic_write_req_i &     -- I2C ADDRESS + read flag
+                                                     gbtx_i2c_address & not ic_write_req_i &             -- I2C ADDRESS + read flag
                                                      x"00" & -- ???? hmm, this is not documented, but saw this in another guy's code...
                                                      SOF_EOF;                                            -- SOF
                             tx_frame(127 downto 48) <= (others => '1');
