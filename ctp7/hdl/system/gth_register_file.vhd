@@ -62,10 +62,7 @@ entity gth_register_file is
     gth_misc_status_arr_i : in  t_gth_misc_status_arr(g_NUM_OF_GTH_GTs-1 downto 0);
 
     clk_gth_tx_usrclk_arr_i : in std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
-    clk_gth_rx_usrclk_arr_i : in std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
-
-    disable_ttc_phase_align_o : out std_logic
-    
+    clk_gth_rx_usrclk_arr_i : in std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0)
     );
 end gth_register_file;
 
@@ -174,8 +171,6 @@ architecture gth_register_file_arch of gth_register_file is
   signal s_gth_rxnotintable_cnt_reg : t_slv_arr_32(g_NUM_OF_GTH_GTs-1 downto 0);
   signal s_gth_rxdisperr_cnt_reg    : t_slv_arr_32(g_NUM_OF_GTH_GTs-1 downto 0);
   signal s_gth_rxerror_rst_reg      : t_slv_arr_32(g_NUM_OF_GTH_GTs-1 downto 0);
-
-  signal s_disable_ttc_phase_align  : std_logic := '0';
 
 --============================================================================
 --                                                          Architecture begin
@@ -559,10 +554,6 @@ begin
           when addr_encode(C_GTH_RX_NOTINTABLE_CNT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH61, 17)  => s_gth_rxerror_rst_reg(C_CH61)  <= BRAM_CTRL_GTH_REG_FILE_din;
           when addr_encode(C_GTH_RX_NOTINTABLE_CNT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH62, 17)  => s_gth_rxerror_rst_reg(C_CH62)  <= BRAM_CTRL_GTH_REG_FILE_din;
           when addr_encode(C_GTH_RX_NOTINTABLE_CNT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH63, 17)  => s_gth_rxerror_rst_reg(C_CH63)  <= BRAM_CTRL_GTH_REG_FILE_din;
-
--------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-          when std_logic_vector(to_unsigned(C_TTC_PHASE_ALIGN_DISABLE_ADDR, 17)) => s_disable_ttc_phase_align <= BRAM_CTRL_GTH_REG_FILE_din(0);
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------
           
@@ -1041,10 +1032,6 @@ begin
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 
-        when std_logic_vector(to_unsigned(C_TTC_PHASE_ALIGN_DISABLE_ADDR, 17)) => BRAM_CTRL_GTH_REG_FILE_dout <= x"0000000" & "000" & s_disable_ttc_phase_align;
-
-------------------------------------------------------------------------------------------------------------------------------------------------------
-
         when others => BRAM_CTRL_GTH_REG_FILE_dout <= (others => '0');
 
       end case;
@@ -1115,8 +1102,6 @@ begin
     s_qpll_stat_reg(i)(1) <= gth_common_status_arr_i(i).QPLLREFCLKLOST;
 
   end generate;
-
-  disable_ttc_phase_align_o <= s_disable_ttc_phase_align;
 
 end gth_register_file_arch;
 --============================================================================

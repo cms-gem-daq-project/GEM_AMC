@@ -15,212 +15,306 @@ package registers is
     -- data status, bc0 status, command counters and a small spy buffer)
     --============================================================================
 
-    constant REG_TTC_NUM_REGS : integer := 34;
-    constant REG_TTC_ADDRESS_MSB : integer := 5;
+    constant REG_TTC_NUM_REGS : integer := 45;
+    constant REG_TTC_ADDRESS_MSB : integer := 7;
     constant REG_TTC_ADDRESS_LSB : integer := 0;
-    constant REG_TTC_CTRL_MODULE_RESET_ADDR    : std_logic_vector(5 downto 0) := "00" & x"0";
+    constant REG_TTC_CTRL_MODULE_RESET_ADDR    : std_logic_vector(7 downto 0) := x"00";
     constant REG_TTC_CTRL_MODULE_RESET_MSB    : integer := 31;
     constant REG_TTC_CTRL_MODULE_RESET_LSB     : integer := 0;
 
-    constant REG_TTC_CTRL_MMCM_RESET_ADDR    : std_logic_vector(5 downto 0) := "00" & x"1";
+    constant REG_TTC_CTRL_MMCM_RESET_ADDR    : std_logic_vector(7 downto 0) := x"01";
     constant REG_TTC_CTRL_MMCM_RESET_MSB    : integer := 31;
     constant REG_TTC_CTRL_MMCM_RESET_LSB     : integer := 0;
 
-    constant REG_TTC_CTRL_CNT_RESET_ADDR    : std_logic_vector(5 downto 0) := "00" & x"2";
+    constant REG_TTC_CTRL_CNT_RESET_ADDR    : std_logic_vector(7 downto 0) := x"02";
     constant REG_TTC_CTRL_CNT_RESET_MSB    : integer := 31;
     constant REG_TTC_CTRL_CNT_RESET_LSB     : integer := 0;
 
-    constant REG_TTC_CTRL_MMCM_PHASE_SHIFT_ADDR    : std_logic_vector(5 downto 0) := "00" & x"3";
-    constant REG_TTC_CTRL_MMCM_PHASE_SHIFT_MSB    : integer := 31;
-    constant REG_TTC_CTRL_MMCM_PHASE_SHIFT_LSB     : integer := 0;
+    constant REG_TTC_CTRL_PHASE_ALIGNMENT_RESET_ADDR    : std_logic_vector(7 downto 0) := x"03";
+    constant REG_TTC_CTRL_PHASE_ALIGNMENT_RESET_MSB    : integer := 31;
+    constant REG_TTC_CTRL_PHASE_ALIGNMENT_RESET_LSB     : integer := 0;
 
-    constant REG_TTC_CTRL_L1A_ENABLE_ADDR    : std_logic_vector(5 downto 0) := "00" & x"4";
+    constant REG_TTC_CTRL_L1A_ENABLE_ADDR    : std_logic_vector(7 downto 0) := x"04";
     constant REG_TTC_CTRL_L1A_ENABLE_BIT    : integer := 0;
     constant REG_TTC_CTRL_L1A_ENABLE_DEFAULT : std_logic := '1';
 
-    constant REG_TTC_CTRL_CALIBRATION_MODE_ADDR    : std_logic_vector(5 downto 0) := "00" & x"4";
+    constant REG_TTC_CTRL_CALIBRATION_MODE_ADDR    : std_logic_vector(7 downto 0) := x"04";
     constant REG_TTC_CTRL_CALIBRATION_MODE_BIT    : integer := 1;
     constant REG_TTC_CTRL_CALIBRATION_MODE_DEFAULT : std_logic := '0';
 
-    constant REG_TTC_CTRL_CALPULSE_L1A_DELAY_ADDR    : std_logic_vector(5 downto 0) := "00" & x"4";
+    constant REG_TTC_CTRL_DISABLE_PHASE_ALIGNMENT_ADDR    : std_logic_vector(7 downto 0) := x"04";
+    constant REG_TTC_CTRL_DISABLE_PHASE_ALIGNMENT_BIT    : integer := 4;
+    constant REG_TTC_CTRL_DISABLE_PHASE_ALIGNMENT_DEFAULT : std_logic := '0';
+
+    constant REG_TTC_CTRL_PA_DISABLE_INIT_SHIFT_OUT_ADDR    : std_logic_vector(7 downto 0) := x"04";
+    constant REG_TTC_CTRL_PA_DISABLE_INIT_SHIFT_OUT_BIT    : integer := 5;
+    constant REG_TTC_CTRL_PA_DISABLE_INIT_SHIFT_OUT_DEFAULT : std_logic := '0';
+
+    constant REG_TTC_CTRL_PA_MANUAL_OVERRIDE_ADDR    : std_logic_vector(7 downto 0) := x"04";
+    constant REG_TTC_CTRL_PA_MANUAL_OVERRIDE_BIT    : integer := 6;
+    constant REG_TTC_CTRL_PA_MANUAL_OVERRIDE_DEFAULT : std_logic := '0';
+
+    constant REG_TTC_CTRL_PA_MANUAL_SHIFT_DIR_ADDR    : std_logic_vector(7 downto 0) := x"04";
+    constant REG_TTC_CTRL_PA_MANUAL_SHIFT_DIR_BIT    : integer := 7;
+    constant REG_TTC_CTRL_PA_MANUAL_SHIFT_DIR_DEFAULT : std_logic := '0';
+
+    constant REG_TTC_CTRL_CALPULSE_L1A_DELAY_ADDR    : std_logic_vector(7 downto 0) := x"04";
     constant REG_TTC_CTRL_CALPULSE_L1A_DELAY_MSB    : integer := 31;
     constant REG_TTC_CTRL_CALPULSE_L1A_DELAY_LSB     : integer := 20;
     constant REG_TTC_CTRL_CALPULSE_L1A_DELAY_DEFAULT : std_logic_vector(31 downto 20) := x"064";
 
-    constant REG_TTC_CONFIG_CMD_BC0_ADDR    : std_logic_vector(5 downto 0) := "00" & x"5";
+    constant REG_TTC_CTRL_PA_MANUAL_SHIFT_EN_ADDR    : std_logic_vector(7 downto 0) := x"05";
+    constant REG_TTC_CTRL_PA_MANUAL_SHIFT_EN_MSB    : integer := 31;
+    constant REG_TTC_CTRL_PA_MANUAL_SHIFT_EN_LSB     : integer := 0;
+
+    constant REG_TTC_CTRL_PA_MANUAL_PLL_RESET_ADDR    : std_logic_vector(7 downto 0) := x"06";
+    constant REG_TTC_CTRL_PA_MANUAL_PLL_RESET_MSB    : integer := 31;
+    constant REG_TTC_CTRL_PA_MANUAL_PLL_RESET_LSB     : integer := 0;
+
+    constant REG_TTC_CONFIG_CMD_BC0_ADDR    : std_logic_vector(7 downto 0) := x"10";
     constant REG_TTC_CONFIG_CMD_BC0_MSB    : integer := 7;
     constant REG_TTC_CONFIG_CMD_BC0_LSB     : integer := 0;
     constant REG_TTC_CONFIG_CMD_BC0_DEFAULT : std_logic_vector(7 downto 0) := x"01";
 
-    constant REG_TTC_CONFIG_CMD_EC0_ADDR    : std_logic_vector(5 downto 0) := "00" & x"5";
+    constant REG_TTC_CONFIG_CMD_EC0_ADDR    : std_logic_vector(7 downto 0) := x"10";
     constant REG_TTC_CONFIG_CMD_EC0_MSB    : integer := 15;
     constant REG_TTC_CONFIG_CMD_EC0_LSB     : integer := 8;
     constant REG_TTC_CONFIG_CMD_EC0_DEFAULT : std_logic_vector(15 downto 8) := x"02";
 
-    constant REG_TTC_CONFIG_CMD_RESYNC_ADDR    : std_logic_vector(5 downto 0) := "00" & x"5";
+    constant REG_TTC_CONFIG_CMD_RESYNC_ADDR    : std_logic_vector(7 downto 0) := x"10";
     constant REG_TTC_CONFIG_CMD_RESYNC_MSB    : integer := 23;
     constant REG_TTC_CONFIG_CMD_RESYNC_LSB     : integer := 16;
     constant REG_TTC_CONFIG_CMD_RESYNC_DEFAULT : std_logic_vector(23 downto 16) := x"04";
 
-    constant REG_TTC_CONFIG_CMD_OC0_ADDR    : std_logic_vector(5 downto 0) := "00" & x"5";
+    constant REG_TTC_CONFIG_CMD_OC0_ADDR    : std_logic_vector(7 downto 0) := x"10";
     constant REG_TTC_CONFIG_CMD_OC0_MSB    : integer := 31;
     constant REG_TTC_CONFIG_CMD_OC0_LSB     : integer := 24;
     constant REG_TTC_CONFIG_CMD_OC0_DEFAULT : std_logic_vector(31 downto 24) := x"08";
 
-    constant REG_TTC_CONFIG_CMD_HARD_RESET_ADDR    : std_logic_vector(5 downto 0) := "00" & x"6";
+    constant REG_TTC_CONFIG_CMD_HARD_RESET_ADDR    : std_logic_vector(7 downto 0) := x"11";
     constant REG_TTC_CONFIG_CMD_HARD_RESET_MSB    : integer := 7;
     constant REG_TTC_CONFIG_CMD_HARD_RESET_LSB     : integer := 0;
     constant REG_TTC_CONFIG_CMD_HARD_RESET_DEFAULT : std_logic_vector(7 downto 0) := x"10";
 
-    constant REG_TTC_CONFIG_CMD_CALPULSE_ADDR    : std_logic_vector(5 downto 0) := "00" & x"6";
+    constant REG_TTC_CONFIG_CMD_CALPULSE_ADDR    : std_logic_vector(7 downto 0) := x"11";
     constant REG_TTC_CONFIG_CMD_CALPULSE_MSB    : integer := 15;
     constant REG_TTC_CONFIG_CMD_CALPULSE_LSB     : integer := 8;
     constant REG_TTC_CONFIG_CMD_CALPULSE_DEFAULT : std_logic_vector(15 downto 8) := x"14";
 
-    constant REG_TTC_CONFIG_CMD_START_ADDR    : std_logic_vector(5 downto 0) := "00" & x"6";
+    constant REG_TTC_CONFIG_CMD_START_ADDR    : std_logic_vector(7 downto 0) := x"11";
     constant REG_TTC_CONFIG_CMD_START_MSB    : integer := 23;
     constant REG_TTC_CONFIG_CMD_START_LSB     : integer := 16;
     constant REG_TTC_CONFIG_CMD_START_DEFAULT : std_logic_vector(23 downto 16) := x"18";
 
-    constant REG_TTC_CONFIG_CMD_STOP_ADDR    : std_logic_vector(5 downto 0) := "00" & x"6";
+    constant REG_TTC_CONFIG_CMD_STOP_ADDR    : std_logic_vector(7 downto 0) := x"11";
     constant REG_TTC_CONFIG_CMD_STOP_MSB    : integer := 31;
     constant REG_TTC_CONFIG_CMD_STOP_LSB     : integer := 24;
     constant REG_TTC_CONFIG_CMD_STOP_DEFAULT : std_logic_vector(31 downto 24) := x"1c";
 
-    constant REG_TTC_CONFIG_CMD_TEST_SYNC_ADDR    : std_logic_vector(5 downto 0) := "00" & x"7";
+    constant REG_TTC_CONFIG_CMD_TEST_SYNC_ADDR    : std_logic_vector(7 downto 0) := x"12";
     constant REG_TTC_CONFIG_CMD_TEST_SYNC_MSB    : integer := 7;
     constant REG_TTC_CONFIG_CMD_TEST_SYNC_LSB     : integer := 0;
     constant REG_TTC_CONFIG_CMD_TEST_SYNC_DEFAULT : std_logic_vector(7 downto 0) := x"20";
 
-    constant REG_TTC_STATUS_MMCM_LOCKED_ADDR    : std_logic_vector(5 downto 0) := "00" & x"8";
-    constant REG_TTC_STATUS_MMCM_LOCKED_BIT    : integer := 0;
+    constant REG_TTC_STATUS_CLK_MMCM_LOCKED_ADDR    : std_logic_vector(7 downto 0) := x"20";
+    constant REG_TTC_STATUS_CLK_MMCM_LOCKED_BIT    : integer := 0;
 
-    constant REG_TTC_STATUS_MMCM_UNLOCK_CNT_ADDR    : std_logic_vector(5 downto 0) := "00" & x"8";
-    constant REG_TTC_STATUS_MMCM_UNLOCK_CNT_MSB    : integer := 31;
-    constant REG_TTC_STATUS_MMCM_UNLOCK_CNT_LSB     : integer := 16;
+    constant REG_TTC_STATUS_CLK_SYNC_DONE_ADDR    : std_logic_vector(7 downto 0) := x"20";
+    constant REG_TTC_STATUS_CLK_SYNC_DONE_BIT    : integer := 1;
 
-    constant REG_TTC_STATUS_TTC_SINGLE_ERROR_CNT_ADDR    : std_logic_vector(5 downto 0) := "00" & x"9";
+    constant REG_TTC_STATUS_CLK_PHASE_LOCKED_ADDR    : std_logic_vector(7 downto 0) := x"20";
+    constant REG_TTC_STATUS_CLK_PHASE_LOCKED_BIT    : integer := 2;
+
+    constant REG_TTC_STATUS_CLK_MMCM_UNLOCK_CNT_ADDR    : std_logic_vector(7 downto 0) := x"20";
+    constant REG_TTC_STATUS_CLK_MMCM_UNLOCK_CNT_MSB    : integer := 31;
+    constant REG_TTC_STATUS_CLK_MMCM_UNLOCK_CNT_LSB     : integer := 16;
+
+    constant REG_TTC_STATUS_CLK_SYNC_RESTART_CNT_ADDR    : std_logic_vector(7 downto 0) := x"21";
+    constant REG_TTC_STATUS_CLK_SYNC_RESTART_CNT_MSB    : integer := 15;
+    constant REG_TTC_STATUS_CLK_SYNC_RESTART_CNT_LSB     : integer := 0;
+
+    constant REG_TTC_STATUS_CLK_PHASE_UNLOCK_CNT_ADDR    : std_logic_vector(7 downto 0) := x"21";
+    constant REG_TTC_STATUS_CLK_PHASE_UNLOCK_CNT_MSB    : integer := 31;
+    constant REG_TTC_STATUS_CLK_PHASE_UNLOCK_CNT_LSB     : integer := 16;
+
+    constant REG_TTC_STATUS_CLK_SYNC_DONE_TIME_ADDR    : std_logic_vector(7 downto 0) := x"22";
+    constant REG_TTC_STATUS_CLK_SYNC_DONE_TIME_MSB    : integer := 15;
+    constant REG_TTC_STATUS_CLK_SYNC_DONE_TIME_LSB     : integer := 0;
+
+    constant REG_TTC_STATUS_CLK_PHASE_UNLOCK_TIME_ADDR    : std_logic_vector(7 downto 0) := x"22";
+    constant REG_TTC_STATUS_CLK_PHASE_UNLOCK_TIME_MSB    : integer := 31;
+    constant REG_TTC_STATUS_CLK_PHASE_UNLOCK_TIME_LSB     : integer := 16;
+
+    constant REG_TTC_STATUS_CLK_PA_PLL_LOCK_WINDOW_ADDR    : std_logic_vector(7 downto 0) := x"23";
+    constant REG_TTC_STATUS_CLK_PA_PLL_LOCK_WINDOW_MSB    : integer := 15;
+    constant REG_TTC_STATUS_CLK_PA_PLL_LOCK_WINDOW_LSB     : integer := 0;
+
+    constant REG_TTC_STATUS_CLK_PA_PHASE_SHIFT_CNT_ADDR    : std_logic_vector(7 downto 0) := x"23";
+    constant REG_TTC_STATUS_CLK_PA_PHASE_SHIFT_CNT_MSB    : integer := 31;
+    constant REG_TTC_STATUS_CLK_PA_PHASE_SHIFT_CNT_LSB     : integer := 16;
+
+    constant REG_TTC_STATUS_CLK_PA_PLL_LOCK_CLOCKS_ADDR    : std_logic_vector(7 downto 0) := x"24";
+    constant REG_TTC_STATUS_CLK_PA_PLL_LOCK_CLOCKS_MSB    : integer := 23;
+    constant REG_TTC_STATUS_CLK_PA_PLL_LOCK_CLOCKS_LSB     : integer := 0;
+
+    constant REG_TTC_STATUS_CLK_PA_FSM_STATE_ADDR    : std_logic_vector(7 downto 0) := x"24";
+    constant REG_TTC_STATUS_CLK_PA_FSM_STATE_MSB    : integer := 30;
+    constant REG_TTC_STATUS_CLK_PA_FSM_STATE_LSB     : integer := 28;
+
+    constant REG_TTC_STATUS_CLK_PA_SHIFT_BACK_FAIL_CNT_ADDR    : std_logic_vector(7 downto 0) := x"25";
+    constant REG_TTC_STATUS_CLK_PA_SHIFT_BACK_FAIL_CNT_MSB    : integer := 7;
+    constant REG_TTC_STATUS_CLK_PA_SHIFT_BACK_FAIL_CNT_LSB     : integer := 0;
+
+    constant REG_TTC_STATUS_CLK_PHASE_MONITOR_PHASE_ADDR    : std_logic_vector(7 downto 0) := x"26";
+    constant REG_TTC_STATUS_CLK_PHASE_MONITOR_PHASE_MSB    : integer := 11;
+    constant REG_TTC_STATUS_CLK_PHASE_MONITOR_PHASE_LSB     : integer := 0;
+
+    constant REG_TTC_STATUS_CLK_PHASE_MONITOR_PHASE_MEAN_ADDR    : std_logic_vector(7 downto 0) := x"26";
+    constant REG_TTC_STATUS_CLK_PHASE_MONITOR_PHASE_MEAN_MSB    : integer := 23;
+    constant REG_TTC_STATUS_CLK_PHASE_MONITOR_PHASE_MEAN_LSB     : integer := 12;
+
+    constant REG_TTC_STATUS_CLK_PHASE_MONITOR_PHASE_MIN_ADDR    : std_logic_vector(7 downto 0) := x"27";
+    constant REG_TTC_STATUS_CLK_PHASE_MONITOR_PHASE_MIN_MSB    : integer := 11;
+    constant REG_TTC_STATUS_CLK_PHASE_MONITOR_PHASE_MIN_LSB     : integer := 0;
+
+    constant REG_TTC_STATUS_CLK_PHASE_MONITOR_PHASE_MAX_ADDR    : std_logic_vector(7 downto 0) := x"27";
+    constant REG_TTC_STATUS_CLK_PHASE_MONITOR_PHASE_MAX_MSB    : integer := 23;
+    constant REG_TTC_STATUS_CLK_PHASE_MONITOR_PHASE_MAX_LSB     : integer := 12;
+
+    constant REG_TTC_STATUS_CLK_PHASE_MONITOR_PHASE_JUMP_CNT_ADDR    : std_logic_vector(7 downto 0) := x"28";
+    constant REG_TTC_STATUS_CLK_PHASE_MONITOR_PHASE_JUMP_CNT_MSB    : integer := 15;
+    constant REG_TTC_STATUS_CLK_PHASE_MONITOR_PHASE_JUMP_CNT_LSB     : integer := 0;
+
+    constant REG_TTC_STATUS_CLK_PHASE_MONITOR_PHASE_JUMP_SIZE_ADDR    : std_logic_vector(7 downto 0) := x"28";
+    constant REG_TTC_STATUS_CLK_PHASE_MONITOR_PHASE_JUMP_SIZE_MSB    : integer := 27;
+    constant REG_TTC_STATUS_CLK_PHASE_MONITOR_PHASE_JUMP_SIZE_LSB     : integer := 16;
+
+    constant REG_TTC_STATUS_CLK_PHASE_MONITOR_PHASE_JUMP_TIME_ADDR    : std_logic_vector(7 downto 0) := x"29";
+    constant REG_TTC_STATUS_CLK_PHASE_MONITOR_PHASE_JUMP_TIME_MSB    : integer := 15;
+    constant REG_TTC_STATUS_CLK_PHASE_MONITOR_PHASE_JUMP_TIME_LSB     : integer := 0;
+
+    constant REG_TTC_STATUS_TTC_SINGLE_ERROR_CNT_ADDR    : std_logic_vector(7 downto 0) := x"40";
     constant REG_TTC_STATUS_TTC_SINGLE_ERROR_CNT_MSB    : integer := 15;
     constant REG_TTC_STATUS_TTC_SINGLE_ERROR_CNT_LSB     : integer := 0;
 
-    constant REG_TTC_STATUS_TTC_DOUBLE_ERROR_CNT_ADDR    : std_logic_vector(5 downto 0) := "00" & x"9";
+    constant REG_TTC_STATUS_TTC_DOUBLE_ERROR_CNT_ADDR    : std_logic_vector(7 downto 0) := x"40";
     constant REG_TTC_STATUS_TTC_DOUBLE_ERROR_CNT_MSB    : integer := 31;
     constant REG_TTC_STATUS_TTC_DOUBLE_ERROR_CNT_LSB     : integer := 16;
 
-    constant REG_TTC_STATUS_BC0_LOCKED_ADDR    : std_logic_vector(5 downto 0) := "00" & x"a";
+    constant REG_TTC_STATUS_BC0_LOCKED_ADDR    : std_logic_vector(7 downto 0) := x"41";
     constant REG_TTC_STATUS_BC0_LOCKED_BIT    : integer := 0;
 
-    constant REG_TTC_STATUS_BC0_UNLOCK_CNT_ADDR    : std_logic_vector(5 downto 0) := "00" & x"b";
+    constant REG_TTC_STATUS_BC0_UNLOCK_CNT_ADDR    : std_logic_vector(7 downto 0) := x"42";
     constant REG_TTC_STATUS_BC0_UNLOCK_CNT_MSB    : integer := 15;
     constant REG_TTC_STATUS_BC0_UNLOCK_CNT_LSB     : integer := 0;
 
-    constant REG_TTC_STATUS_BC0_OVERFLOW_CNT_ADDR    : std_logic_vector(5 downto 0) := "00" & x"c";
+    constant REG_TTC_STATUS_BC0_OVERFLOW_CNT_ADDR    : std_logic_vector(7 downto 0) := x"43";
     constant REG_TTC_STATUS_BC0_OVERFLOW_CNT_MSB    : integer := 15;
     constant REG_TTC_STATUS_BC0_OVERFLOW_CNT_LSB     : integer := 0;
 
-    constant REG_TTC_STATUS_BC0_UNDERFLOW_CNT_ADDR    : std_logic_vector(5 downto 0) := "00" & x"c";
+    constant REG_TTC_STATUS_BC0_UNDERFLOW_CNT_ADDR    : std_logic_vector(7 downto 0) := x"43";
     constant REG_TTC_STATUS_BC0_UNDERFLOW_CNT_MSB    : integer := 31;
     constant REG_TTC_STATUS_BC0_UNDERFLOW_CNT_LSB     : integer := 16;
 
-    constant REG_TTC_CMD_COUNTERS_L1A_ADDR    : std_logic_vector(5 downto 0) := "00" & x"d";
+    constant REG_TTC_CMD_COUNTERS_L1A_ADDR    : std_logic_vector(7 downto 0) := x"50";
     constant REG_TTC_CMD_COUNTERS_L1A_MSB    : integer := 31;
     constant REG_TTC_CMD_COUNTERS_L1A_LSB     : integer := 0;
 
-    constant REG_TTC_CMD_COUNTERS_BC0_ADDR    : std_logic_vector(5 downto 0) := "00" & x"e";
+    constant REG_TTC_CMD_COUNTERS_BC0_ADDR    : std_logic_vector(7 downto 0) := x"51";
     constant REG_TTC_CMD_COUNTERS_BC0_MSB    : integer := 31;
     constant REG_TTC_CMD_COUNTERS_BC0_LSB     : integer := 0;
 
-    constant REG_TTC_CMD_COUNTERS_EC0_ADDR    : std_logic_vector(5 downto 0) := "00" & x"f";
+    constant REG_TTC_CMD_COUNTERS_EC0_ADDR    : std_logic_vector(7 downto 0) := x"52";
     constant REG_TTC_CMD_COUNTERS_EC0_MSB    : integer := 31;
     constant REG_TTC_CMD_COUNTERS_EC0_LSB     : integer := 0;
 
-    constant REG_TTC_CMD_COUNTERS_RESYNC_ADDR    : std_logic_vector(5 downto 0) := "01" & x"0";
+    constant REG_TTC_CMD_COUNTERS_RESYNC_ADDR    : std_logic_vector(7 downto 0) := x"53";
     constant REG_TTC_CMD_COUNTERS_RESYNC_MSB    : integer := 31;
     constant REG_TTC_CMD_COUNTERS_RESYNC_LSB     : integer := 0;
 
-    constant REG_TTC_CMD_COUNTERS_OC0_ADDR    : std_logic_vector(5 downto 0) := "01" & x"1";
+    constant REG_TTC_CMD_COUNTERS_OC0_ADDR    : std_logic_vector(7 downto 0) := x"54";
     constant REG_TTC_CMD_COUNTERS_OC0_MSB    : integer := 31;
     constant REG_TTC_CMD_COUNTERS_OC0_LSB     : integer := 0;
 
-    constant REG_TTC_CMD_COUNTERS_HARD_RESET_ADDR    : std_logic_vector(5 downto 0) := "01" & x"2";
+    constant REG_TTC_CMD_COUNTERS_HARD_RESET_ADDR    : std_logic_vector(7 downto 0) := x"55";
     constant REG_TTC_CMD_COUNTERS_HARD_RESET_MSB    : integer := 31;
     constant REG_TTC_CMD_COUNTERS_HARD_RESET_LSB     : integer := 0;
 
-    constant REG_TTC_CMD_COUNTERS_CALPULSE_ADDR    : std_logic_vector(5 downto 0) := "01" & x"3";
+    constant REG_TTC_CMD_COUNTERS_CALPULSE_ADDR    : std_logic_vector(7 downto 0) := x"56";
     constant REG_TTC_CMD_COUNTERS_CALPULSE_MSB    : integer := 31;
     constant REG_TTC_CMD_COUNTERS_CALPULSE_LSB     : integer := 0;
 
-    constant REG_TTC_CMD_COUNTERS_START_ADDR    : std_logic_vector(5 downto 0) := "01" & x"4";
+    constant REG_TTC_CMD_COUNTERS_START_ADDR    : std_logic_vector(7 downto 0) := x"57";
     constant REG_TTC_CMD_COUNTERS_START_MSB    : integer := 31;
     constant REG_TTC_CMD_COUNTERS_START_LSB     : integer := 0;
 
-    constant REG_TTC_CMD_COUNTERS_STOP_ADDR    : std_logic_vector(5 downto 0) := "01" & x"5";
+    constant REG_TTC_CMD_COUNTERS_STOP_ADDR    : std_logic_vector(7 downto 0) := x"58";
     constant REG_TTC_CMD_COUNTERS_STOP_MSB    : integer := 31;
     constant REG_TTC_CMD_COUNTERS_STOP_LSB     : integer := 0;
 
-    constant REG_TTC_CMD_COUNTERS_TEST_SYNC_ADDR    : std_logic_vector(5 downto 0) := "01" & x"6";
+    constant REG_TTC_CMD_COUNTERS_TEST_SYNC_ADDR    : std_logic_vector(7 downto 0) := x"59";
     constant REG_TTC_CMD_COUNTERS_TEST_SYNC_MSB    : integer := 31;
     constant REG_TTC_CMD_COUNTERS_TEST_SYNC_LSB     : integer := 0;
 
-    constant REG_TTC_L1A_ID_ADDR    : std_logic_vector(5 downto 0) := "01" & x"7";
+    constant REG_TTC_L1A_ID_ADDR    : std_logic_vector(7 downto 0) := x"60";
     constant REG_TTC_L1A_ID_MSB    : integer := 23;
     constant REG_TTC_L1A_ID_LSB     : integer := 0;
 
-    constant REG_TTC_L1A_RATE_ADDR    : std_logic_vector(5 downto 0) := "01" & x"8";
+    constant REG_TTC_L1A_RATE_ADDR    : std_logic_vector(7 downto 0) := x"61";
     constant REG_TTC_L1A_RATE_MSB    : integer := 31;
     constant REG_TTC_L1A_RATE_LSB     : integer := 0;
 
-    constant REG_TTC_TTC_SPY_BUFFER_ADDR    : std_logic_vector(5 downto 0) := "01" & x"9";
+    constant REG_TTC_TTC_SPY_BUFFER_ADDR    : std_logic_vector(7 downto 0) := x"62";
     constant REG_TTC_TTC_SPY_BUFFER_MSB    : integer := 31;
     constant REG_TTC_TTC_SPY_BUFFER_LSB     : integer := 0;
 
-    constant REG_TTC_GENERATOR_RESET_ADDR    : std_logic_vector(5 downto 0) := "10" & x"0";
+    constant REG_TTC_GENERATOR_RESET_ADDR    : std_logic_vector(7 downto 0) := x"70";
     constant REG_TTC_GENERATOR_RESET_MSB    : integer := 31;
     constant REG_TTC_GENERATOR_RESET_LSB     : integer := 0;
 
-    constant REG_TTC_GENERATOR_ENABLE_ADDR    : std_logic_vector(5 downto 0) := "10" & x"1";
+    constant REG_TTC_GENERATOR_ENABLE_ADDR    : std_logic_vector(7 downto 0) := x"71";
     constant REG_TTC_GENERATOR_ENABLE_BIT    : integer := 0;
     constant REG_TTC_GENERATOR_ENABLE_DEFAULT : std_logic := '0';
 
-    constant REG_TTC_GENERATOR_CYCLIC_RUNNING_ADDR    : std_logic_vector(5 downto 0) := "10" & x"1";
+    constant REG_TTC_GENERATOR_CYCLIC_RUNNING_ADDR    : std_logic_vector(7 downto 0) := x"71";
     constant REG_TTC_GENERATOR_CYCLIC_RUNNING_BIT    : integer := 1;
 
-    constant REG_TTC_GENERATOR_ENABLE_CALPULSE_ONLY_ADDR    : std_logic_vector(5 downto 0) := "10" & x"1";
+    constant REG_TTC_GENERATOR_ENABLE_CALPULSE_ONLY_ADDR    : std_logic_vector(7 downto 0) := x"71";
     constant REG_TTC_GENERATOR_ENABLE_CALPULSE_ONLY_BIT    : integer := 2;
     constant REG_TTC_GENERATOR_ENABLE_CALPULSE_ONLY_DEFAULT : std_logic := '0';
 
-    constant REG_TTC_GENERATOR_CYCLIC_L1A_GAP_ADDR    : std_logic_vector(5 downto 0) := "10" & x"1";
+    constant REG_TTC_GENERATOR_CYCLIC_L1A_GAP_ADDR    : std_logic_vector(7 downto 0) := x"71";
     constant REG_TTC_GENERATOR_CYCLIC_L1A_GAP_MSB    : integer := 19;
     constant REG_TTC_GENERATOR_CYCLIC_L1A_GAP_LSB     : integer := 4;
     constant REG_TTC_GENERATOR_CYCLIC_L1A_GAP_DEFAULT : std_logic_vector(19 downto 4) := x"0190";
 
-    constant REG_TTC_GENERATOR_CYCLIC_CALPULSE_TO_L1A_GAP_ADDR    : std_logic_vector(5 downto 0) := "10" & x"1";
+    constant REG_TTC_GENERATOR_CYCLIC_CALPULSE_TO_L1A_GAP_ADDR    : std_logic_vector(7 downto 0) := x"71";
     constant REG_TTC_GENERATOR_CYCLIC_CALPULSE_TO_L1A_GAP_MSB    : integer := 31;
     constant REG_TTC_GENERATOR_CYCLIC_CALPULSE_TO_L1A_GAP_LSB     : integer := 20;
     constant REG_TTC_GENERATOR_CYCLIC_CALPULSE_TO_L1A_GAP_DEFAULT : std_logic_vector(31 downto 20) := x"000";
 
-    constant REG_TTC_GENERATOR_SINGLE_HARD_RESET_ADDR    : std_logic_vector(5 downto 0) := "10" & x"2";
+    constant REG_TTC_GENERATOR_SINGLE_HARD_RESET_ADDR    : std_logic_vector(7 downto 0) := x"72";
     constant REG_TTC_GENERATOR_SINGLE_HARD_RESET_MSB    : integer := 31;
     constant REG_TTC_GENERATOR_SINGLE_HARD_RESET_LSB     : integer := 0;
 
-    constant REG_TTC_GENERATOR_SINGLE_RESYNC_ADDR    : std_logic_vector(5 downto 0) := "10" & x"3";
+    constant REG_TTC_GENERATOR_SINGLE_RESYNC_ADDR    : std_logic_vector(7 downto 0) := x"73";
     constant REG_TTC_GENERATOR_SINGLE_RESYNC_MSB    : integer := 31;
     constant REG_TTC_GENERATOR_SINGLE_RESYNC_LSB     : integer := 0;
 
-    constant REG_TTC_GENERATOR_SINGLE_EC0_ADDR    : std_logic_vector(5 downto 0) := "10" & x"4";
+    constant REG_TTC_GENERATOR_SINGLE_EC0_ADDR    : std_logic_vector(7 downto 0) := x"74";
     constant REG_TTC_GENERATOR_SINGLE_EC0_MSB    : integer := 31;
     constant REG_TTC_GENERATOR_SINGLE_EC0_LSB     : integer := 0;
 
-    constant REG_TTC_GENERATOR_CYCLIC_L1A_COUNT_ADDR    : std_logic_vector(5 downto 0) := "10" & x"5";
+    constant REG_TTC_GENERATOR_CYCLIC_L1A_COUNT_ADDR    : std_logic_vector(7 downto 0) := x"75";
     constant REG_TTC_GENERATOR_CYCLIC_L1A_COUNT_MSB    : integer := 23;
     constant REG_TTC_GENERATOR_CYCLIC_L1A_COUNT_LSB     : integer := 0;
     constant REG_TTC_GENERATOR_CYCLIC_L1A_COUNT_DEFAULT : std_logic_vector(23 downto 0) := x"002710";
 
-    constant REG_TTC_GENERATOR_CYCLIC_START_ADDR    : std_logic_vector(5 downto 0) := "10" & x"6";
+    constant REG_TTC_GENERATOR_CYCLIC_START_ADDR    : std_logic_vector(7 downto 0) := x"76";
     constant REG_TTC_GENERATOR_CYCLIC_START_MSB    : integer := 31;
     constant REG_TTC_GENERATOR_CYCLIC_START_LSB     : integer := 0;
 
-    constant REG_TTC_GENERATOR_CYCLIC_CALPULSE_PRESCALE_ADDR    : std_logic_vector(5 downto 0) := "10" & x"7";
+    constant REG_TTC_GENERATOR_CYCLIC_CALPULSE_PRESCALE_ADDR    : std_logic_vector(7 downto 0) := x"77";
     constant REG_TTC_GENERATOR_CYCLIC_CALPULSE_PRESCALE_MSB    : integer := 11;
     constant REG_TTC_GENERATOR_CYCLIC_CALPULSE_PRESCALE_LSB     : integer := 0;
     constant REG_TTC_GENERATOR_CYCLIC_CALPULSE_PRESCALE_DEFAULT : std_logic_vector(11 downto 0) := x"000";

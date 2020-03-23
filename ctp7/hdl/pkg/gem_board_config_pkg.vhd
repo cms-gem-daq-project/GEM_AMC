@@ -32,8 +32,6 @@ package gem_board_config_package is
     constant CFG_NUM_VFATS_PER_OH   : integer := get_num_vfats_per_oh(CFG_GEM_STATION);
     constant CFG_GBT_WIDEBUS        : integer := get_gbt_widebus(CFG_GEM_STATION, CFG_OH_VERSION);
     
-    constant CFG_USE_BACKPLANE_CLK  : boolean := true; -- when set to true the source of all clocks will be the backplane TTC clock; if false, the source is MGT refclk, aligned in phase with the TTC backplane clock
-
     constant CFG_USE_TRIG_TX_LINKS  : boolean := false; -- if true, then trigger transmitters will be instantiated (used to connect to EMTF)
     constant CFG_NUM_TRIG_TX        : integer := 12; -- number of trigger transmitters used to connect to EMTF
 

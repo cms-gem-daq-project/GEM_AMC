@@ -41,8 +41,9 @@ entity gem_amc is
         reset_pwrup_o           : out  std_logic;
 
         -- TTC
-        ttc_clocks_i            : in t_ttc_clks;
-        ttc_clocks_locked_i     : in  std_logic;
+        ttc_clocks_i            : in  t_ttc_clks;
+        ttc_clk_status_i        : in  t_ttc_clk_status;
+        ttc_clk_ctrl_o          : out t_ttc_clk_ctrl;
         ttc_data_p_i            : in  std_logic;      -- TTC protocol backplane signals
         ttc_data_n_i            : in  std_logic;
         
@@ -301,7 +302,8 @@ begin
         port map(
             reset_i             => reset,
             ttc_clks_i          => ttc_clocks_i,
-            ttc_clks_locked_i   => ttc_clocks_locked_i,
+            ttc_clks_status_i   => ttc_clk_status_i,
+            ttc_clks_ctrl_o     => ttc_clk_ctrl_o,
             ttc_data_p_i        => ttc_data_p_i,
             ttc_data_n_i        => ttc_data_n_i,
             ttc_cmds_o          => ttc_cmd,

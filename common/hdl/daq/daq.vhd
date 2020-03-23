@@ -1106,7 +1106,7 @@ begin
                                       x"000000" &   -- Chamber error flag (hmm)
                                       -- GLIB status
                                       daq_almost_full &
-                                      ttc_status_i.mmcm_locked & 
+                                      ttc_status_i.clk_status.mmcm_locked & 
                                       daq_clk_locked_i & 
                                       daq_ready &
                                       ttc_status_i.bc0_status.locked &
