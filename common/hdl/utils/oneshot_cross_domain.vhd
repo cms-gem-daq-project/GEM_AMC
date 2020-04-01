@@ -26,10 +26,12 @@ end oneshot_cross_domain;
 
 architecture oneshot_cross_domain_arch of oneshot_cross_domain is
     
-    signal last_input       : std_logic;
-    signal oneshot_req      : std_logic;
-    signal oneshot_req_last : std_logic;
-    signal oneshot_ack      : std_logic;
+    signal last_input       : std_logic := '0';
+    signal oneshot_req      : std_logic := '0';
+    signal oneshot_req_sync : std_logic := '0';
+    signal oneshot_req_last : std_logic := '0';
+    signal oneshot_ack      : std_logic := '0';
+    signal oneshot_ack_sync : std_logic := '0';
         
 begin
 
@@ -48,7 +50,7 @@ begin
                     else
                         oneshot_req <= '0';
                     end if; 
-                elsif (oneshot_ack = '1') then
+                elsif (oneshot_ack_sync = '1') then
                     oneshot_req <= '0';
                 else
                     oneshot_req <= '1';
@@ -56,6 +58,26 @@ begin
             end if;
         end if;
     end process;
+
+    i_req_sync : entity work.synchronizer
+        generic map(
+            N_STAGES => 2
+        )
+        port map(
+            async_i => oneshot_req,
+            clk_i   => oneshot_clk_i,
+            sync_o  => oneshot_req_sync
+        );
+
+    i_ack_sync : entity work.synchronizer
+        generic map(
+            N_STAGES => 2
+        )
+        port map(
+            async_i => oneshot_ack,
+            clk_i   => input_clk_i,
+            sync_o  => oneshot_ack_sync
+        );
     
     process (oneshot_clk_i)
     begin
@@ -65,13 +87,15 @@ begin
                 oneshot_ack <= '0';
                 oneshot_req_last <= '0';
             else
-                if ((oneshot_req_last = '0') and (oneshot_req = '1')) then
+                oneshot_req_last <= oneshot_req_sync;
+                
+                if ((oneshot_req_last = '0') and (oneshot_req_sync = '1')) then
                     oneshot_o <= '1';
                 else
                     oneshot_o <= '0';
                 end if;
                 
-                if (oneshot_req = '1') then
+                if (oneshot_req_sync = '1') then
                     oneshot_ack <= '1';
                 else
                     oneshot_ack <= '0';
