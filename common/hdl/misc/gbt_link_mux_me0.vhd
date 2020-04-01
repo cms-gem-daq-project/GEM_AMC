@@ -185,54 +185,54 @@ begin
             vfat3_rx_data_arr_o(i)(0) <= not gbt_rx_data_arr_i(i * 2 + 0).rx_data(55 downto 48);
             
             -- SBITS
-            vfat3_rx_data_arr_o(i)(1 )(7  downto 0 ) <=     gbt_rx_data_arr_i(i * 2 + 0).rx_data(207 downto 200); -- VFAT7  Pair 0 LPGBT=Master
-            vfat3_rx_data_arr_o(i)(1 )(15 downto 8 ) <= not gbt_rx_data_arr_i(i * 2 + 0).rx_data(191 downto 184); -- VFAT7  Pair 1 LPGBT=Master
-            vfat3_rx_data_arr_o(i)(1 )(23 downto 16) <= not gbt_rx_data_arr_i(i * 2 + 0).rx_data(175 downto 168); -- VFAT7  Pair 2 LPGBT=Master
-            vfat3_rx_data_arr_o(i)(1 )(31 downto 24) <=     gbt_rx_data_arr_i(i * 2 + 0).rx_data(215 downto 208); -- VFAT7  Pair 3 LPGBT=Master
-            vfat3_rx_data_arr_o(i)(1 )(39 downto 32) <=     gbt_rx_data_arr_i(i * 2 + 0).rx_data(199 downto 192); -- VFAT7  Pair 4 LPGBT=Master
-            vfat3_rx_data_arr_o(i)(1 )(47 downto 40) <=     gbt_rx_data_arr_i(i * 2 + 0).rx_data(183 downto 176); -- VFAT7  Pair 5 LPGBT=Master
-            vfat3_rx_data_arr_o(i)(1 )(55 downto 48) <=     gbt_rx_data_arr_i(i * 2 + 0).rx_data(167 downto 160); -- VFAT7  Pair 6 LPGBT=Master
-            vfat3_rx_data_arr_o(i)(1 )(63 downto 56) <=     gbt_rx_data_arr_i(i * 2 + 0).rx_data(151 downto 144); -- VFAT7  Pair 7 LPGBT=Master
-            vfat3_rx_data_arr_o(i)(0 )(7  downto 0 ) <= not gbt_rx_data_arr_i(i * 2 + 0).rx_data(31  downto 24 ); -- VFAT6  Pair 0 LPGBT=Master
-            vfat3_rx_data_arr_o(i)(0 )(15 downto 8 ) <= not gbt_rx_data_arr_i(i * 2 + 0).rx_data(15  downto 8  ); -- VFAT6  Pair 1 LPGBT=Master
-            vfat3_rx_data_arr_o(i)(0 )(23 downto 16) <=     gbt_rx_data_arr_i(i * 2 + 0).rx_data(7   downto 0  ); -- VFAT6  Pair 2 LPGBT=Master
-            vfat3_rx_data_arr_o(i)(0 )(31 downto 24) <=     gbt_rx_data_arr_i(i * 2 + 0).rx_data(23  downto 16 ); -- VFAT6  Pair 3 LPGBT=Master
-            vfat3_rx_data_arr_o(i)(0 )(39 downto 32) <= not gbt_rx_data_arr_i(i * 2 + 0).rx_data(47  downto 40 ); -- VFAT6  Pair 4 LPGBT=Master
-            vfat3_rx_data_arr_o(i)(0 )(47 downto 40) <=     gbt_rx_data_arr_i(i * 2 + 0).rx_data(39  downto 32 ); -- VFAT6  Pair 5 LPGBT=Master
-            vfat3_rx_data_arr_o(i)(0 )(55 downto 48) <=     gbt_rx_data_arr_i(i * 2 + 0).rx_data(79  downto 72 ); -- VFAT6  Pair 6 LPGBT=Master
-            vfat3_rx_data_arr_o(i)(0 )(63 downto 56) <= not gbt_rx_data_arr_i(i * 2 + 0).rx_data(63  downto 56 ); -- VFAT6  Pair 7 LPGBT=Master
-            vfat3_rx_data_arr_o(i)(2 )(7  downto 0 ) <=     gbt_rx_data_arr_i(i * 2 + 1).rx_data(199 downto 192); -- VFAT8  Pair 0 LPGBT=Slave
-            vfat3_rx_data_arr_o(i)(2 )(15 downto 8 ) <=     gbt_rx_data_arr_i(i * 2 + 1).rx_data(207 downto 200); -- VFAT8  Pair 1 LPGBT=Slave
-            vfat3_rx_data_arr_o(i)(2 )(23 downto 16) <= not gbt_rx_data_arr_i(i * 2 + 1).rx_data(215 downto 208); -- VFAT8  Pair 2 LPGBT=Slave
-            vfat3_rx_data_arr_o(i)(2 )(31 downto 24) <=     gbt_rx_data_arr_i(i * 2 + 1).rx_data(223 downto 216); -- VFAT8  Pair 3 LPGBT=Slave
-            vfat3_rx_data_arr_o(i)(2 )(39 downto 32) <= not gbt_rx_data_arr_i(i * 2 + 1).rx_data(183 downto 176); -- VFAT8  Pair 4 LPGBT=Slave
-            vfat3_rx_data_arr_o(i)(2 )(47 downto 40) <=     gbt_rx_data_arr_i(i * 2 + 1).rx_data(191 downto 184); -- VFAT8  Pair 5 LPGBT=Slave
-            vfat3_rx_data_arr_o(i)(2 )(55 downto 48) <= not gbt_rx_data_arr_i(i * 2 + 1).rx_data(167 downto 160); -- VFAT8  Pair 6 LPGBT=Slave
-            vfat3_rx_data_arr_o(i)(2 )(63 downto 56) <=     gbt_rx_data_arr_i(i * 2 + 1).rx_data(175 downto 168); -- VFAT8  Pair 7 LPGBT=Slave
-            vfat3_rx_data_arr_o(i)(3 )(7  downto 0 ) <= not gbt_rx_data_arr_i(i * 2 + 0).rx_data(223 downto 216); -- VFAT9  Pair 0 LPGBT=Master
-            vfat3_rx_data_arr_o(i)(3 )(15 downto 8 ) <=     gbt_rx_data_arr_i(i * 2 + 0).rx_data(143 downto 136); -- VFAT9  Pair 1 LPGBT=Master
-            vfat3_rx_data_arr_o(i)(3 )(23 downto 16) <=     gbt_rx_data_arr_i(i * 2 + 0).rx_data(159 downto 152); -- VFAT9  Pair 2 LPGBT=Master
-            vfat3_rx_data_arr_o(i)(3 )(31 downto 24) <= not gbt_rx_data_arr_i(i * 2 + 0).rx_data(111 downto 104); -- VFAT9  Pair 3 LPGBT=Master
-            vfat3_rx_data_arr_o(i)(3 )(39 downto 32) <= not gbt_rx_data_arr_i(i * 2 + 0).rx_data(95  downto 88 ); -- VFAT9  Pair 4 LPGBT=Master
-            vfat3_rx_data_arr_o(i)(3 )(47 downto 40) <= not gbt_rx_data_arr_i(i * 2 + 0).rx_data(87  downto 80 ); -- VFAT9  Pair 5 LPGBT=Master
-            vfat3_rx_data_arr_o(i)(3 )(55 downto 48) <= not gbt_rx_data_arr_i(i * 2 + 0).rx_data(103 downto 96 ); -- VFAT9  Pair 6 LPGBT=Master
-            vfat3_rx_data_arr_o(i)(3 )(63 downto 56) <= not gbt_rx_data_arr_i(i * 2 + 0).rx_data(119 downto 112); -- VFAT9  Pair 7 LPGBT=Master
-            vfat3_rx_data_arr_o(i)(4)(7  downto 0 ) <= not gbt_rx_data_arr_i(i * 2 + 1).rx_data(55  downto 48 ); -- VFAT10 Pair 0 LPGBT=Slave
-            vfat3_rx_data_arr_o(i)(4)(15 downto 8 ) <= not gbt_rx_data_arr_i(i * 2 + 1).rx_data(39  downto 32 ); -- VFAT10 Pair 1 LPGBT=Slave
-            vfat3_rx_data_arr_o(i)(4)(23 downto 16) <=     gbt_rx_data_arr_i(i * 2 + 1).rx_data(103 downto 96 ); -- VFAT10 Pair 2 LPGBT=Slave
-            vfat3_rx_data_arr_o(i)(4)(31 downto 24) <= not gbt_rx_data_arr_i(i * 2 + 1).rx_data(23  downto 16 ); -- VFAT10 Pair 3 LPGBT=Slave
-            vfat3_rx_data_arr_o(i)(4)(39 downto 32) <= not gbt_rx_data_arr_i(i * 2 + 1).rx_data(7   downto 0  ); -- VFAT10 Pair 4 LPGBT=Slave
-            vfat3_rx_data_arr_o(i)(4)(47 downto 40) <=     gbt_rx_data_arr_i(i * 2 + 1).rx_data(15  downto 8  ); -- VFAT10 Pair 5 LPGBT=Slave
-            vfat3_rx_data_arr_o(i)(4)(55 downto 48) <=     gbt_rx_data_arr_i(i * 2 + 1).rx_data(47  downto 40 ); -- VFAT10 Pair 6 LPGBT=Slave
-            vfat3_rx_data_arr_o(i)(4)(63 downto 56) <= not gbt_rx_data_arr_i(i * 2 + 1).rx_data(111 downto 104); -- VFAT10 Pair 7 LPGBT=Slave
-            vfat3_rx_data_arr_o(i)(5)(7  downto 0 ) <= not gbt_rx_data_arr_i(i * 2 + 1).rx_data(95  downto 88 ); -- VFAT11 Pair 0 LPGBT=Slave
-            vfat3_rx_data_arr_o(i)(5)(15 downto 8 ) <= not gbt_rx_data_arr_i(i * 2 + 1).rx_data(71  downto 64 ); -- VFAT11 Pair 1 LPGBT=Slave
-            vfat3_rx_data_arr_o(i)(5)(23 downto 16) <= not gbt_rx_data_arr_i(i * 2 + 1).rx_data(127 downto 120); -- VFAT11 Pair 2 LPGBT=Slave
-            vfat3_rx_data_arr_o(i)(5)(31 downto 24) <=     gbt_rx_data_arr_i(i * 2 + 1).rx_data(87  downto 80 ); -- VFAT11 Pair 3 LPGBT=Slave
-            vfat3_rx_data_arr_o(i)(5)(39 downto 32) <=     gbt_rx_data_arr_i(i * 2 + 1).rx_data(79  downto 72 ); -- VFAT11 Pair 4 LPGBT=Slave
-            vfat3_rx_data_arr_o(i)(5)(47 downto 40) <= not gbt_rx_data_arr_i(i * 2 + 1).rx_data(63  downto 56 ); -- VFAT11 Pair 5 LPGBT=Slave
-            vfat3_rx_data_arr_o(i)(5)(55 downto 48) <= not gbt_rx_data_arr_i(i * 2 + 1).rx_data(119 downto 112); -- VFAT11 Pair 6 LPGBT=Slave
-            vfat3_rx_data_arr_o(i)(5)(63 downto 56) <= not gbt_rx_data_arr_i(i * 2 + 1).rx_data(159 downto 152); -- VFAT11 Pair 7 LPGBT=Slave
+            vfat3_sbits_arr_o(i)(1 )(7  downto 0 ) <=     gbt_rx_data_arr_i(i * 2 + 0).rx_data(207 downto 200); -- VFAT7  Pair 0 LPGBT=Master
+            vfat3_sbits_arr_o(i)(1 )(15 downto 8 ) <= not gbt_rx_data_arr_i(i * 2 + 0).rx_data(191 downto 184); -- VFAT7  Pair 1 LPGBT=Master
+            vfat3_sbits_arr_o(i)(1 )(23 downto 16) <= not gbt_rx_data_arr_i(i * 2 + 0).rx_data(175 downto 168); -- VFAT7  Pair 2 LPGBT=Master
+            vfat3_sbits_arr_o(i)(1 )(31 downto 24) <=     gbt_rx_data_arr_i(i * 2 + 0).rx_data(215 downto 208); -- VFAT7  Pair 3 LPGBT=Master
+            vfat3_sbits_arr_o(i)(1 )(39 downto 32) <=     gbt_rx_data_arr_i(i * 2 + 0).rx_data(199 downto 192); -- VFAT7  Pair 4 LPGBT=Master
+            vfat3_sbits_arr_o(i)(1 )(47 downto 40) <=     gbt_rx_data_arr_i(i * 2 + 0).rx_data(183 downto 176); -- VFAT7  Pair 5 LPGBT=Master
+            vfat3_sbits_arr_o(i)(1 )(55 downto 48) <=     gbt_rx_data_arr_i(i * 2 + 0).rx_data(167 downto 160); -- VFAT7  Pair 6 LPGBT=Master
+            vfat3_sbits_arr_o(i)(1 )(63 downto 56) <=     gbt_rx_data_arr_i(i * 2 + 0).rx_data(151 downto 144); -- VFAT7  Pair 7 LPGBT=Master
+            vfat3_sbits_arr_o(i)(0 )(7  downto 0 ) <= not gbt_rx_data_arr_i(i * 2 + 0).rx_data(31  downto 24 ); -- VFAT6  Pair 0 LPGBT=Master
+            vfat3_sbits_arr_o(i)(0 )(15 downto 8 ) <= not gbt_rx_data_arr_i(i * 2 + 0).rx_data(15  downto 8  ); -- VFAT6  Pair 1 LPGBT=Master
+            vfat3_sbits_arr_o(i)(0 )(23 downto 16) <=     gbt_rx_data_arr_i(i * 2 + 0).rx_data(7   downto 0  ); -- VFAT6  Pair 2 LPGBT=Master
+            vfat3_sbits_arr_o(i)(0 )(31 downto 24) <=     gbt_rx_data_arr_i(i * 2 + 0).rx_data(23  downto 16 ); -- VFAT6  Pair 3 LPGBT=Master
+            vfat3_sbits_arr_o(i)(0 )(39 downto 32) <= not gbt_rx_data_arr_i(i * 2 + 0).rx_data(47  downto 40 ); -- VFAT6  Pair 4 LPGBT=Master
+            vfat3_sbits_arr_o(i)(0 )(47 downto 40) <=     gbt_rx_data_arr_i(i * 2 + 0).rx_data(39  downto 32 ); -- VFAT6  Pair 5 LPGBT=Master
+            vfat3_sbits_arr_o(i)(0 )(55 downto 48) <=     gbt_rx_data_arr_i(i * 2 + 0).rx_data(79  downto 72 ); -- VFAT6  Pair 6 LPGBT=Master
+            vfat3_sbits_arr_o(i)(0 )(63 downto 56) <= not gbt_rx_data_arr_i(i * 2 + 0).rx_data(63  downto 56 ); -- VFAT6  Pair 7 LPGBT=Master
+            vfat3_sbits_arr_o(i)(2 )(7  downto 0 ) <=     gbt_rx_data_arr_i(i * 2 + 1).rx_data(199 downto 192); -- VFAT8  Pair 0 LPGBT=Slave
+            vfat3_sbits_arr_o(i)(2 )(15 downto 8 ) <=     gbt_rx_data_arr_i(i * 2 + 1).rx_data(207 downto 200); -- VFAT8  Pair 1 LPGBT=Slave
+            vfat3_sbits_arr_o(i)(2 )(23 downto 16) <= not gbt_rx_data_arr_i(i * 2 + 1).rx_data(215 downto 208); -- VFAT8  Pair 2 LPGBT=Slave
+            vfat3_sbits_arr_o(i)(2 )(31 downto 24) <=     gbt_rx_data_arr_i(i * 2 + 1).rx_data(223 downto 216); -- VFAT8  Pair 3 LPGBT=Slave
+            vfat3_sbits_arr_o(i)(2 )(39 downto 32) <= not gbt_rx_data_arr_i(i * 2 + 1).rx_data(183 downto 176); -- VFAT8  Pair 4 LPGBT=Slave
+            vfat3_sbits_arr_o(i)(2 )(47 downto 40) <=     gbt_rx_data_arr_i(i * 2 + 1).rx_data(191 downto 184); -- VFAT8  Pair 5 LPGBT=Slave
+            vfat3_sbits_arr_o(i)(2 )(55 downto 48) <= not gbt_rx_data_arr_i(i * 2 + 1).rx_data(167 downto 160); -- VFAT8  Pair 6 LPGBT=Slave
+            vfat3_sbits_arr_o(i)(2 )(63 downto 56) <=     gbt_rx_data_arr_i(i * 2 + 1).rx_data(175 downto 168); -- VFAT8  Pair 7 LPGBT=Slave
+            vfat3_sbits_arr_o(i)(3 )(7  downto 0 ) <= not gbt_rx_data_arr_i(i * 2 + 0).rx_data(223 downto 216); -- VFAT9  Pair 0 LPGBT=Master
+            vfat3_sbits_arr_o(i)(3 )(15 downto 8 ) <=     gbt_rx_data_arr_i(i * 2 + 0).rx_data(143 downto 136); -- VFAT9  Pair 1 LPGBT=Master
+            vfat3_sbits_arr_o(i)(3 )(23 downto 16) <=     gbt_rx_data_arr_i(i * 2 + 0).rx_data(159 downto 152); -- VFAT9  Pair 2 LPGBT=Master
+            vfat3_sbits_arr_o(i)(3 )(31 downto 24) <= not gbt_rx_data_arr_i(i * 2 + 0).rx_data(111 downto 104); -- VFAT9  Pair 3 LPGBT=Master
+            vfat3_sbits_arr_o(i)(3 )(39 downto 32) <= not gbt_rx_data_arr_i(i * 2 + 0).rx_data(95  downto 88 ); -- VFAT9  Pair 4 LPGBT=Master
+            vfat3_sbits_arr_o(i)(3 )(47 downto 40) <= not gbt_rx_data_arr_i(i * 2 + 0).rx_data(87  downto 80 ); -- VFAT9  Pair 5 LPGBT=Master
+            vfat3_sbits_arr_o(i)(3 )(55 downto 48) <= not gbt_rx_data_arr_i(i * 2 + 0).rx_data(103 downto 96 ); -- VFAT9  Pair 6 LPGBT=Master
+            vfat3_sbits_arr_o(i)(3 )(63 downto 56) <= not gbt_rx_data_arr_i(i * 2 + 0).rx_data(119 downto 112); -- VFAT9  Pair 7 LPGBT=Master
+            vfat3_sbits_arr_o(i)(4)(7  downto 0 ) <= not gbt_rx_data_arr_i(i * 2 + 1).rx_data(55  downto 48 ); -- VFAT10 Pair 0 LPGBT=Slave
+            vfat3_sbits_arr_o(i)(4)(15 downto 8 ) <= not gbt_rx_data_arr_i(i * 2 + 1).rx_data(39  downto 32 ); -- VFAT10 Pair 1 LPGBT=Slave
+            vfat3_sbits_arr_o(i)(4)(23 downto 16) <=     gbt_rx_data_arr_i(i * 2 + 1).rx_data(103 downto 96 ); -- VFAT10 Pair 2 LPGBT=Slave
+            vfat3_sbits_arr_o(i)(4)(31 downto 24) <= not gbt_rx_data_arr_i(i * 2 + 1).rx_data(23  downto 16 ); -- VFAT10 Pair 3 LPGBT=Slave
+            vfat3_sbits_arr_o(i)(4)(39 downto 32) <= not gbt_rx_data_arr_i(i * 2 + 1).rx_data(7   downto 0  ); -- VFAT10 Pair 4 LPGBT=Slave
+            vfat3_sbits_arr_o(i)(4)(47 downto 40) <=     gbt_rx_data_arr_i(i * 2 + 1).rx_data(15  downto 8  ); -- VFAT10 Pair 5 LPGBT=Slave
+            vfat3_sbits_arr_o(i)(4)(55 downto 48) <=     gbt_rx_data_arr_i(i * 2 + 1).rx_data(47  downto 40 ); -- VFAT10 Pair 6 LPGBT=Slave
+            vfat3_sbits_arr_o(i)(4)(63 downto 56) <= not gbt_rx_data_arr_i(i * 2 + 1).rx_data(111 downto 104); -- VFAT10 Pair 7 LPGBT=Slave
+            vfat3_sbits_arr_o(i)(5)(7  downto 0 ) <= not gbt_rx_data_arr_i(i * 2 + 1).rx_data(95  downto 88 ); -- VFAT11 Pair 0 LPGBT=Slave
+            vfat3_sbits_arr_o(i)(5)(15 downto 8 ) <= not gbt_rx_data_arr_i(i * 2 + 1).rx_data(71  downto 64 ); -- VFAT11 Pair 1 LPGBT=Slave
+            vfat3_sbits_arr_o(i)(5)(23 downto 16) <= not gbt_rx_data_arr_i(i * 2 + 1).rx_data(127 downto 120); -- VFAT11 Pair 2 LPGBT=Slave
+            vfat3_sbits_arr_o(i)(5)(31 downto 24) <=     gbt_rx_data_arr_i(i * 2 + 1).rx_data(87  downto 80 ); -- VFAT11 Pair 3 LPGBT=Slave
+            vfat3_sbits_arr_o(i)(5)(39 downto 32) <=     gbt_rx_data_arr_i(i * 2 + 1).rx_data(79  downto 72 ); -- VFAT11 Pair 4 LPGBT=Slave
+            vfat3_sbits_arr_o(i)(5)(47 downto 40) <= not gbt_rx_data_arr_i(i * 2 + 1).rx_data(63  downto 56 ); -- VFAT11 Pair 5 LPGBT=Slave
+            vfat3_sbits_arr_o(i)(5)(55 downto 48) <= not gbt_rx_data_arr_i(i * 2 + 1).rx_data(119 downto 112); -- VFAT11 Pair 6 LPGBT=Slave
+            vfat3_sbits_arr_o(i)(5)(63 downto 56) <= not gbt_rx_data_arr_i(i * 2 + 1).rx_data(159 downto 152); -- VFAT11 Pair 7 LPGBT=Slave
             
         end generate;
 
