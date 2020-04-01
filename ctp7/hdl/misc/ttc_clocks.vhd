@@ -207,17 +207,16 @@ END COMPONENT  ;
     signal shift_back_fail_cnt      : unsigned(7 downto 0) := (others => '0');
     
     -- ttc phase monitoring
-    signal ttc_phase                : std_logic_vector(11 downto 0); -- phase difference between the rising edges of the two clocks (each count is about 18.6012ps)
-    signal ttc_phase_mean           : std_logic_vector(11 downto 0);
-    signal ttc_phase_min            : std_logic_vector(11 downto 0);
-    signal ttc_phase_max            : std_logic_vector(11 downto 0);
-    signal ttc_phase_jump           : std_logic := '0';
-    signal ttc_phase_jump_cnt       : std_logic_vector(15 downto 0);
-    signal ttc_phase_jump_size      : std_logic_vector(11 downto 0);
-    signal ttc_phase_jump_time      : std_logic_vector(15 downto 0); -- number of seconds since last phase jump
+    signal ttc_phase                : std_logic_vector(15 downto 0) := (others => '0'); -- phase difference between the rising edges of the two clocks (each count is about 18.6012ps)
+    signal ttc_phase_min            : std_logic_vector(15 downto 0) := (others => '0');
+    signal ttc_phase_max            : std_logic_vector(15 downto 0) := (others => '0');
+    signal ttc_phase_jump_cnt       : std_logic_vector(15 downto 0) := (others => '0');
+    signal ttc_phasemon_dmtd_clk    : std_logic;
+    signal ttc_phase_update         : std_logic;
+    signal ttc_phase_meas_reset     : std_logic;
    
     -- control signals moved to mmcm_ps_clk domain
-    signal ctrl                     : t_ttc_clk_ctrl;
+    signal ctrl_psclk               : t_ttc_clk_ctrl;
     
 --============================================================================
 --                                                          Architecture begin
@@ -227,25 +226,25 @@ begin
     mmcm_ps_clk <= clk_gbt_mgt_txout_i;
 
     -- CDC of the control signals to mmcm_ps_clk domain
-    g_sync_reset_cnt :      entity work.synchronizer generic map(N_STAGES => 2) port map(async_i => ctrl_i.reset_cnt, clk_i   => mmcm_ps_clk, sync_o  => ctrl.reset_cnt);
-    g_sync_reset_sync_fsm : entity work.synchronizer generic map(N_STAGES => 2) port map(async_i => ctrl_i.reset_sync_fsm, clk_i   => mmcm_ps_clk, sync_o  => ctrl.reset_sync_fsm);
-    g_sync_reset_mmcm :     entity work.synchronizer generic map(N_STAGES => 2) port map(async_i => ctrl_i.reset_mmcm, clk_i   => mmcm_ps_clk, sync_o  => ctrl.reset_mmcm);
-    g_sync_reset_pll :      entity work.synchronizer generic map(N_STAGES => 2) port map(async_i => ctrl_i.reset_pll, clk_i   => mmcm_ps_clk, sync_o  => ctrl.reset_pll);
-    g_sync_pa_disable :     entity work.synchronizer generic map(N_STAGES => 2) port map(async_i => ctrl_i.phase_align_disable, clk_i   => mmcm_ps_clk, sync_o  => ctrl.phase_align_disable);
-    g_sync_no_init_shift_o: entity work.synchronizer generic map(N_STAGES => 2) port map(async_i => ctrl_i.pa_no_init_shift_out, clk_i   => mmcm_ps_clk, sync_o  => ctrl.pa_no_init_shift_out);
-    g_sync_man_shift_dir :  entity work.synchronizer generic map(N_STAGES => 2) port map(async_i => ctrl_i.pa_manual_shift_dir, clk_i   => mmcm_ps_clk, sync_o  => ctrl.pa_manual_shift_dir);
-    g_sync_man_shift_ovrd : entity work.synchronizer generic map(N_STAGES => 2) port map(async_i => ctrl_i.pa_manual_shift_ovrd, clk_i   => mmcm_ps_clk, sync_o  => ctrl.pa_manual_shift_ovrd);
+    g_sync_reset_cnt :      entity work.synchronizer generic map(N_STAGES => 2) port map(async_i => ctrl_i.reset_cnt, clk_i   => mmcm_ps_clk, sync_o  => ctrl_psclk.reset_cnt);
+    g_sync_reset_sync_fsm : entity work.synchronizer generic map(N_STAGES => 2) port map(async_i => ctrl_i.reset_sync_fsm, clk_i   => mmcm_ps_clk, sync_o  => ctrl_psclk.reset_sync_fsm);
+    g_sync_reset_mmcm :     entity work.synchronizer generic map(N_STAGES => 2) port map(async_i => ctrl_i.reset_mmcm, clk_i   => mmcm_ps_clk, sync_o  => ctrl_psclk.reset_mmcm);
+    g_sync_reset_pll :      entity work.synchronizer generic map(N_STAGES => 2) port map(async_i => ctrl_i.reset_pll, clk_i   => mmcm_ps_clk, sync_o  => ctrl_psclk.reset_pll);
+    g_sync_pa_disable :     entity work.synchronizer generic map(N_STAGES => 2) port map(async_i => ctrl_i.phase_align_disable, clk_i   => mmcm_ps_clk, sync_o  => ctrl_psclk.phase_align_disable);
+    g_sync_no_init_shift_o: entity work.synchronizer generic map(N_STAGES => 2) port map(async_i => ctrl_i.pa_no_init_shift_out, clk_i   => mmcm_ps_clk, sync_o  => ctrl_psclk.pa_no_init_shift_out);
+    g_sync_man_shift_dir :  entity work.synchronizer generic map(N_STAGES => 2) port map(async_i => ctrl_i.pa_manual_shift_dir, clk_i   => mmcm_ps_clk, sync_o  => ctrl_psclk.pa_manual_shift_dir);
+    g_sync_man_shift_ovrd : entity work.synchronizer generic map(N_STAGES => 2) port map(async_i => ctrl_i.pa_manual_shift_ovrd, clk_i   => mmcm_ps_clk, sync_o  => ctrl_psclk.pa_manual_shift_ovrd);
 
     i_mmcm_ps_en_manual_oneshot : entity work.oneshot_cross_domain
         port map(
-            reset_i       => ctrl.reset_mmcm,
+            reset_i       => ctrl_i.reset_mmcm,
             input_clk_i   => ttc_clocks_bufg.clk_40,
             oneshot_clk_i => mmcm_ps_clk,
             input_i       => ctrl_i.pa_manual_shift_en,
-            oneshot_o     => ctrl.pa_manual_shift_en
+            oneshot_o     => ctrl_psclk.pa_manual_shift_en
         );
 
-    fsm_reset <= ctrl.reset_sync_fsm or ctrl.phase_align_disable;
+    fsm_reset <= ctrl_psclk.reset_sync_fsm or ctrl_psclk.phase_align_disable;
 
     -- Input buffering
     --------------------------------------
@@ -327,15 +326,15 @@ begin
             DWE          => '0',
             -- Ports for dynamic phase shift
             PSCLK        => mmcm_ps_clk,
-            PSEN         => (mmcm_ps_en and not ctrl.pa_manual_shift_ovrd) or (ctrl.pa_manual_shift_en and ctrl.pa_manual_shift_ovrd),
-            PSINCDEC     => (mmcm_ps_incdec and not ctrl.pa_manual_shift_ovrd) or (ctrl.pa_manual_shift_dir and ctrl.pa_manual_shift_ovrd),
+            PSEN         => (mmcm_ps_en and not ctrl_psclk.pa_manual_shift_ovrd) or (ctrl_psclk.pa_manual_shift_en and ctrl_psclk.pa_manual_shift_ovrd),
+            PSINCDEC     => (mmcm_ps_incdec and not ctrl_psclk.pa_manual_shift_ovrd) or (ctrl_psclk.pa_manual_shift_dir and ctrl_psclk.pa_manual_shift_ovrd),
             PSDONE       => mmcm_ps_done,
             -- Other control and status signals
             LOCKED       => mmcm_locked_raw,
             CLKINSTOPPED => open,
             CLKFBSTOPPED => open,
             PWRDWN       => '0',
-            RST          => ctrl.reset_mmcm
+            RST          => ctrl_psclk.reset_mmcm
         );
 
     -- Output buffering
@@ -386,8 +385,7 @@ begin
     --------- Phase Alignment to TTC backplane clock ---------
     ----------------------------------------------------------
         
-    sync_good <= '1' when pa_state = SYNC_DONE else '0';
-    status_o.sync_done <= sync_good when ctrl.phase_align_disable = '0' else mmcm_locked_raw;
+    status_o.sync_done <= sync_good when ctrl_psclk.phase_align_disable = '0' else mmcm_locked_raw;
     status_o.mmcm_locked <= mmcm_locked;
     status_o.phase_locked <= pll_locked;
     status_o.sync_restart_cnt <= std_logic_vector(unlock_cnt);
@@ -435,7 +433,7 @@ begin
             CLKFBIN  => ttc_clocks_bufg.clk_40,
             CLKIN1   => clk_40_ttc_bufg,
             PWRDWN   => '0',
-            RST      => pll_reset or ctrl.reset_pll
+            RST      => pll_reset or ctrl_psclk.reset_pll
         );  
 
     -- detect stable MMCM and PLL lock signals 
@@ -443,43 +441,43 @@ begin
     begin
         if (rising_edge(mmcm_ps_clk)) then
             
-            if ((mmcm_lock_stable_cnt = LOCK_STABLE_TIMEOUT) and (mmcm_locked_raw = '1') and (ctrl.reset_mmcm = '0')) then
+            if ((mmcm_lock_stable_cnt = LOCK_STABLE_TIMEOUT) and (mmcm_locked_raw = '1') and (ctrl_psclk.reset_mmcm = '0')) then
                 mmcm_locked <= '1';
             else
                 mmcm_locked <= '0';
             end if;
             
-            if ((pll_lock_stable_cnt = LOCK_STABLE_TIMEOUT) and (pll_locked_raw = '1') and (pll_reset = '0' and ctrl.reset_pll = '0')) then
+            if ((pll_lock_stable_cnt = LOCK_STABLE_TIMEOUT) and (pll_locked_raw = '1') and (pll_reset = '0' and ctrl_psclk.reset_pll = '0')) then
                 pll_locked <= '1';
             else
                 pll_locked <= '0';
             end if;
             
-            if (ctrl.reset_cnt = '1') then
+            if (ctrl_psclk.reset_cnt = '1') then
                 mmcm_unlock_cnt <= (others => '0');
             elsif ((mmcm_locked = '1') and (mmcm_locked_raw = '0') and (mmcm_unlock_cnt /= x"ffff")) then
                 mmcm_unlock_cnt <= mmcm_unlock_cnt + 1;
             end if; 
             
-            if (ctrl.reset_cnt = '1') then
+            if (ctrl_psclk.reset_cnt = '1') then
                 pll_unlock_cnt <= (others => '0');
             elsif ((pa_state = SYNC_DONE) and (pll_unlock_stable_cnt = UNLOCK_STABLE_TIMEOUT) and (pll_unlock_cnt /= x"ffff")) then
                 pll_unlock_cnt <= pll_unlock_cnt + 1;
             end if;
             
-            if ((mmcm_locked_raw = '0') or (ctrl.reset_mmcm = '1')) then
+            if ((mmcm_locked_raw = '0') or (ctrl_psclk.reset_mmcm = '1')) then
                 mmcm_lock_stable_cnt <= 0;
             elsif (mmcm_lock_stable_cnt < LOCK_STABLE_TIMEOUT) then
                 mmcm_lock_stable_cnt <= mmcm_lock_stable_cnt + 1;
             end if;
 
-            if ((pll_locked_raw = '0') or (pll_reset = '1') or (ctrl.reset_pll = '1')) then
+            if ((pll_locked_raw = '0') or (pll_reset = '1') or (ctrl_psclk.reset_pll = '1')) then
                 pll_lock_stable_cnt <= 0;
             elsif (pll_lock_stable_cnt < LOCK_STABLE_TIMEOUT) then
                 pll_lock_stable_cnt <= pll_lock_stable_cnt + 1;
             end if;
             
-            if ((pll_locked_raw = '1') or (pll_reset = '1') or (ctrl.reset_pll = '1')) then
+            if ((pll_locked_raw = '1') or (pll_reset = '1') or (ctrl_psclk.reset_pll = '1')) then
                 pll_unlock_stable_cnt <= 0;
             elsif (pll_unlock_stable_cnt < UNLOCK_STABLE_TIMEOUT + 1) then
                 pll_unlock_stable_cnt <= pll_unlock_stable_cnt + 1;
@@ -496,7 +494,7 @@ begin
         )
         port map(
             clk_i     => mmcm_ps_clk,
-            reset_i   => not pll_locked or ctrl.reset_cnt,
+            reset_i   => not pll_locked or ctrl_psclk.reset_cnt,
             seconds_o => phase_unlock_time
         );
             
@@ -508,7 +506,7 @@ begin
         )
         port map(
             clk_i     => mmcm_ps_clk,
-            reset_i   => not sync_good or ctrl.reset_cnt,
+            reset_i   => not sync_good or ctrl_psclk.reset_cnt,
             seconds_o => sync_done_time
         );   
                     
@@ -520,8 +518,9 @@ begin
     process(mmcm_ps_clk)
     begin
         if (rising_edge(mmcm_ps_clk)) then
-            if ((ctrl.reset_mmcm = '1') or (fsm_reset = '1') or (fsm_reset_debug = '1')) then
+            if ((ctrl_psclk.reset_mmcm = '1') or (fsm_reset = '1') or (fsm_reset_debug = '1')) then
                 pa_state <= IDLE;
+                sync_good <= '0';
                 pll_reset <= '1';
                 mmcm_ps_en <= '0';
                 pll_lock_wait_timer <= (others => '0'); 
@@ -534,13 +533,15 @@ begin
                 shift_cnt_to_lock <= (others => '0');
                 unlock_cnt <= (others => '0');
                 pll_lock_window <= (others => '0');
-                initial_unlock_search <= not ctrl.pa_no_init_shift_out; -- initially after a reset shift the phase out of lock and the restart the FSM as usual
-                if (ctrl.pa_no_init_shift_out = '1') then
+                initial_unlock_search <= not ctrl_psclk.pa_no_init_shift_out; -- initially after a reset shift the phase out of lock and the restart the FSM as usual
+                if (ctrl_psclk.pa_no_init_shift_out = '1') then
                     pa_state <= IDLE;                
                 else
                     pa_state <= CHECK_FOR_UNLOCK;                
                 end if;
             else
+                sync_good <= '0';
+                
                 case pa_state is
                     when IDLE =>
                         if (mmcm_locked = '1') then
@@ -644,7 +645,7 @@ begin
                             pll_reset <= '0';
                             
                             -- pll should lock, but if not, then just go back to IDLE and start all over again...                            
-                            if ((pll_locked = '1') and (shift_cnt_to_lock = x"0000") and (ctrl.pa_no_init_shift_out = '0')) then
+                            if ((pll_locked = '1') and (shift_cnt_to_lock = x"0000") and (ctrl_psclk.pa_no_init_shift_out = '0')) then
                                 -- if we find that in fact the pll did lock, but there were 0 shifts done to get there, then go back to IDLE,
                                 -- because we found experimentaly that this results in wrong phase.. going through the FSM multiple times will 
                                 -- eventually shift it out of lock and then find a good locking point as per usual operation.
@@ -672,8 +673,9 @@ begin
                                             
                     when SYNC_DONE =>
                         mmcm_ps_en <= '0';
+                        sync_good <= '1';
 
-                        if (ctrl.reset_cnt = '1') then
+                        if (ctrl_psclk.reset_cnt = '1') then
                             unlock_cnt <= (others => '0');
                         end if;
 
@@ -698,37 +700,60 @@ begin
     end process;
         
     -------------- Phase monitoring of the 40MHz derived from TXOUTCLK vs TTC backplane -------------- 
+
+    ---- DMTD phase monitor from TCDS / white rabbit ----    
     
-    status_o.phase_monitor.phase <= ttc_phase;
-    status_o.phase_monitor.phase_mean <= ttc_phase_mean;
-    status_o.phase_monitor.phase_min <= ttc_phase_min;
-    status_o.phase_monitor.phase_max <= ttc_phase_max;
-    status_o.phase_monitor.phase_jump <= ttc_phase_jump;
-    status_o.phase_monitor.phase_jump_cnt <= ttc_phase_jump_cnt;
-    status_o.phase_monitor.phase_jump_size <= ttc_phase_jump_size;
-    status_o.phase_monitor.phase_jump_time <= ttc_phase_jump_time;
-    
-    i_ttc_clk_phase_check : entity work.clk_phase_check_v7
+    i_dmtd_clks : entity work.dmdt_clock_gen
+        port map(
+            rst_mmcm1_i    => ctrl_i.reset_phase_monitor_mmcm,
+            rst_mmcm2_i    => ctrl_i.reset_phase_monitor_mmcm,
+            refclk_i       => clk_40_ttc_bufg, -- ttc_clocks_bufg.clk_40 -- or best actually use clk_gbt_mgt_txout_i, but need to divide differently
+            dmdt_clk_o     => ttc_phasemon_dmtd_clk,
+            mmcm1_locked_o => open,
+            mmcm2_locked_o => open
+        );
+       
+    i_dmtd_phasemon : entity work.dmtd_phase_meas
         generic map(
-            ROUND_FREQ_MHZ => 40.000,
-            EXACT_FREQ_HZ => C_TTC_CLK_FREQUENCY_SLV,
-            PHASE_JUMP_THRESH => x"06c", -- 2ns
-            ILA_ENABLE => false
+            g_deglitcher_threshold => 2000,
+            g_counter_bits         => 14,
+            g_max_valid_phase      => 13417
         )
         port map(
-            reset_i             => (not sync_good and not ctrl_i.phase_align_disable) or ctrl_i.reset_cnt,
-            clk1_i              => ttc_clocks_bufg.clk_40,
-            clk2_i              => clk_40_ttc_bufg,
-            phase_o             => ttc_phase,
-            phase_mean_o        => ttc_phase_mean,
-            phase_min_o         => ttc_phase_min,
-            phase_max_o         => ttc_phase_max,
-            phase_jump_o        => ttc_phase_jump,
-            phase_jump_cnt_o    => ttc_phase_jump_cnt,
-            phase_jump_size_o   => ttc_phase_jump_size,
-            phase_jump_time_o   => ttc_phase_jump_time
+            reset_i             => ttc_phase_meas_reset,
+            clk_sys_i           => ttc_clocks_bufg.clk_40,
+            clk_a_i             => ttc_clocks_bufg.clk_40,
+            clk_b_i             => clk_40_ttc_bufg,
+            clk_dmtd_i          => ttc_phasemon_dmtd_clk,
+            navg_log2_i         => ctrl_i.phase_mon_navg_log2,
+            phase_jump_thresh_i => ctrl_i.phase_jump_thresh(13 downto 0),
+            phase_o             => ttc_phase(13 downto 0),
+            phase_min_o         => ttc_phase_min(13 downto 0),
+            phase_max_o         => ttc_phase_max(13 downto 0),
+            phase_p_o           => ttc_phase_update,
+            dv_o                => open,
+            phase_jump_cnt_o    => ttc_phase_jump_cnt
         );
-        
+    
+    ttc_phase_meas_reset <= (not sync_good and not ctrl_i.phase_align_disable) or ctrl_i.reset_cnt;
+    
+    i_phase_sample_cnt : entity work.counter
+        generic map(
+            g_COUNTER_WIDTH  => 16,
+            g_ALLOW_ROLLOVER => true
+        )
+        port map(
+            ref_clk_i => ttc_clocks_bufg.clk_40,
+            reset_i   => ttc_phase_meas_reset,
+            en_i      => ttc_phase_update,
+            count_o   => status_o.phase_monitor.sample_counter
+        );
+    
+    status_o.phase_monitor.phase <= ttc_phase;
+    status_o.phase_monitor.phase_min <= ttc_phase_min;
+    status_o.phase_monitor.phase_max <= ttc_phase_max;
+    status_o.phase_monitor.phase_jump_cnt <= ttc_phase_jump_cnt;    
+    
     -------------- DEBUG -------------- 
     
 --    i_clk_phase_check : entity work.clk_phase_check_v7

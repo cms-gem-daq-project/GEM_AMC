@@ -16,6 +16,9 @@
         <node id="PA_MANUAL_SHIFT_DIR" address="0x4" permission="rw" mask="0x80" />
         <node id="PA_MANUAL_SHIFT_EN" address="0x5" permission="w" />
         <node id="PA_MANUAL_PLL_RESET" address="0x6" permission="w" />
+        <node id="PHASE_MONITOR_NAVG_LOG2" address="0x4" permission="rw" mask="0xf00" />
+        <node id="PHASE_MONITOR_JUMP_THRESH" address="0x8" permission="rw" mask="0xffff" />
+        <node id="PHASE_MONITOR_MMCM_RESET" address="0x7" permission="w" />
       </node>
       <node id="CONFIG" address="0x10" >
         <node id="CMD_BC0" address="0x0" permission="rw" mask="0xff" />
@@ -44,13 +47,11 @@
           <node id="PA_FSM_STATE" address="0x4" permission="r" mask="0x70000000" />
           <node id="PA_SHIFT_BACK_FAIL_CNT" address="0x5" permission="r" mask="0xff" />
           <node id="PHASE_MONITOR" address="0x6" >
-            <node id="PHASE" address="0x0" permission="r" mask="0xfff" />
-            <node id="PHASE_MEAN" address="0x0" permission="r" mask="0xfff000" />
-            <node id="PHASE_MIN" address="0x1" permission="r" mask="0xfff" />
-            <node id="PHASE_MAX" address="0x1" permission="r" mask="0xfff000" />
+            <node id="PHASE" address="0x0" permission="r" mask="0xffff" />
+            <node id="SAMPLE_COUNTER" address="0x0" permission="r" mask="0xffff0000" />
+            <node id="PHASE_MIN" address="0x1" permission="r" mask="0xffff" />
+            <node id="PHASE_MAX" address="0x1" permission="r" mask="0xffff0000" />
             <node id="PHASE_JUMP_CNT" address="0x2" permission="r" mask="0xffff" />
-            <node id="PHASE_JUMP_SIZE" address="0x2" permission="r" mask="0xfff0000" />
-            <node id="PHASE_JUMP_TIME" address="0x3" permission="r" mask="0xffff" />
           </node>
         </node>
         <node id="TTC_SINGLE_ERROR_CNT" address="0x20" permission="r" mask="0xffff" />

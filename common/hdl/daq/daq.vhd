@@ -1358,7 +1358,7 @@ begin
     regs_read_arr(3)(REG_DAQ_EXT_CONTROL_RUN_TYPE_MSB downto REG_DAQ_EXT_CONTROL_RUN_TYPE_LSB) <= run_type;
     regs_read_arr(4)(REG_DAQ_STATUS_DAQ_LINK_RDY_BIT) <= daq_ready;
     regs_read_arr(4)(REG_DAQ_STATUS_DAQ_CLK_LOCKED_BIT) <= daq_clk_locked_i;
-    regs_read_arr(4)(REG_DAQ_STATUS_TTC_RDY_BIT) <= ttc_status_i.mmcm_locked;
+    regs_read_arr(4)(REG_DAQ_STATUS_TTC_RDY_BIT) <= ttc_status_i.clk_status.mmcm_locked;
     regs_read_arr(4)(REG_DAQ_STATUS_DAQ_LINK_AFULL_BIT) <= daq_almost_full;
     regs_read_arr(4)(REG_DAQ_STATUS_DAQ_OUTPUT_FIFO_HAD_OVERFLOW_BIT) <= err_daqfifo_full;
     regs_read_arr(4)(REG_DAQ_STATUS_TTC_BC0_LOCKED_BIT) <= ttc_status_i.bc0_status.locked;

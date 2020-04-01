@@ -23,6 +23,7 @@ entity clk_phase_check_v7 is
     generic (
         ROUND_FREQ_MHZ                  : real := 40.000; -- please give a round number e.g. even if the TTC clock is not exactly 40MHz, you should still specify 40.000 here
         EXACT_FREQ_HZ                   : std_logic_vector(31 downto 0) := x"02638e98"; -- exact frequency in Herz, this is only used in counting seconds since last phase jump
+        SAMPLING_TIME                   : unsigned(15 downto 0) := x"000a"; -- the number of clock cycles to sample each phase (accuracy should be better with higher number, but higher numbers also make the measurement slower) 
         PHASE_JUMP_THRESH               : unsigned(11 downto 0) := x"06c"; -- phase difference threshold between subsequent measurements to be considered a phase jump
         PHASE_MEAN_WINDOW_SIZE_POW_TWO  : integer := 11; -- the size of the window for phase mean calculation in units of power of 2 (e.g. a value of 11 means 2^11 = 2048)
         ILA_ENABLE                      : boolean := false -- if set to true, an ILA will be instantiated showing the relationship between the two clocks
@@ -58,7 +59,6 @@ architecture Behavioral of clk_phase_check_v7 is
 
     ---------------- SIGNALS -----------------
     constant VCO_FREQ           : real := 960.000;
-    constant SAMPLE_TIMEOUT     : unsigned(3 downto 0) := x"a"; -- sample 10 clock cycles for each phase
     
     type t_state is (WAIT_SAMPLE, SHIFT_PHASE, WAIT_SHIFT_DONE);
         
@@ -72,7 +72,7 @@ architecture Behavioral of clk_phase_check_v7 is
     signal mmcm_locked          : std_logic;    
 
     signal state                : t_state := WAIT_SAMPLE;
-    signal sample_timer         : unsigned(3 downto 0) := (others => '0');
+    signal sample_timer         : unsigned(15 downto 0) := (others => '0');
     
     -- phase measurement signals
     type t_clk_state is (HIGH, LOW, UNDETERMINED);
@@ -199,14 +199,14 @@ begin
                 case state is
                     when WAIT_SAMPLE =>
                         mmcm_ps_en <= '0';    
-                        if (sample_timer = SAMPLE_TIMEOUT) then
+                        if (sample_timer = SAMPLING_TIME) then
                             state <= SHIFT_PHASE;
                             sample_timer <= (others => '0');
                             sample_ok <= '0';
                         else
                             state <= WAIT_SAMPLE;
                             sample_timer <= sample_timer + 1;
-                            if (sample_timer < SAMPLE_TIMEOUT - 5) then
+                            if (sample_timer < SAMPLING_TIME - 5) then
                                 sample_ok <= '1';
                             else
                                 sample_ok <= '0';
@@ -287,16 +287,16 @@ begin
                     end if;
                 -- additional samples at the same phase
                 elsif (sample_ok_sync_prev = '1' and sample_ok_sync = '1') then
-                    if ((clk1_i = '1' and clk1_state = LOW) or (clk1_i = '0' and clk1_state = HIGH)) then
+                    if ((clk1_i /= '1' and clk1_state = HIGH) or (clk1_i /= '0' and clk1_state = LOW)) then
                         clk1_state <= UNDETERMINED;
                     end if;
-                    if ((clk2_i = '1' and clk2_state = LOW) or (clk2_i = '0' and clk2_state = HIGH)) then
+                    if ((clk2_i /= '1' and clk2_state = HIGH) or (clk2_i /= '0' and clk2_state = LOW)) then
                         clk2_state <= UNDETERMINED;
                     end if;
                 -- end of the current phase sampling
                 elsif (sample_ok_sync_prev = '1' and sample_ok_sync = '0') then
                     -- reset the phase counter when both clocks sample low
-                    if (clk1_state = LOW and clk2_state = LOW) then
+                    if (clk1_state /= HIGH and clk2_state /= HIGH) then
                         phase_cnt <= (others => '0');
                     -- fix the phase measurement when both clocks sample high
                     elsif (clk1_state = HIGH and clk2_state = HIGH) then

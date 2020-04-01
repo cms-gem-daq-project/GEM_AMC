@@ -73,6 +73,15 @@
         <node id="PA_MANUAL_PLL_RESET" address="0x6" permission="w"
               description="Resets the phase check PLL. This is to be used for manual phase alignment with software."
               fw_write_pulse_signal="ttc_ctrl.clk_ctrl.reset_pll"/>
+        <node id="PHASE_MONITOR_NAVG_LOG2" address="0x4" mask="0x00000f00" permission="rw"
+              description="Number of samples to average in the phase monitor. The setting is in units of log2(n), meaning that e.g. a setting of 4 will result in averaging 16 samples, a setting of 5 will average 32 samples, etc"
+              fw_signal="ttc_ctrl.clk_ctrl.phase_mon_navg_log2" fw_default="0x5"/>
+        <node id="PHASE_MONITOR_JUMP_THRESH" address="0x8" mask="0x0000ffff" permission="rw"
+              description="The threshold on the difference of the two consecutive phase samples that is considered a phase jump (default = 1.5ns). These occurences are counted and reported through the PHASE_JUMP_CNT reg"
+              fw_signal="ttc_ctrl.clk_ctrl.phase_jump_thresh" fw_default="0x0aeb"/>
+        <node id="PHASE_MONITOR_MMCM_RESET" address="0x7" permission="w"
+              description="Resets the phase monitor clock MMCMs."
+              fw_write_pulse_signal="ttc_ctrl.clk_ctrl.reset_phase_monitor_mmcm"/>
       </node>
       <node id="CONFIG" address="0x10"
             description="TTC configuration -- used for setup TTC command decoding">
@@ -166,32 +175,26 @@
                 fw_signal="ttc_clks_status_i.pa_shift_back_fail_cnt"/>
 
           <node id="PHASE_MONITOR" address="0x6" description="Monitoring of the phase between the TTC backplane clock, and the fabric clocks">
-              <node id="PHASE" address="0x0" mask="0x00000fff" permission="r"
+              <node id="PHASE" address="0x0" mask="0x0000ffff" permission="r"
                     description="TTC Phase monitoring: phase difference between the rising edges of the jitter cleaned 40MHz and backplane TTC 40MHz clocks.
                                  Each count is about 18.6012ps
                                  Note that absolute value is not very important, because these clocks will always have some offset due to routing on the FPGA,
                                  the important thing is that this value doesn't change much."
                     fw_signal="ttc_clks_status_i.phase_monitor.phase"/>
-              <node id="PHASE_MEAN" address="0x0" mask="0x00fff000" permission="r"
-                    description="TTC Phase monitoring: the mean of the phase in the last 2048 measurements"
-                    fw_signal="ttc_clks_status_i.phase_monitor.phase_mean"/>
-              <node id="PHASE_MIN" address="0x1" mask="0x00000fff" permission="r"
+              <node id="SAMPLE_COUNTER" address="0x0" mask="0xffff0000" permission="r"
+                    description="simple wrapping counter of samples - this can be used by fast reading applications to check if the phase value has been updated since the last reading"
+                    fw_signal="ttc_clks_status_i.phase_monitor.sample_counter"/>
+              <node id="PHASE_MIN" address="0x1" mask="0x0000ffff" permission="r"
                     description="TTC Phase monitoring: the minimum measured phase value since last counter reset"
                     fw_signal="ttc_clks_status_i.phase_monitor.phase_min"/>
-              <node id="PHASE_MAX" address="0x1" mask="0x00fff000" permission="r"
+              <node id="PHASE_MAX" address="0x1" mask="0xffff0000" permission="r"
                     description="TTC Phase monitoring: the maximum measured phase value since last counter reset"
                     fw_signal="ttc_clks_status_i.phase_monitor.phase_max"/>
               <node id="PHASE_JUMP_CNT" address="0x2" mask="0x0000ffff" permission="r"
                     description="TTC Phase monitoring: number of times a phase jump has been detected.
                                  A phase jump detection is triggered by a large difference between two subsequent phase measurements
-                                 (currently the threshold is set at 2ns)"
+                                 (threshold is set by the PHASE_MONITOR_JUMP_THRESH register)"
                     fw_signal="ttc_clks_status_i.phase_monitor.phase_jump_cnt"/>
-              <node id="PHASE_JUMP_SIZE" address="0x2" mask="0x0fff0000" permission="r"
-                    description="TTC Phase monitoring: the magnitude of the phase jump (difference between the subsequent phase measurements that triggered the last phase jump detection)"
-                    fw_signal="ttc_clks_status_i.phase_monitor.phase_jump_size"/>
-              <node id="PHASE_JUMP_TIME" address="0x3" mask="0x0000ffff" permission="r"
-                    description="TTC Phase monitoring: number of seconds since last phase jump"
-                    fw_signal="ttc_clks_status_i.phase_monitor.phase_jump_time"/>
           </node>
 
         </node>
@@ -730,7 +733,7 @@
               fw_signal="daq_clk_locked_i"/>
         <node id="TTC_RDY"         address="0x0"  mask="0x00000004" permission="r"
               description="This flag is 1 if TTC clock MMCM is locked"
-              fw_signal="ttc_status_i.mmcm_locked"/>
+              fw_signal="ttc_status_i.clk_status.mmcm_locked"/>
         <node id="DAQ_LINK_AFULL"       address="0x0"  mask="0x00000008" permission="r"
               description="This bit comes directly from DAQLink module, indicating
                            that its internal buffers are almost full. No events will be sent

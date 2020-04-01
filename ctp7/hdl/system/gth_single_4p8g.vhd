@@ -779,7 +779,7 @@ end generate;
       ------------------ Transmit Ports - Pattern Generator Ports ----------------
       TXPRBSFORCEERR            => gth_tx_ctrl_i.txprbsforceerr,
       ------------------ Transmit Ports - TX Buffer Bypass Ports -----------------
-      TXDLYBYPASS               => '0',
+      TXDLYBYPASS               => '1',
       TXDLYEN                   => gth_tx_init_i.TXDLYEN,
       TXDLYHOLD                 => '0',
       TXDLYOVRDEN               => '0',
@@ -817,7 +817,7 @@ end generate;
       GTHTXP                    => gth_tx_serial_o.gthtxp,
       ----------- Transmit Ports - TX Fabric Clock Output Control Ports ----------
       TXOUTCLK                  => gth_gt_clk_o.txoutclk,
-      TXOUTCLKFABRIC            => open,
+      TXOUTCLKFABRIC            => gth_gt_clk_o.txoutfabric,
       TXOUTCLKPCS               => gth_gt_clk_o.txoutpcs,
       TXOUTCLKSEL               => gth_tx_ctrl_i.TXOUTCLKSEL,
       TXRATEDONE                => open,

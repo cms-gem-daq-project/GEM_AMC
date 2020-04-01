@@ -60,11 +60,14 @@ package ttc_pkg is
         reset_sync_fsm          : std_logic; -- reset the sync FSM, this will restart the phase alignment procedure
         reset_mmcm              : std_logic; -- reset the MMCM, this will reset the MMCM and also restart the phase alignment procedure
         reset_pll               : std_logic; -- reset the phase check PLL
+        reset_phase_monitor_mmcm: std_logic; -- reset the phase monitor MMCMs
         phase_align_disable     : std_logic; -- disable the phase alignment and force the sync_done signal high -- this may be useful in setups where backplane clock does not exist (no AMC13), and only the jitter cleaned clock is available
         pa_no_init_shift_out    : std_logic; -- if this is set to 0 (default), then when the phase alignment FSM is reset, it will first shift the phase out of lock if it is currently locked, and then start searching for lock as usual
         pa_manual_shift_en      : std_logic; -- positive edge of this signal will do one shift in the selected direction
         pa_manual_shift_dir     : std_logic; -- direction of the manual shifting
         pa_manual_shift_ovrd    : std_logic; -- if this is set to 1, then shift direction is overriden
+        phase_mon_navg_log2     : std_logic_vector(3 downto 0); -- Number of samples to average in the phase monitor. The setting is in units of log2(n), meaning that e.g. a setting of 4 will result in averaging 16 samples, a setting of 5 will average 32 samples, etc
+        phase_jump_thresh       : std_logic_vector(15 downto 0); -- The threshold on the difference of the two consecutive phase samples that is considered a "phase jump"
     end record;    
 
     type t_ttc_ctrl is record
@@ -77,14 +80,11 @@ package ttc_pkg is
     end record;
 
     type t_phase_monitor_status is record
-        phase               : std_logic_vector(11 downto 0); -- phase difference between the rising edges of the jitter cleaned 40MHz and backplane TTC 40MHz clocks (each count is about 18.6012ps)
-        phase_mean          : std_logic_vector(11 downto 0); -- the mean of the phase in the last 2048 measurements
-        phase_min           : std_logic_vector(11 downto 0); -- the minimum measured phase value since last reset
-        phase_max           : std_logic_vector(11 downto 0); -- the maximum measured phase value since last reset
-        phase_jump          : std_logic;                     -- this signal goes high if a significant phase difference is observed compared to the previous measurement
+        phase               : std_logic_vector(15 downto 0); -- phase difference between the rising edges of the jitter cleaned 40MHz and backplane TTC 40MHz clocks
+        sample_counter      : std_logic_vector(15 downto 0); -- simple wrapping counter of samples - this can be used by fast reading applications to check if the phase value has been updated since the last reading
+        phase_min           : std_logic_vector(15 downto 0); -- the minimum measured phase value since last reset
+        phase_max           : std_logic_vector(15 downto 0); -- the maximum measured phase value since last reset
         phase_jump_cnt      : std_logic_vector(15 downto 0); -- number of times a phase jump has been detected
-        phase_jump_size     : std_logic_vector(11 downto 0); -- the magnitude of the phase jump (difference between the subsequent measurements that triggered the last phase jump detection)
-        phase_jump_time     : std_logic_vector(15 downto 0); -- number of seconds since last phase jump
     end record;
     
     type t_ttc_clk_status is record
