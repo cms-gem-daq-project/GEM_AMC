@@ -10,10 +10,10 @@ package gem_pkg is
     --==  Firmware version  ==--
     --========================-- 
 
-    constant C_FIRMWARE_DATE    : std_logic_vector(31 downto 0) := x"20200319";
+    constant C_FIRMWARE_DATE    : std_logic_vector(31 downto 0) := x"20200409";
     constant C_FIRMWARE_MAJOR   : integer range 0 to 255        := 3;
     constant C_FIRMWARE_MINOR   : integer range 0 to 255        := 10;
-    constant C_FIRMWARE_BUILD   : integer range 0 to 255        := 0;
+    constant C_FIRMWARE_BUILD   : integer range 0 to 255        := 1;
     
     ------ Change log ------
     -- 1.8.6 no gbt sync procedure with oh
@@ -119,7 +119,8 @@ package gem_pkg is
     -- 3.9.9  Reworked loopback tester, now tests all elinks of a single selected OH with PRBS7 sequence    
     -- 3.9.10 Added a switch to choose the backplane TTC clock as the source for the main MMCM (the switch is called CFG_USE_BACKPLANE_CLK). Also made the OH loader use the bitstream size from the gemloader IP, and also added some registers reporting the loader statistics.
     -- 3.9.11 Came back to using the MGT refclk as the source for all fabric clocks
-    -- 3.10.0 Reworked TTC clocking, added manual shifting possibility and phase monitoring (partial port from v2, register names were kept the same) 
+    -- 3.10.0 Reworked TTC clocking, added manual shifting possibility and phase monitoring (DMTD method used in TCDS), also bypassing the delay aligner in the GBT MGTs
+    -- 3.10.1 Reworked the phase alignment FSM to use the DMTD phase measurement instead of the PLL lock signal, this also allows for a configurable lock target phase and tollerance
 
     --======================--
     --==      General     ==--

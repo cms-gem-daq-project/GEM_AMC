@@ -15,10 +15,12 @@
         <node id="PA_MANUAL_OVERRIDE" address="0x4" permission="rw" mask="0x40" />
         <node id="PA_MANUAL_SHIFT_DIR" address="0x4" permission="rw" mask="0x80" />
         <node id="PA_MANUAL_SHIFT_EN" address="0x5" permission="w" />
-        <node id="PA_MANUAL_PLL_RESET" address="0x6" permission="w" />
-        <node id="PHASE_MONITOR_NAVG_LOG2" address="0x4" permission="rw" mask="0xf00" />
-        <node id="PHASE_MONITOR_JUMP_THRESH" address="0x8" permission="rw" mask="0xffff" />
-        <node id="PHASE_MONITOR_MMCM_RESET" address="0x7" permission="w" />
+        <node id="PHASEMON_MMCM_RESET" address="0x6" permission="w" />
+        <node id="PHASEMON_LOG2_N_AVG" address="0x4" permission="rw" mask="0xf00" />
+        <node id="PHASEMON_JUMP_THRESH" address="0x7" permission="rw" mask="0xffff" />
+        <node id="LOCKMON_LOG2_N_AVG" address="0x7" permission="rw" mask="0xf0000" />
+        <node id="LOCKMON_TARGET_PHASE" address="0x8" permission="rw" mask="0xffff" />
+        <node id="LOCKMON_TOLLERANCE" address="0x8" permission="rw" mask="0xffff0000" />
       </node>
       <node id="CONFIG" address="0x10" >
         <node id="CMD_BC0" address="0x0" permission="rw" mask="0xff" />
@@ -36,16 +38,14 @@
           <node id="MMCM_LOCKED" address="0x0" permission="r" mask="0x1" />
           <node id="SYNC_DONE" address="0x0" permission="r" mask="0x2" />
           <node id="PHASE_LOCKED" address="0x0" permission="r" mask="0x4" />
+          <node id="PHASEMON_MMCM_LOCKED" address="0x0" permission="r" mask="0x8" />
+          <node id="TTC_CLK_PRESENT" address="0x0" permission="r" mask="0x10" />
           <node id="MMCM_UNLOCK_CNT" address="0x0" permission="r" mask="0xffff0000" />
-          <node id="SYNC_RESTART_CNT" address="0x1" permission="r" mask="0xffff" />
+          <node id="TTC_CLK_LOSS_CNT" address="0x1" permission="r" mask="0xffff" />
           <node id="PHASE_UNLOCK_CNT" address="0x1" permission="r" mask="0xffff0000" />
           <node id="SYNC_DONE_TIME" address="0x2" permission="r" mask="0xffff" />
           <node id="PHASE_UNLOCK_TIME" address="0x2" permission="r" mask="0xffff0000" />
-          <node id="PA_PLL_LOCK_WINDOW" address="0x3" permission="r" mask="0xffff" />
-          <node id="PA_PHASE_SHIFT_CNT" address="0x3" permission="r" mask="0xffff0000" />
-          <node id="PA_PLL_LOCK_CLOCKS" address="0x4" permission="r" mask="0xffffff" />
-          <node id="PA_FSM_STATE" address="0x4" permission="r" mask="0x70000000" />
-          <node id="PA_SHIFT_BACK_FAIL_CNT" address="0x5" permission="r" mask="0xff" />
+          <node id="TTC_CLK_LOSS_TIME" address="0x3" permission="r" mask="0xffff" />
           <node id="PHASE_MONITOR" address="0x6" >
             <node id="PHASE" address="0x0" permission="r" mask="0xffff" />
             <node id="SAMPLE_COUNTER" address="0x0" permission="r" mask="0xffff0000" />

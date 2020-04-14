@@ -1,4 +1,4 @@
-----------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Company: TAMU
 -- Engineer: Evaldas Juska (evaldas.juska@cern.ch, evka85@gmail.com)
 -- 
@@ -10,7 +10,7 @@
 --              All clocks are generated from the jitter cleaned clock and then phase shifted to match the reference, using PLL to check for phase alignment.
 --              Note that phase alignment might take quite some time. It's phase shifting the 40MHz clock in steps of ~19ps and each step can take up to ~30us. 
 -- 
-----------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
@@ -162,7 +162,8 @@ END COMPONENT  ;
     
     ----------------- phase alignment ------------------
     constant MMCM_PS_DONE_TIMEOUT : unsigned(7 downto 0) := x"9f"; -- datasheet says MMCM should complete a phase shift in 12 clocks, but we check it with some margin, just in case
-    type pa_state_t is (IDLE, CHECK_FOR_LOCK, SHIFT_PHASE, WAIT_SHIFT_DONE, CHECK_FOR_UNLOCK, SHIFT_BACK, SYNC_DONE, DEAD);
+    constant SHIFT_OUT_COUNT : unsigned(15 downto 0) := x"006b"; -- the number of MMCM shifts to do when wanting to shift out of lock or zero crossing region (currently set to 107 shifts, which corresponds to about 2ns)
+    type pa_state_t is (IDLE, FIND_UNLOCK, FIND_LOCK, WAIT_SHIFT_DONE, SYNC_DONE, FAIL);
 
     signal mmcm_ps_clk              : std_logic;
     signal mmcm_ps_en               : std_logic;
@@ -170,31 +171,21 @@ END COMPONENT  ;
     signal mmcm_ps_done             : std_logic;
     signal mmcm_locked_raw          : std_logic;
     signal mmcm_locked              : std_logic;
-
-    signal pll_locked_raw           : std_logic;
-    signal pll_locked               : std_logic;
-    signal pll_reset                : std_logic;
+    signal mmcm_locked_clk40        : std_logic;
+    signal mmcm_unlock_p_clk40      : std_logic;
 
     signal fsm_reset                : std_logic := '0';
-    signal fsm_reset_debug          : std_logic;
-    signal sync_good                : std_logic;
+    signal sync_done_flag           : std_logic;
+    signal sync_done_flag_clk40     : std_logic;
     signal pa_state                 : pa_state_t := IDLE;
-    signal searching_for_unlock     : std_logic;
-    signal initial_unlock_search    : std_logic := '1';
-    signal shifting_back            : std_logic;
+    signal searching_unlock         : std_logic := '0';
+    signal lockmon_reset_clk40      : std_logic := '0';
     signal shift_cnt                : unsigned(15 downto 0) := (others => '0');
-    signal shift_cnt_to_lock        : unsigned(15 downto 0) := (others => '0');
-    signal shift_back_cnt           : unsigned(15 downto 0) := (others => '0');
-    signal pll_lock_wait_timer      : unsigned(23 downto 0) := (others => '0');
-    signal pll_lock_window          : unsigned(15 downto 0) := (others => '0');
     signal mmcm_ps_done_timer       : unsigned(7 downto 0)  := (others => '0');
-    signal unlock_cnt               : unsigned(15 downto 0) := (others => '0');
-    signal mmcm_unlock_cnt          : unsigned(15 downto 0) := (others => '0');
-    signal pll_unlock_cnt           : unsigned(15 downto 0) := (others => '0');
+    signal phase_unlock_cnt         : std_logic_vector(15 downto 0) := (others => '0');
+    signal mmcm_unlock_cnt          : std_logic_vector(15 downto 0) := (others => '0');
     
     signal mmcm_lock_stable_cnt     : integer range 0 to 127 := 0;
-    signal pll_lock_stable_cnt      : integer range 0 to 127 := 0;
-    signal pll_unlock_stable_cnt    : integer range 0 to 127 := 0;
 
     constant LOCK_STABLE_TIMEOUT    : integer := 12;
     constant UNLOCK_STABLE_TIMEOUT  : integer := 12;
@@ -202,9 +193,6 @@ END COMPONENT  ;
     -- time counters
     signal sync_done_time           : std_logic_vector(15 downto 0);
     signal phase_unlock_time        : std_logic_vector(15 downto 0);
-    
-    -- debug counters
-    signal shift_back_fail_cnt      : unsigned(7 downto 0) := (others => '0');
     
     -- ttc phase monitoring
     signal ttc_phase                : std_logic_vector(15 downto 0) := (others => '0'); -- phase difference between the rising edges of the two clocks (each count is about 18.6012ps)
@@ -214,6 +202,25 @@ END COMPONENT  ;
     signal ttc_phasemon_dmtd_clk    : std_logic;
     signal ttc_phase_update         : std_logic;
     signal ttc_phase_meas_reset     : std_logic;
+    signal ttc_clk_present          : std_logic;
+    signal ttc_clk_present_psclk    : std_logic;
+    signal ttc_clk_lost_pulse       : std_logic;
+    signal ttc_clk_loss_cnt         : std_logic_vector(15 downto 0) := (others => '0');
+    signal ttc_clk_loss_time        : std_logic_vector(15 downto 0) := (others => '0');
+    signal dmtd_mmcm_locked         : std_logic;
+    -- phase lock monitoring
+    signal phase_locked             : std_logic;
+    signal phase_unlock_pulse       : std_logic;
+    signal phase_offset_pos         : std_logic_vector(15 downto 0) := (others => '0');
+    signal phase_offset_neg         : std_logic_vector(15 downto 0) := (others => '0');
+    signal phase_zero_cross         : std_logic;
+    signal phase_zero_cross_psclk   : std_logic;
+    signal phase_lock_update        : std_logic;
+    signal phase_locked_psclk       : std_logic;
+    signal phase_offset_pos_psclk   : std_logic_vector(15 downto 0) := (others => '0');
+    signal phase_offset_neg_psclk   : std_logic_vector(15 downto 0) := (others => '0');
+    signal phase_lock_update_psclk : std_logic;
+    signal phase_lock_update1_psclk : std_logic;
    
     -- control signals moved to mmcm_ps_clk domain
     signal ctrl_psclk               : t_ttc_clk_ctrl;
@@ -229,7 +236,6 @@ begin
     g_sync_reset_cnt :      entity work.synchronizer generic map(N_STAGES => 2) port map(async_i => ctrl_i.reset_cnt, clk_i   => mmcm_ps_clk, sync_o  => ctrl_psclk.reset_cnt);
     g_sync_reset_sync_fsm : entity work.synchronizer generic map(N_STAGES => 2) port map(async_i => ctrl_i.reset_sync_fsm, clk_i   => mmcm_ps_clk, sync_o  => ctrl_psclk.reset_sync_fsm);
     g_sync_reset_mmcm :     entity work.synchronizer generic map(N_STAGES => 2) port map(async_i => ctrl_i.reset_mmcm, clk_i   => mmcm_ps_clk, sync_o  => ctrl_psclk.reset_mmcm);
-    g_sync_reset_pll :      entity work.synchronizer generic map(N_STAGES => 2) port map(async_i => ctrl_i.reset_pll, clk_i   => mmcm_ps_clk, sync_o  => ctrl_psclk.reset_pll);
     g_sync_pa_disable :     entity work.synchronizer generic map(N_STAGES => 2) port map(async_i => ctrl_i.phase_align_disable, clk_i   => mmcm_ps_clk, sync_o  => ctrl_psclk.phase_align_disable);
     g_sync_no_init_shift_o: entity work.synchronizer generic map(N_STAGES => 2) port map(async_i => ctrl_i.pa_no_init_shift_out, clk_i   => mmcm_ps_clk, sync_o  => ctrl_psclk.pa_no_init_shift_out);
     g_sync_man_shift_dir :  entity work.synchronizer generic map(N_STAGES => 2) port map(async_i => ctrl_i.pa_manual_shift_dir, clk_i   => mmcm_ps_clk, sync_o  => ctrl_psclk.pa_manual_shift_dir);
@@ -262,7 +268,7 @@ begin
         );
         
     -- Main MMCM
-    mmcm_adv_inst : MMCME2_ADV
+    i_main_mmcm : MMCME2_ADV
         generic map(
             BANDWIDTH            => "OPTIMIZED",
             CLKOUT4_CASCADE      => false,
@@ -376,7 +382,7 @@ begin
     ------------------------ Use MGT refclk as the source ------------------------
     ------------------------------------------------------------------------------
 
-    -- In case of the MGT refclk as the source, we have to align the MMCM 40MHz output to the backplane 40MHz clk manually. This has better clock performance, but the phase management can become a nightmare
+    -- In case of the MGT refclk as the source, we have to align the MMCM 40MHz output to the backplane 40MHz clk manually. This has better clock performance, but the phase management can be tricky in CMS conditions
 
     clkin <= clk_gbt_mgt_txout_i;
     clkfbin <= clkfbout; -- use internal feedback for better performance, because we don't care about the skew
@@ -384,59 +390,165 @@ begin
     ----------------------------------------------------------
     --------- Phase Alignment to TTC backplane clock ---------
     ----------------------------------------------------------
-        
-    status_o.sync_done <= sync_good when ctrl_psclk.phase_align_disable = '0' else mmcm_locked_raw;
-    status_o.mmcm_locked <= mmcm_locked;
-    status_o.phase_locked <= pll_locked;
-    status_o.sync_restart_cnt <= std_logic_vector(unlock_cnt);
-    status_o.mmcm_unlock_cnt <= std_logic_vector(mmcm_unlock_cnt);
-    status_o.phase_unlock_cnt <= std_logic_vector(pll_unlock_cnt);
-    status_o.pll_lock_time <= std_logic_vector(pll_lock_wait_timer);
-    status_o.pll_lock_window <= std_logic_vector(pll_lock_window);
-    status_o.pa_phase_shift_cnt <= std_logic_vector(shift_cnt);
-    status_o.pa_fsm_state <= std_logic_vector(to_unsigned(pa_state_t'pos(pa_state), 3));
-    status_o.sync_done_time <= sync_done_time;
-    status_o.phase_unlock_time <= phase_unlock_time;
-    status_o.pa_shift_back_fail_cnt <= std_logic_vector(shift_back_fail_cnt);
-  
-    -- using this PLL to check phase alignment between the MMCM 120 output and TTC 120
-    i_phase_monitor_pll : PLLE2_BASE
-        generic map(
-            BANDWIDTH          => "LOW",
-            CLKFBOUT_MULT      => 24,
-            CLKFBOUT_PHASE     => 0.000,
-            CLKIN1_PERIOD      => 25.000,
-            CLKOUT0_DIVIDE     => 24,
-            CLKOUT0_DUTY_CYCLE => 0.500,
-            CLKOUT0_PHASE      => 0.000,
-            CLKOUT1_DIVIDE     => 24,
-            CLKOUT1_DUTY_CYCLE => 0.500,
-            CLKOUT1_PHASE      => 0.000,
-            CLKOUT2_DIVIDE     => 24,
-            CLKOUT2_DUTY_CYCLE => 0.500,
-            CLKOUT2_PHASE      => 0.000,
-            CLKOUT3_DIVIDE     => 24,
-            CLKOUT3_DUTY_CYCLE => 0.500,
-            CLKOUT3_PHASE      => 0.000,
-            DIVCLK_DIVIDE      => 1,
-            REF_JITTER1        => 0.010
-        )
-        port map(
-            CLKFBOUT => open,
-            CLKOUT0  => open,
-            CLKOUT1  => open,
-            CLKOUT2  => open,
-            CLKOUT3  => open,
-            CLKOUT4  => open,
-            CLKOUT5  => open,
-            LOCKED   => pll_locked_raw,
-            CLKFBIN  => ttc_clocks_bufg.clk_40,
-            CLKIN1   => clk_40_ttc_bufg,
-            PWRDWN   => '0',
-            RST      => pll_reset or ctrl_psclk.reset_pll
-        );  
+                          
+    -- phase alignment FSM
+    -- step 0) shifts the MMCM clock phase until the phase unlocks if it is locked
+    -- step 1) if the current phase is in the zero-crossing region, shift out of that too
+    -- step 2) measure the offset of the current phase from the target phase, and calculate how many shifts and in which direction are needed to get to the target phase
+    -- step 3) do the number of phase shifts calculated in step 1
+    -- NOTE: the units of the DMTD phase offset measurement is 25ns/13417 = 1.863307744ps, while the step of the MMCM shift using 960MHz VCO frequency is VCO_period / 56 = 18.601190476ps
+    --       so each MMCM shift is very slightly less (~32fs) than 10 DMTD units. What we do is take the phase offset + 1/512th of the phase offset, and use that as the required shift count * 10.
+    --       In this case even when shifting over half of the 25ns period (max we should ever need to do) the error is just 3ps
+    
+    process(mmcm_ps_clk)
+    begin
+        if (rising_edge(mmcm_ps_clk)) then
+            if ((ctrl_psclk.reset_mmcm = '1') or (fsm_reset = '1')) then
+                pa_state <= IDLE;
+                sync_done_flag <= '0';
+                mmcm_ps_en <= '0';
+                mmcm_ps_done_timer <= (others => '0');
+                searching_unlock <= '0';
+                mmcm_ps_incdec <= '0';
+                shift_cnt <= (others => '0');
+            else
+                sync_done_flag <= '0';
+                mmcm_ps_en <= '0';
+                mmcm_ps_done_timer <= (others => '0');
+                
+                case pa_state is
+                    
+                    -- wait for stable conditions to begin the phase alignment
+                    when IDLE =>
+                        -- wait for the MMCM to be locked, and TTC clk reported as present, and phase lock to be updated before moving forward
+                        if (mmcm_locked = '1' and ttc_clk_present_psclk = '1' and phase_lock_update_psclk = '1') then
+                            pa_state <= FIND_UNLOCK;
+                        end if;
+                        
+                        searching_unlock <= '0';
+                        mmcm_ps_incdec <= '0';
+                        shift_cnt <= (others => '0');
 
-    -- detect stable MMCM and PLL lock signals 
+                    -- find a good spot to start the phase alignment - if we are currently locked, then shift out of that (unless ctrl_psclk.pa_no_init_shift_out is set)
+                    -- also if we are in zero-crossing region then shift out of that
+                    -- the shift out is done by doing a constant number (SHIFT_OUT_COUNT) of shifts, and then coming back to IDLE to wait for a DMTD update (DMTD is held in reset while searching_unlock is high)
+                    -- once we are in a good spot, then take the reading of how much we have to shift to get to the target
+                    when FIND_UNLOCK =>
+                        
+                        -- if it's the last shift, then go to IDLE to wait for DMTD update
+                        if (shift_cnt = to_unsigned(1, shift_cnt'length)) then
+                            pa_state <= IDLE; 
+                            shift_cnt <= (others => '0');
+                            searching_unlock <= '0';
+                            mmcm_ps_incdec <= '0';
+                                                        
+                        -- if we're already shifting, then keep doing that
+                        elsif (shift_cnt /= to_unsigned(0, shift_cnt'length)) then
+                            pa_state <= WAIT_SHIFT_DONE; 
+                            mmcm_ps_en <= '1';
+                            mmcm_ps_incdec <= '0';
+                            shift_cnt <= shift_cnt - 1;
+                            searching_unlock <= '1'; -- this also resets the DMTD
+                            
+                        -- if we just got here, then check if we're in a good spot, and if not then initiate the shift-out
+                        elsif (phase_zero_cross_psclk = '1' or (phase_locked_psclk = '1' and ctrl_psclk.pa_no_init_shift_out = '0')) then
+                            pa_state <= WAIT_SHIFT_DONE; 
+                            mmcm_ps_en <= '1';
+                            mmcm_ps_incdec <= '0';
+                            shift_cnt <= SHIFT_OUT_COUNT;
+                            searching_unlock <= '1'; -- this also resets the DMTD
+                            
+                        -- we are in a good spot - latch in the closest offset and direction from the target phase, and get them shifts going :)
+                        else
+                            pa_state <= FIND_LOCK;
+                            searching_unlock <= '0';
+                            if (phase_offset_pos_psclk > phase_offset_neg_psclk) then
+                                shift_cnt <= unsigned(phase_offset_neg_psclk) + unsigned("000000000" & phase_offset_neg_psclk(15 downto 9)); -- offset + 1/512 * offset (see the main FSM description for details)
+                                mmcm_ps_incdec <= '1';
+                            else
+                                shift_cnt <= unsigned(phase_offset_pos_psclk) + unsigned("000000000" & phase_offset_pos_psclk(15 downto 9)); -- offset + 1/512 * offset (see the main FSM description for details)
+                                mmcm_ps_incdec <= '0';
+                            end if;
+                            
+                        end if;
+                        
+                    -- we got here because a phase shift has been initiated, so now we just wait for mmcm_ps_done to go high, and come back to the original state (FIND_LOCK or FIND_UNLOCK)
+                    when WAIT_SHIFT_DONE =>
+                        if (mmcm_ps_done = '1') then
+                            if (searching_unlock = '1') then
+                                pa_state <= FIND_UNLOCK;
+                            else
+                                pa_state <= FIND_LOCK;
+                            end if;
+                        else
+                            -- datasheet says MMCM should lock in 12 clock cycles and assert mmcm_ps_done for one clock period, but we have a timeout just in case
+                            if (mmcm_ps_done_timer = MMCM_PS_DONE_TIMEOUT) then
+                                pa_state <= IDLE; -- TODO: maybe go to FAIL?
+                                mmcm_ps_done_timer <= (others => '0'); 
+                            else
+                                mmcm_ps_done_timer <= mmcm_ps_done_timer + 1;
+                            end if;
+                        end if;
+
+                    -- shift the necessary amount to get to the lock target: every shift decrements the shift_cnt by 10, and we throw in an extra one every 292 shifts
+                    -- once we get close to 0, then we're done (refer to the main description of the FSM above for details) 
+                    when FIND_LOCK =>
+                        
+                        -- we have only up to 5 counts left, so we're done
+                        if (shift_cnt < to_unsigned(6, shift_cnt'length)) then
+                            pa_state <= SYNC_DONE; 
+                            shift_cnt <= (others => '0');
+                            
+                        -- we have less than 10 counts, but more than 5, so we still want to do one more shift, but don't rollover the shift_cnt
+                        elsif (shift_cnt < to_unsigned(10, shift_cnt'length)) then
+                            pa_state <= WAIT_SHIFT_DONE; 
+                            mmcm_ps_en <= '1';
+                            shift_cnt <= (others => '0');
+
+                        -- still shifting, and reducing by 10 counts on each shift (see main FSM description for details)
+                        else
+                            pa_state <= WAIT_SHIFT_DONE; 
+                            mmcm_ps_en <= '1';
+                            shift_cnt <= shift_cnt - 10;
+                        end if;
+                        
+                        searching_unlock <= '0';
+
+                    when SYNC_DONE =>
+                        
+                        sync_done_flag <= '1';
+                        searching_unlock <= '0';
+                        mmcm_ps_incdec <= '0';
+                        shift_cnt <= (others => '0');
+                        
+                        if (mmcm_locked = '0' or ttc_clk_present_psclk = '0') then
+                            pa_state <= FAIL;
+                        else
+                            pa_state <= SYNC_DONE;
+                        end if;
+                        
+                    when FAIL =>
+                        pa_state <= FAIL;
+                        searching_unlock <= '0';
+                        mmcm_ps_incdec <= '0';
+                        shift_cnt <= (others => '0');
+                        
+                    when others =>
+                        pa_state <= IDLE;
+                        searching_unlock <= '0';
+                        mmcm_ps_incdec <= '0';
+                        shift_cnt <= (others => '0');
+                    
+                end case;
+            end if;
+        end if;
+    end process;
+    
+    i_sync_lockmon_reset_clk40 : entity work.synchronizer generic map(N_STAGES => 3) port map(async_i => searching_unlock, clk_i   => ttc_clocks_bufg.clk_40, sync_o  => lockmon_reset_clk40);
+
+    ------------ status monitoring ------------
+
+    -- detect stable MMCM lock signal
     process(mmcm_ps_clk)
     begin
         if (rising_edge(mmcm_ps_clk)) then
@@ -447,295 +559,196 @@ begin
                 mmcm_locked <= '0';
             end if;
             
-            if ((pll_lock_stable_cnt = LOCK_STABLE_TIMEOUT) and (pll_locked_raw = '1') and (pll_reset = '0' and ctrl_psclk.reset_pll = '0')) then
-                pll_locked <= '1';
-            else
-                pll_locked <= '0';
-            end if;
-            
-            if (ctrl_psclk.reset_cnt = '1') then
-                mmcm_unlock_cnt <= (others => '0');
-            elsif ((mmcm_locked = '1') and (mmcm_locked_raw = '0') and (mmcm_unlock_cnt /= x"ffff")) then
-                mmcm_unlock_cnt <= mmcm_unlock_cnt + 1;
-            end if; 
-            
-            if (ctrl_psclk.reset_cnt = '1') then
-                pll_unlock_cnt <= (others => '0');
-            elsif ((pa_state = SYNC_DONE) and (pll_unlock_stable_cnt = UNLOCK_STABLE_TIMEOUT) and (pll_unlock_cnt /= x"ffff")) then
-                pll_unlock_cnt <= pll_unlock_cnt + 1;
-            end if;
-            
             if ((mmcm_locked_raw = '0') or (ctrl_psclk.reset_mmcm = '1')) then
                 mmcm_lock_stable_cnt <= 0;
             elsif (mmcm_lock_stable_cnt < LOCK_STABLE_TIMEOUT) then
                 mmcm_lock_stable_cnt <= mmcm_lock_stable_cnt + 1;
             end if;
-
-            if ((pll_locked_raw = '0') or (pll_reset = '1') or (ctrl_psclk.reset_pll = '1')) then
-                pll_lock_stable_cnt <= 0;
-            elsif (pll_lock_stable_cnt < LOCK_STABLE_TIMEOUT) then
-                pll_lock_stable_cnt <= pll_lock_stable_cnt + 1;
-            end if;
-            
-            if ((pll_locked_raw = '1') or (pll_reset = '1') or (ctrl_psclk.reset_pll = '1')) then
-                pll_unlock_stable_cnt <= 0;
-            elsif (pll_unlock_stable_cnt < UNLOCK_STABLE_TIMEOUT + 1) then
-                pll_unlock_stable_cnt <= pll_unlock_stable_cnt + 1;
-            end if;
-            
+                        
         end if;
     end process;
     
-    i_phase_unlock_time : entity work.seconds_counter
+    -- count MMCM unlocks
+    
+    i_mmcm_unlock_pulse : entity work.oneshot
+        port map(
+            reset_i   => '0',
+            clk_i     => ttc_clocks_bufg.clk_40,
+            input_i   => not mmcm_locked_clk40,
+            oneshot_o => mmcm_unlock_p_clk40
+        );
+    
+    i_cnt_mmcm_unlock : entity work.counter
         generic map(
-            g_CLK_FREQUENCY  => CFG_CLKIN1_FREQ_SLV32,
+            g_COUNTER_WIDTH  => 16,
+            g_ALLOW_ROLLOVER => false
+        )
+        port map(
+            ref_clk_i => ttc_clocks_bufg.clk_40,
+            reset_i   => ctrl_i.reset_cnt,
+            en_i      => mmcm_unlock_p_clk40,
+            count_o   => mmcm_unlock_cnt
+        );
+
+    -- count phase unlocks
+
+    i_phase_unlock_pulse : entity work.oneshot
+        port map(
+            reset_i   => '0',
+            clk_i     => ttc_clocks_bufg.clk_40,
+            input_i   => not phase_locked,
+            oneshot_o => phase_unlock_pulse
+        );
+
+    i_cnt_phase_unlock : entity work.counter
+        generic map(
+            g_COUNTER_WIDTH  => 16,
+            g_ALLOW_ROLLOVER => false
+        )
+        port map(
+            ref_clk_i => ttc_clocks_bufg.clk_40,
+            reset_i   => ctrl_i.reset_cnt,
+            en_i      => phase_unlock_pulse,
+            count_o   => phase_unlock_cnt
+        );
+    
+    -- count the TTC clock loss
+    
+    i_ttc_clk_lost_pulse : entity work.oneshot
+        port map(
+            reset_i   => '0',
+            clk_i     => ttc_clocks_bufg.clk_40,
+            input_i   => not ttc_clk_present,
+            oneshot_o => ttc_clk_lost_pulse
+        );
+    
+    i_ttc_clk_lost_cnt : entity work.counter
+        generic map(
+            g_COUNTER_WIDTH  => 16,
+            g_ALLOW_ROLLOVER => false
+        )
+        port map(
+            ref_clk_i => ttc_clocks_bufg.clk_40,
+            reset_i   => ctrl_i.reset_cnt,
+            en_i      => ttc_clk_lost_pulse,
+            count_o   => ttc_clk_loss_cnt
+        );
+    
+    -- time counters (number of seconds since certain events like phase unlock, ttc clk loss, sync done)
+
+    i_ttc_clk_loss_time : entity work.seconds_counter
+        generic map(
+            g_CLK_FREQUENCY  => C_TTC_CLK_FREQUENCY_SLV,
             g_ALLOW_ROLLOVER => false,
             g_COUNTER_WIDTH  => 16
         )
         port map(
-            clk_i     => mmcm_ps_clk,
-            reset_i   => not pll_locked or ctrl_psclk.reset_cnt,
+            clk_i     => ttc_clocks_bufg.clk_40,
+            reset_i   => ttc_clk_lost_pulse or ctrl_i.reset_cnt,
+            seconds_o => ttc_clk_loss_time
+        );
+    
+    i_phase_unlock_time : entity work.seconds_counter
+        generic map(
+            g_CLK_FREQUENCY  => C_TTC_CLK_FREQUENCY_SLV,
+            g_ALLOW_ROLLOVER => false,
+            g_COUNTER_WIDTH  => 16
+        )
+        port map(
+            clk_i     => ttc_clocks_bufg.clk_40,
+            reset_i   => phase_unlock_pulse or ctrl_i.reset_cnt,
             seconds_o => phase_unlock_time
         );
             
     i_sync_done_time : entity work.seconds_counter
         generic map(
-            g_CLK_FREQUENCY  => x"098e3a60", -- 160.316MHz
+            g_CLK_FREQUENCY  => C_TTC_CLK_FREQUENCY_SLV,
             g_ALLOW_ROLLOVER => false,
             g_COUNTER_WIDTH  => 16
         )
         port map(
-            clk_i     => mmcm_ps_clk,
-            reset_i   => not sync_good or ctrl_psclk.reset_cnt,
+            clk_i     => ttc_clocks_bufg.clk_40,
+            reset_i   => not sync_done_flag_clk40 or ctrl_i.reset_cnt,
             seconds_o => sync_done_time
         );   
-                    
-    -- phase alignment FSM
-    -- step 0) shifts the MMCM clock phase until the PLL unlocks if it is locked
-    -- step 1) shifts the MMCM clock phase until the PLL locks
-    -- step 2) keeps shifting the MMCM clock phase until the PLL unlocks and counts the number of shifts done
-    -- step 3) shifts the MMCM clock phase back half the number of times that it took to unlock when shifting forwards after it locked
-    process(mmcm_ps_clk)
-    begin
-        if (rising_edge(mmcm_ps_clk)) then
-            if ((ctrl_psclk.reset_mmcm = '1') or (fsm_reset = '1') or (fsm_reset_debug = '1')) then
-                pa_state <= IDLE;
-                sync_good <= '0';
-                pll_reset <= '1';
-                mmcm_ps_en <= '0';
-                pll_lock_wait_timer <= (others => '0'); 
-                searching_for_unlock <= '0';
-                shifting_back <= '0';
-                shift_back_cnt <= (others => '0');
-                mmcm_ps_incdec <= '1';
-                shift_back_fail_cnt <= (others => '0');
-                shift_cnt <= (others => '0');
-                shift_cnt_to_lock <= (others => '0');
-                unlock_cnt <= (others => '0');
-                pll_lock_window <= (others => '0');
-                initial_unlock_search <= not ctrl_psclk.pa_no_init_shift_out; -- initially after a reset shift the phase out of lock and the restart the FSM as usual
-                if (ctrl_psclk.pa_no_init_shift_out = '1') then
-                    pa_state <= IDLE;                
-                else
-                    pa_state <= CHECK_FOR_UNLOCK;                
-                end if;
-            else
-                sync_good <= '0';
-                
-                case pa_state is
-                    when IDLE =>
-                        if (mmcm_locked = '1') then
-                            pa_state <= CHECK_FOR_LOCK;
-                        end if;
-                        
-                        pll_reset <= '1';
-                        mmcm_ps_en <= '0';
-                        pll_lock_wait_timer <= (others => '0');
-                        mmcm_ps_done_timer <= (others => '0');
-                        searching_for_unlock <= '0';
-                        shifting_back <= '0';
-                        shift_back_cnt <= (others => '0');
-                        mmcm_ps_incdec <= '1';
-                        shift_cnt_to_lock <= (others => '0');
-                        pll_lock_window <= (others => '0');
-                        
-                    when CHECK_FOR_LOCK =>
-                        if (pll_locked = '1') then
-                            pa_state <= CHECK_FOR_UNLOCK;
-                        else
-                            if (pll_lock_wait_timer = 0) then
-                                pll_reset <= '1';
-                                pll_lock_wait_timer <= pll_lock_wait_timer + 1;
-                            elsif (pll_lock_wait_timer = PLL_LOCK_WAIT_TIMEOUT) then
-                                pa_state <= SHIFT_PHASE;
-                                pll_reset <= '1';
-                                pll_lock_wait_timer <= (others => '0');
-                                shift_cnt_to_lock <= shift_cnt_to_lock + 1;
-                                shift_cnt <= shift_cnt + 1;
-                            else
-                                pll_lock_wait_timer <= pll_lock_wait_timer + 1;
-                                pll_reset <= '0';
-                            end if;
-                        end if;
-                        
-                        mmcm_ps_en <= '0';
-                        mmcm_ps_done_timer <= (others => '0');
-                        
-                    when SHIFT_PHASE =>
-                        mmcm_ps_en <= '1';
-                        pa_state <= WAIT_SHIFT_DONE;
-                        pll_reset <= '1';
-                        mmcm_ps_done_timer <= (others => '0');
 
-                    when WAIT_SHIFT_DONE =>
-                        mmcm_ps_en <= '0';
-                        pll_reset <= '1';
-
-                        if ((mmcm_ps_done = '1') and (shifting_back = '1')) then
-                            pa_state <= SHIFT_BACK;
-                        elsif ((mmcm_ps_done = '1') and (searching_for_unlock = '1')) then
-                            pa_state <= CHECK_FOR_UNLOCK;
-                        elsif ((mmcm_ps_done = '1') and (mmcm_locked = '1')) then
-                            pa_state <= CHECK_FOR_LOCK;
-                        else
-                            -- datasheet says MMCM should lock in 12 clock cycles and assert mmcm_ps_done for one clock period, but we have a timeout just in case
-                            if (mmcm_ps_done_timer = MMCM_PS_DONE_TIMEOUT) then
-                                pa_state <= IDLE;
-                                mmcm_ps_done_timer <= (others => '0'); 
-                            else
-                                mmcm_ps_done_timer <= mmcm_ps_done_timer + 1;
-                            end if;
-                        end if;
-                        
-                    when CHECK_FOR_UNLOCK =>
-                        if (pll_locked = '1') then
-                            pa_state <= SHIFT_PHASE;
-                            shift_back_cnt <= shift_back_cnt + 1;
-                            shift_cnt <= shift_cnt + 1;
-                        else
-                            if (pll_lock_wait_timer = 0) then
-                                pll_reset <= '1';
-                                pll_lock_wait_timer <= pll_lock_wait_timer + 1;
-                            elsif (pll_lock_wait_timer = PLL_LOCK_WAIT_TIMEOUT) then
-                                -- initially after a reset shift the phase out of lock and the restart the FSM as usual
-                                if (initial_unlock_search = '1') then
-                                    initial_unlock_search <= '0';
-                                    pa_state <= IDLE;
-                                else
-                                    pa_state <= SHIFT_BACK;
-                                end if;
-                                pll_lock_window <= shift_back_cnt;
-                                shift_back_cnt <= '0' & shift_back_cnt(15 downto 1); -- divide the shift back count by 2
-                                shifting_back <= '1';
-                                pll_reset <= '1';
-                                pll_lock_wait_timer <= (others => '0');
-                            else
-                                pll_lock_wait_timer <= pll_lock_wait_timer + 1;
-                                pll_reset <= '0';
-                            end if;
-                        end if;
-                        
-                        searching_for_unlock <= '1';
-                        mmcm_ps_en <= '0';
-                        mmcm_ps_done_timer <= (others => '0');                        
-
-                    when SHIFT_BACK =>
-                        if (shift_back_cnt = x"0000") then
-                            mmcm_ps_en <= '0';
-                            pll_reset <= '0';
-                            
-                            -- pll should lock, but if not, then just go back to IDLE and start all over again...                            
-                            if ((pll_locked = '1') and (shift_cnt_to_lock = x"0000") and (ctrl_psclk.pa_no_init_shift_out = '0')) then
-                                -- if we find that in fact the pll did lock, but there were 0 shifts done to get there, then go back to IDLE,
-                                -- because we found experimentaly that this results in wrong phase.. going through the FSM multiple times will 
-                                -- eventually shift it out of lock and then find a good locking point as per usual operation.
-                                initial_unlock_search <= '1'; 
-                                pa_state <= IDLE;
-                                --pa_state <= DEAD; -- just keep it in a dead state for now if this happens, this will prevent the GTH startup from completing and will be clearly visible during the FPGA programming  
-                            elsif (pll_locked = '1') then
-                                pa_state <= SYNC_DONE;
-                            elsif (pll_lock_wait_timer = PLL_LOCK_WAIT_TIMEOUT) then
-                                pa_state <= IDLE;
-                                shift_back_fail_cnt <= shift_back_fail_cnt + 1;
-                            else
-                                pll_lock_wait_timer <= pll_lock_wait_timer + 1;
-                            end if;
-                        else
-                            shift_back_cnt <= shift_back_cnt - 1;
-                            pa_state <= WAIT_SHIFT_DONE;
-                            mmcm_ps_en <= '1';
-                            pll_reset <= '1';
-                            mmcm_ps_done_timer <= (others => '0');
-                            shift_cnt <= shift_cnt - 1;
-                        end if;
-                        
-                        mmcm_ps_incdec <= '0';
-                                            
-                    when SYNC_DONE =>
-                        mmcm_ps_en <= '0';
-                        sync_good <= '1';
-
-                        if (ctrl_psclk.reset_cnt = '1') then
-                            unlock_cnt <= (others => '0');
-                        end if;
-
-                        if (mmcm_locked = '0') then
-                            pa_state <= IDLE;
-                            unlock_cnt <= unlock_cnt + 1;
-                        else
-                            pa_state <= SYNC_DONE;
-                        end if;
-                        
-                    when DEAD =>
-                        pa_state <= DEAD;
-                        mmcm_ps_en <= '0';
-                        
-                    when others =>
-                        pa_state <= IDLE;
-                        mmcm_ps_en <= '0';
-                        
-                end case;
-            end if;
-        end if;
-    end process;
+        
+    --- transfer status signals from psclk to clk40 domain    
+    
+    i_sync_sync_done_clk40 :        entity work.synchronizer generic map(N_STAGES => 2) port map(async_i => sync_done_flag, clk_i   => ttc_clocks_bufg.clk_40, sync_o  => sync_done_flag_clk40);
+    i_sync_mmcm_locked_clk40 :      entity work.synchronizer generic map(N_STAGES => 2) port map(async_i => mmcm_locked, clk_i   => ttc_clocks_bufg.clk_40, sync_o  => mmcm_locked_clk40);
+    
+    -- status signal wiring    
+    
+    status_o.sync_done <= sync_done_flag_clk40 when ctrl_psclk.phase_align_disable = '0' else mmcm_locked_clk40;
+    status_o.mmcm_locked <= mmcm_locked_clk40;
+    status_o.phase_locked <= phase_locked;
+    status_o.mmcm_unlock_cnt <= mmcm_unlock_cnt;
+    status_o.phase_unlock_cnt <= phase_unlock_cnt;
+    status_o.ttc_clk_loss_cnt <= ttc_clk_loss_cnt;
+    status_o.sync_done_time <= sync_done_time;
+    status_o.phase_unlock_time <= phase_unlock_time;
+    status_o.ttc_clk_loss_time <= ttc_clk_loss_time;
+        
         
     -------------- Phase monitoring of the 40MHz derived from TXOUTCLK vs TTC backplane -------------- 
 
     ---- DMTD phase monitor from TCDS / white rabbit ----    
     
-    i_dmtd_clks : entity work.dmdt_clock_gen
+    i_dmtd_clk : entity work.dmtd_clock
+        generic map(
+            G_INPUT_CLK_PERIOD => CFG_CLKIN1_PERIOD
+        )
         port map(
-            rst_mmcm1_i    => ctrl_i.reset_phase_monitor_mmcm,
-            rst_mmcm2_i    => ctrl_i.reset_phase_monitor_mmcm,
-            refclk_i       => clk_40_ttc_bufg, -- ttc_clocks_bufg.clk_40 -- or best actually use clk_gbt_mgt_txout_i, but need to divide differently
-            dmdt_clk_o     => ttc_phasemon_dmtd_clk,
-            mmcm1_locked_o => open,
-            mmcm2_locked_o => open
+            reset_i      => ctrl_i.reset_phase_mon_mmcm,
+            clk_i        => clk_gbt_mgt_txout_i,
+            clk_39_997_o => ttc_phasemon_dmtd_clk,
+            locked_o     => dmtd_mmcm_locked
         );
        
     i_dmtd_phasemon : entity work.dmtd_phase_meas
         generic map(
-            g_deglitcher_threshold => 2000,
-            g_counter_bits         => 14,
-            g_max_valid_phase      => 13417
+            G_DEGLITCHER_THRESHOLD => 2000,
+            G_COUNTER_BITS         => 14,
+            G_MAX_VALID_PHASE      => 13417
         )
         port map(
-            reset_i             => ttc_phase_meas_reset,
-            clk_sys_i           => ttc_clocks_bufg.clk_40,
-            clk_a_i             => ttc_clocks_bufg.clk_40,
-            clk_b_i             => clk_40_ttc_bufg,
-            clk_dmtd_i          => ttc_phasemon_dmtd_clk,
-            navg_log2_i         => ctrl_i.phase_mon_navg_log2,
-            phase_jump_thresh_i => ctrl_i.phase_jump_thresh(13 downto 0),
-            phase_o             => ttc_phase(13 downto 0),
-            phase_min_o         => ttc_phase_min(13 downto 0),
-            phase_max_o         => ttc_phase_max(13 downto 0),
-            phase_p_o           => ttc_phase_update,
-            dv_o                => open,
-            phase_jump_cnt_o    => ttc_phase_jump_cnt
+            reset_i              => ttc_phase_meas_reset,
+            -- clocks            
+            clk_sys_i            => ttc_clocks_bufg.clk_40,
+            clk_a_i              => ttc_clocks_bufg.clk_40,
+            clk_b_i              => clk_40_ttc_bufg,
+            clk_dmtd_i           => ttc_phasemon_dmtd_clk,
+            -- clock present flags
+            clk_a_present_o      => open,
+            clk_b_present_o      => ttc_clk_present,
+            -- average phase monitoring
+            navg_log2_i          => ctrl_i.phase_mon_log2_navg,
+            phase_avg_o          => ttc_phase(13 downto 0),
+            phase_min_o          => ttc_phase_min(13 downto 0),
+            phase_max_o          => ttc_phase_max(13 downto 0),
+            phase_avg_p_o        => ttc_phase_update,
+            dv_o                 => open,
+            -- phase jump monitor
+            phase_jump_thresh_i  => ctrl_i.phase_mon_jump_thresh(13 downto 0),
+            phase_jump_cnt_o     => ttc_phase_jump_cnt,
+            -- lock monitoring
+            lockmon_navg_log2_i  => ctrl_i.lock_mon_log2_navg,
+            lockmon_target_i     => ctrl_i.lock_mon_target_phase(13 downto 0),
+            lockmon_tollerance_i => ctrl_i.lock_mon_tollerance(13 downto 0),
+            lockmon_locked_o     => phase_locked,
+            lockmon_offset_pos_o => phase_offset_pos(13 downto 0),
+            lockmon_offset_neg_o => phase_offset_neg(13 downto 0),
+            lockmon_zero_cross_o => phase_zero_cross,
+            lockmon_update_o     => phase_lock_update
         );
     
-    ttc_phase_meas_reset <= (not sync_good and not ctrl_i.phase_align_disable) or ctrl_i.reset_cnt;
+    process(ttc_clocks_bufg.clk_40)
+    begin
+        if rising_edge(ttc_clocks_bufg.clk_40) then
+            ttc_phase_meas_reset <= (not mmcm_locked_clk40) or ctrl_i.reset_cnt or lockmon_reset_clk40;
+        end if;
+    end process;
     
     i_phase_sample_cnt : entity work.counter
         generic map(
@@ -752,7 +765,61 @@ begin
     status_o.phase_monitor.phase <= ttc_phase;
     status_o.phase_monitor.phase_min <= ttc_phase_min;
     status_o.phase_monitor.phase_max <= ttc_phase_max;
-    status_o.phase_monitor.phase_jump_cnt <= ttc_phase_jump_cnt;    
+    status_o.phase_monitor.phase_jump_cnt <= ttc_phase_jump_cnt;
+    status_o.ttc_clk_present <= ttc_clk_present;
+    status_o.phasemon_mmcm_locked <= dmtd_mmcm_locked;
+    
+    -- transfer the lockmon signals to psclk domain
+    
+    i_sync_phase_locked_psclk : entity work.synchronizer
+        generic map(
+            N_STAGES => 2
+        )
+        port map(
+            async_i => phase_locked,
+            clk_i   => mmcm_ps_clk,
+            sync_o  => phase_locked_psclk
+        );
+    
+    i_sync_ttc_clk_present_psclk : entity work.synchronizer
+        generic map(
+            N_STAGES => 2
+        )
+        port map(
+            async_i => ttc_clk_present,
+            clk_i   => mmcm_ps_clk,
+            sync_o  => ttc_clk_present_psclk
+        );
+
+    i_sync_zero_cross_psclk : entity work.synchronizer
+        generic map(
+            N_STAGES => 2
+        )
+        port map(
+            async_i => phase_zero_cross,
+            clk_i   => mmcm_ps_clk,
+            sync_o  => phase_zero_cross_psclk
+        );
+    
+    i_sync_phase_lock_update : entity work.oneshot_cross_domain
+        port map(
+            reset_i       => ttc_phase_meas_reset,
+            input_clk_i   => ttc_clocks_bufg.clk_40,
+            oneshot_clk_i => mmcm_ps_clk,
+            input_i       => phase_lock_update,
+            oneshot_o     => phase_lock_update1_psclk
+        );
+    
+    process (mmcm_ps_clk)
+    begin
+        if rising_edge(mmcm_ps_clk) then
+            phase_lock_update_psclk <= phase_lock_update1_psclk;
+            if (phase_lock_update1_psclk = '1') then
+                phase_offset_pos_psclk <= phase_offset_pos;
+                phase_offset_neg_psclk <= phase_offset_neg;
+            end if;
+        end if;
+    end process;
     
     -------------- DEBUG -------------- 
     

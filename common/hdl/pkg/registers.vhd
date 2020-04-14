@@ -15,7 +15,7 @@ package registers is
     -- data status, bc0 status, command counters and a small spy buffer)
     --============================================================================
 
-    constant REG_TTC_NUM_REGS : integer := 46;
+    constant REG_TTC_NUM_REGS : integer := 44;
     constant REG_TTC_ADDRESS_MSB : integer := 7;
     constant REG_TTC_ADDRESS_LSB : integer := 0;
     constant REG_TTC_CTRL_MODULE_RESET_ADDR    : std_logic_vector(7 downto 0) := x"00";
@@ -58,10 +58,10 @@ package registers is
     constant REG_TTC_CTRL_PA_MANUAL_SHIFT_DIR_BIT    : integer := 7;
     constant REG_TTC_CTRL_PA_MANUAL_SHIFT_DIR_DEFAULT : std_logic := '0';
 
-    constant REG_TTC_CTRL_PHASE_MONITOR_NAVG_LOG2_ADDR    : std_logic_vector(7 downto 0) := x"04";
-    constant REG_TTC_CTRL_PHASE_MONITOR_NAVG_LOG2_MSB    : integer := 11;
-    constant REG_TTC_CTRL_PHASE_MONITOR_NAVG_LOG2_LSB     : integer := 8;
-    constant REG_TTC_CTRL_PHASE_MONITOR_NAVG_LOG2_DEFAULT : std_logic_vector(11 downto 8) := x"5";
+    constant REG_TTC_CTRL_PHASEMON_LOG2_N_AVG_ADDR    : std_logic_vector(7 downto 0) := x"04";
+    constant REG_TTC_CTRL_PHASEMON_LOG2_N_AVG_MSB    : integer := 11;
+    constant REG_TTC_CTRL_PHASEMON_LOG2_N_AVG_LSB     : integer := 8;
+    constant REG_TTC_CTRL_PHASEMON_LOG2_N_AVG_DEFAULT : std_logic_vector(11 downto 8) := x"5";
 
     constant REG_TTC_CTRL_CALPULSE_L1A_DELAY_ADDR    : std_logic_vector(7 downto 0) := x"04";
     constant REG_TTC_CTRL_CALPULSE_L1A_DELAY_MSB    : integer := 31;
@@ -72,18 +72,29 @@ package registers is
     constant REG_TTC_CTRL_PA_MANUAL_SHIFT_EN_MSB    : integer := 31;
     constant REG_TTC_CTRL_PA_MANUAL_SHIFT_EN_LSB     : integer := 0;
 
-    constant REG_TTC_CTRL_PA_MANUAL_PLL_RESET_ADDR    : std_logic_vector(7 downto 0) := x"06";
-    constant REG_TTC_CTRL_PA_MANUAL_PLL_RESET_MSB    : integer := 31;
-    constant REG_TTC_CTRL_PA_MANUAL_PLL_RESET_LSB     : integer := 0;
+    constant REG_TTC_CTRL_PHASEMON_MMCM_RESET_ADDR    : std_logic_vector(7 downto 0) := x"06";
+    constant REG_TTC_CTRL_PHASEMON_MMCM_RESET_MSB    : integer := 31;
+    constant REG_TTC_CTRL_PHASEMON_MMCM_RESET_LSB     : integer := 0;
 
-    constant REG_TTC_CTRL_PHASE_MONITOR_MMCM_RESET_ADDR    : std_logic_vector(7 downto 0) := x"07";
-    constant REG_TTC_CTRL_PHASE_MONITOR_MMCM_RESET_MSB    : integer := 31;
-    constant REG_TTC_CTRL_PHASE_MONITOR_MMCM_RESET_LSB     : integer := 0;
+    constant REG_TTC_CTRL_PHASEMON_JUMP_THRESH_ADDR    : std_logic_vector(7 downto 0) := x"07";
+    constant REG_TTC_CTRL_PHASEMON_JUMP_THRESH_MSB    : integer := 15;
+    constant REG_TTC_CTRL_PHASEMON_JUMP_THRESH_LSB     : integer := 0;
+    constant REG_TTC_CTRL_PHASEMON_JUMP_THRESH_DEFAULT : std_logic_vector(15 downto 0) := x"0aeb";
 
-    constant REG_TTC_CTRL_PHASE_MONITOR_JUMP_THRESH_ADDR    : std_logic_vector(7 downto 0) := x"08";
-    constant REG_TTC_CTRL_PHASE_MONITOR_JUMP_THRESH_MSB    : integer := 15;
-    constant REG_TTC_CTRL_PHASE_MONITOR_JUMP_THRESH_LSB     : integer := 0;
-    constant REG_TTC_CTRL_PHASE_MONITOR_JUMP_THRESH_DEFAULT : std_logic_vector(15 downto 0) := x"0aeb";
+    constant REG_TTC_CTRL_LOCKMON_LOG2_N_AVG_ADDR    : std_logic_vector(7 downto 0) := x"07";
+    constant REG_TTC_CTRL_LOCKMON_LOG2_N_AVG_MSB    : integer := 19;
+    constant REG_TTC_CTRL_LOCKMON_LOG2_N_AVG_LSB     : integer := 16;
+    constant REG_TTC_CTRL_LOCKMON_LOG2_N_AVG_DEFAULT : std_logic_vector(19 downto 16) := x"7";
+
+    constant REG_TTC_CTRL_LOCKMON_TARGET_PHASE_ADDR    : std_logic_vector(7 downto 0) := x"08";
+    constant REG_TTC_CTRL_LOCKMON_TARGET_PHASE_MSB    : integer := 15;
+    constant REG_TTC_CTRL_LOCKMON_TARGET_PHASE_LSB     : integer := 0;
+    constant REG_TTC_CTRL_LOCKMON_TARGET_PHASE_DEFAULT : std_logic_vector(15 downto 0) := x"2f1a";
+
+    constant REG_TTC_CTRL_LOCKMON_TOLLERANCE_ADDR    : std_logic_vector(7 downto 0) := x"08";
+    constant REG_TTC_CTRL_LOCKMON_TOLLERANCE_MSB    : integer := 31;
+    constant REG_TTC_CTRL_LOCKMON_TOLLERANCE_LSB     : integer := 16;
+    constant REG_TTC_CTRL_LOCKMON_TOLLERANCE_DEFAULT : std_logic_vector(31 downto 16) := x"0035";
 
     constant REG_TTC_CONFIG_CMD_BC0_ADDR    : std_logic_vector(7 downto 0) := x"10";
     constant REG_TTC_CONFIG_CMD_BC0_MSB    : integer := 7;
@@ -139,13 +150,19 @@ package registers is
     constant REG_TTC_STATUS_CLK_PHASE_LOCKED_ADDR    : std_logic_vector(7 downto 0) := x"20";
     constant REG_TTC_STATUS_CLK_PHASE_LOCKED_BIT    : integer := 2;
 
+    constant REG_TTC_STATUS_CLK_PHASEMON_MMCM_LOCKED_ADDR    : std_logic_vector(7 downto 0) := x"20";
+    constant REG_TTC_STATUS_CLK_PHASEMON_MMCM_LOCKED_BIT    : integer := 3;
+
+    constant REG_TTC_STATUS_CLK_TTC_CLK_PRESENT_ADDR    : std_logic_vector(7 downto 0) := x"20";
+    constant REG_TTC_STATUS_CLK_TTC_CLK_PRESENT_BIT    : integer := 4;
+
     constant REG_TTC_STATUS_CLK_MMCM_UNLOCK_CNT_ADDR    : std_logic_vector(7 downto 0) := x"20";
     constant REG_TTC_STATUS_CLK_MMCM_UNLOCK_CNT_MSB    : integer := 31;
     constant REG_TTC_STATUS_CLK_MMCM_UNLOCK_CNT_LSB     : integer := 16;
 
-    constant REG_TTC_STATUS_CLK_SYNC_RESTART_CNT_ADDR    : std_logic_vector(7 downto 0) := x"21";
-    constant REG_TTC_STATUS_CLK_SYNC_RESTART_CNT_MSB    : integer := 15;
-    constant REG_TTC_STATUS_CLK_SYNC_RESTART_CNT_LSB     : integer := 0;
+    constant REG_TTC_STATUS_CLK_TTC_CLK_LOSS_CNT_ADDR    : std_logic_vector(7 downto 0) := x"21";
+    constant REG_TTC_STATUS_CLK_TTC_CLK_LOSS_CNT_MSB    : integer := 15;
+    constant REG_TTC_STATUS_CLK_TTC_CLK_LOSS_CNT_LSB     : integer := 0;
 
     constant REG_TTC_STATUS_CLK_PHASE_UNLOCK_CNT_ADDR    : std_logic_vector(7 downto 0) := x"21";
     constant REG_TTC_STATUS_CLK_PHASE_UNLOCK_CNT_MSB    : integer := 31;
@@ -159,25 +176,9 @@ package registers is
     constant REG_TTC_STATUS_CLK_PHASE_UNLOCK_TIME_MSB    : integer := 31;
     constant REG_TTC_STATUS_CLK_PHASE_UNLOCK_TIME_LSB     : integer := 16;
 
-    constant REG_TTC_STATUS_CLK_PA_PLL_LOCK_WINDOW_ADDR    : std_logic_vector(7 downto 0) := x"23";
-    constant REG_TTC_STATUS_CLK_PA_PLL_LOCK_WINDOW_MSB    : integer := 15;
-    constant REG_TTC_STATUS_CLK_PA_PLL_LOCK_WINDOW_LSB     : integer := 0;
-
-    constant REG_TTC_STATUS_CLK_PA_PHASE_SHIFT_CNT_ADDR    : std_logic_vector(7 downto 0) := x"23";
-    constant REG_TTC_STATUS_CLK_PA_PHASE_SHIFT_CNT_MSB    : integer := 31;
-    constant REG_TTC_STATUS_CLK_PA_PHASE_SHIFT_CNT_LSB     : integer := 16;
-
-    constant REG_TTC_STATUS_CLK_PA_PLL_LOCK_CLOCKS_ADDR    : std_logic_vector(7 downto 0) := x"24";
-    constant REG_TTC_STATUS_CLK_PA_PLL_LOCK_CLOCKS_MSB    : integer := 23;
-    constant REG_TTC_STATUS_CLK_PA_PLL_LOCK_CLOCKS_LSB     : integer := 0;
-
-    constant REG_TTC_STATUS_CLK_PA_FSM_STATE_ADDR    : std_logic_vector(7 downto 0) := x"24";
-    constant REG_TTC_STATUS_CLK_PA_FSM_STATE_MSB    : integer := 30;
-    constant REG_TTC_STATUS_CLK_PA_FSM_STATE_LSB     : integer := 28;
-
-    constant REG_TTC_STATUS_CLK_PA_SHIFT_BACK_FAIL_CNT_ADDR    : std_logic_vector(7 downto 0) := x"25";
-    constant REG_TTC_STATUS_CLK_PA_SHIFT_BACK_FAIL_CNT_MSB    : integer := 7;
-    constant REG_TTC_STATUS_CLK_PA_SHIFT_BACK_FAIL_CNT_LSB     : integer := 0;
+    constant REG_TTC_STATUS_CLK_TTC_CLK_LOSS_TIME_ADDR    : std_logic_vector(7 downto 0) := x"23";
+    constant REG_TTC_STATUS_CLK_TTC_CLK_LOSS_TIME_MSB    : integer := 15;
+    constant REG_TTC_STATUS_CLK_TTC_CLK_LOSS_TIME_LSB     : integer := 0;
 
     constant REG_TTC_STATUS_CLK_PHASE_MONITOR_PHASE_ADDR    : std_logic_vector(7 downto 0) := x"26";
     constant REG_TTC_STATUS_CLK_PHASE_MONITOR_PHASE_MSB    : integer := 15;

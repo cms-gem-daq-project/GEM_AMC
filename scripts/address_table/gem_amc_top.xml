@@ -70,18 +70,24 @@
         <node id="PA_MANUAL_SHIFT_EN" address="0x5" permission="w"
               description="Each write to this register will trigger one shift step when PA_MANUAL_OVERRIDE is set to 1"
               fw_write_pulse_signal="ttc_ctrl.clk_ctrl.pa_manual_shift_en"/>
-        <node id="PA_MANUAL_PLL_RESET" address="0x6" permission="w"
-              description="Resets the phase check PLL. This is to be used for manual phase alignment with software."
-              fw_write_pulse_signal="ttc_ctrl.clk_ctrl.reset_pll"/>
-        <node id="PHASE_MONITOR_NAVG_LOG2" address="0x4" mask="0x00000f00" permission="rw"
-              description="Number of samples to average in the phase monitor. The setting is in units of log2(n), meaning that e.g. a setting of 4 will result in averaging 16 samples, a setting of 5 will average 32 samples, etc"
-              fw_signal="ttc_ctrl.clk_ctrl.phase_mon_navg_log2" fw_default="0x5"/>
-        <node id="PHASE_MONITOR_JUMP_THRESH" address="0x8" mask="0x0000ffff" permission="rw"
-              description="The threshold on the difference of the two consecutive phase samples that is considered a phase jump (default = 1.5ns). These occurences are counted and reported through the PHASE_JUMP_CNT reg"
-              fw_signal="ttc_ctrl.clk_ctrl.phase_jump_thresh" fw_default="0x0aeb"/>
-        <node id="PHASE_MONITOR_MMCM_RESET" address="0x7" permission="w"
+        <node id="PHASEMON_MMCM_RESET" address="0x6" permission="w"
               description="Resets the phase monitor clock MMCMs."
-              fw_write_pulse_signal="ttc_ctrl.clk_ctrl.reset_phase_monitor_mmcm"/>
+              fw_write_pulse_signal="ttc_ctrl.clk_ctrl.reset_phase_mon_mmcm"/>
+        <node id="PHASEMON_LOG2_N_AVG" address="0x4" mask="0x00000f00" permission="rw"
+              description="Number of samples to average in the phase monitor. The setting is in units of log2(n), meaning that e.g. a setting of 4 will result in averaging 16 samples, a setting of 5 will average 32 samples, etc"
+              fw_signal="ttc_ctrl.clk_ctrl.phase_mon_log2_navg" fw_default="0x5"/>
+        <node id="PHASEMON_JUMP_THRESH" address="0x7" mask="0x0000ffff" permission="rw"
+              description="The threshold on the difference of the two consecutive phase samples that is considered a phase jump (default = 1.5ns). These occurences are counted and reported through the PHASE_JUMP_CNT reg"
+              fw_signal="ttc_ctrl.clk_ctrl.phase_mon_jump_thresh" fw_default="0x0aeb"/>
+        <node id="LOCKMON_LOG2_N_AVG" address="0x7" mask="0x000f0000" permission="rw"
+              description="Phase lock monitor (used in phase alignment): Number of phase samples to average. The setting is in units of log2(n), meaning that e.g. a setting of 4 will result in averaging 16 samples, a setting of 5 will average 32 samples, etc. The higher the number, the better the accuracy, but it will also take longer to complete the phase alignment."
+              fw_signal="ttc_ctrl.clk_ctrl.lock_mon_log2_navg" fw_default="0x7"/>
+        <node id="LOCKMON_TARGET_PHASE" address="0x8" mask="0x0000ffff" permission="rw"
+              description="Phase lock monitor (used in phase alignment): the target phase between the TTC clock and the fabric clocks that is considered locked. The units are the same as in the phase monitor. NOTE: do not set this at or close to 0 or the maximum phase -- this could result in unreliable phase alignment, it should be placed at least 1ns away from the 0/max rollover point."
+              fw_signal="ttc_ctrl.clk_ctrl.lock_mon_target_phase" fw_default="0x2f1a"/>
+        <node id="LOCKMON_TOLLERANCE" address="0x8" mask="0xffff0000" permission="rw"
+              description="Phase lock monitor (used in phase alignment): this is the half-size of the lock window, or the number of phase units plus/minus the target (LOCKMON_TARGET_PHASE) where the phase is considered locked"
+              fw_signal="ttc_ctrl.clk_ctrl.lock_mon_tollerance" fw_default="0x0035"/>
       </node>
       <node id="CONFIG" address="0x10"
             description="TTC configuration -- used for setup TTC command decoding">
@@ -140,13 +146,21 @@
                 description="Jitter cleaned 40MHz clock is currently in phase with the backplane 40MHz TTC clock"
                 fw_signal="ttc_clks_status_i.phase_locked"
                 sw_monitor_error_value="0"/>
+          <node id="PHASEMON_MMCM_LOCKED" address="0x0" mask="0x00000008" permission="r"
+                description="The phase measurement MMCM is locked (DMTD clock)"
+                fw_signal="ttc_clks_status_i.phasemon_mmcm_locked"
+                sw_monitor_error_value="0"/>
+          <node id="TTC_CLK_PRESENT" address="0x0" mask="0x00000010" permission="r"
+                description="Indicates whether or not the backplane 40MHz TTC clock is present."
+                fw_signal="ttc_clks_status_i.ttc_clk_present"
+                sw_monitor_error_value="0"/>
           <node id="MMCM_UNLOCK_CNT" address="0x0" mask="0xffff0000" permission="r"
                 description="Number of times the MMCM lock signal has gone low (this counter doesn't roll over)"
                 fw_signal="ttc_clks_status_i.mmcm_unlock_cnt"
                 sw_monitor_warn_min_threshold="1"/>
-          <node id="SYNC_RESTART_CNT" address="0x1" mask="0x0000ffff" permission="r"
-                description="Number of times the sync procedure was restarted due to loosing MMCM lock after sync was done (or was restarted manually)"
-                fw_signal="ttc_clks_status_i.sync_restart_cnt"
+          <node id="TTC_CLK_LOSS_CNT" address="0x1" mask="0x0000ffff" permission="r"
+                description="number of times that the TTC clock was lost (the TTC_CLK_PRESENT has gone low)"
+                fw_signal="ttc_clks_status_i.ttc_clk_loss_cnt"
                 sw_monitor_warn_min_threshold="1"/>
           <node id="PHASE_UNLOCK_CNT" address="0x1" mask="0xffff0000" permission="r"
                 description="Number of times the phase monitoring PLL lock signal has gone low (note: loosing phase lock doesn't restart the phase alignment automatically)"
@@ -158,26 +172,14 @@
           <node id="PHASE_UNLOCK_TIME" address="0x2" mask="0xffff0000" permission="r"
                 description="Number of seconds since last phase unlock (max = around 18.2 hours)"
                 fw_signal="ttc_clks_status_i.phase_unlock_time"/>
-          <node id="PA_PLL_LOCK_WINDOW" address="0x3" mask="0x0000ffff" permission="r"
-                description="Phase alignment: the width of the phase lock window"
-                fw_signal="ttc_clks_status_i.pll_lock_window"/>
-          <node id="PA_PHASE_SHIFT_CNT" address="0x3" mask="0xffff0000" permission="r"
-                description="Phase alignment: number of phase shifts done by the phase alignment FSM (each shift corresponds to 18.6012ps)"
-                fw_signal="ttc_clks_status_i.pa_phase_shift_cnt"/>
-          <node id="PA_PLL_LOCK_CLOCKS" address="0x4" mask="0x00ffffff" permission="r"
-                description="Phase alignment: number of clock cycles it took the phase monitoring PLL to lock (debugging register)"
-                fw_signal="ttc_clks_status_i.pll_lock_time"/>
-          <node id="PA_FSM_STATE" address="0x4" mask="0x70000000" permission="r"
-                description="Phase alignment: phase alignment FSM state (debugging register)"
-                fw_signal="ttc_clks_status_i.pa_fsm_state"/>
-          <node id="PA_SHIFT_BACK_FAIL_CNT" address="0x5" mask="0x000000ff" permission="r"
-                description="Phase alignment: the number of times that the phase alignment FSM found no lock after shifting back to the middle of the window and triggered a phase alignmnet restart (debugging register)"
-                fw_signal="ttc_clks_status_i.pa_shift_back_fail_cnt"/>
+          <node id="TTC_CLK_LOSS_TIME" address="0x3" mask="0x0000ffff" permission="r"
+                description="number of seconds since last TTC clock loss"
+                fw_signal="ttc_clks_status_i.ttc_clk_loss_time"/>
 
           <node id="PHASE_MONITOR" address="0x6" description="Monitoring of the phase between the TTC backplane clock, and the fabric clocks">
               <node id="PHASE" address="0x0" mask="0x0000ffff" permission="r"
                     description="TTC Phase monitoring: phase difference between the rising edges of the jitter cleaned 40MHz and backplane TTC 40MHz clocks.
-                                 Each count is about 18.6012ps
+                                 Each count is about 1.8633ps (1/13417 of the 25ns period)
                                  Note that absolute value is not very important, because these clocks will always have some offset due to routing on the FPGA,
                                  the important thing is that this value doesn't change much."
                     fw_signal="ttc_clks_status_i.phase_monitor.phase"/>

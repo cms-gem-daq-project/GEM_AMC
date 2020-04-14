@@ -59,15 +59,17 @@ package ttc_pkg is
         reset_cnt               : std_logic; -- reset the counters
         reset_sync_fsm          : std_logic; -- reset the sync FSM, this will restart the phase alignment procedure
         reset_mmcm              : std_logic; -- reset the MMCM, this will reset the MMCM and also restart the phase alignment procedure
-        reset_pll               : std_logic; -- reset the phase check PLL
-        reset_phase_monitor_mmcm: std_logic; -- reset the phase monitor MMCMs
+        reset_phase_mon_mmcm    : std_logic; -- reset the phase monitor MMCMs
         phase_align_disable     : std_logic; -- disable the phase alignment and force the sync_done signal high -- this may be useful in setups where backplane clock does not exist (no AMC13), and only the jitter cleaned clock is available
         pa_no_init_shift_out    : std_logic; -- if this is set to 0 (default), then when the phase alignment FSM is reset, it will first shift the phase out of lock if it is currently locked, and then start searching for lock as usual
         pa_manual_shift_en      : std_logic; -- positive edge of this signal will do one shift in the selected direction
         pa_manual_shift_dir     : std_logic; -- direction of the manual shifting
         pa_manual_shift_ovrd    : std_logic; -- if this is set to 1, then shift direction is overriden
-        phase_mon_navg_log2     : std_logic_vector(3 downto 0); -- Number of samples to average in the phase monitor. The setting is in units of log2(n), meaning that e.g. a setting of 4 will result in averaging 16 samples, a setting of 5 will average 32 samples, etc
-        phase_jump_thresh       : std_logic_vector(15 downto 0); -- The threshold on the difference of the two consecutive phase samples that is considered a "phase jump"
+        phase_mon_log2_navg     : std_logic_vector(3 downto 0); -- Number of samples to average in the phase monitor. The setting is in units of log2(n), meaning that e.g. a setting of 4 will result in averaging 16 samples, a setting of 5 will average 32 samples, etc
+        phase_mon_jump_thresh   : std_logic_vector(15 downto 0); -- The threshold on the difference of the two consecutive phase samples that is considered a "phase jump"
+        lock_mon_log2_navg      : std_logic_vector(3 downto 0); -- Phase lock monitor (used in phase alignment): Number of phase samples to average. The setting is in units of log2(n), meaning that e.g. a setting of 4 will result in averaging 16 samples, a setting of 5 will average 32 samples, etc. The higher the number, the better the accuracy, but it will also take longer to complete the phase alignment.
+        lock_mon_target_phase   : std_logic_vector(15 downto 0); -- Phase lock monitor (used in phase alignment): the target phase between the TTC clock and the fabric clocks that is considered locked. The units are the same as in the phase monitor. NOTE: do not set this at or close to 0 or the maximum phase -- this could result in unreliable phase alignment, it should be placed at least 1ns away from the 0/max rollover point.
+        lock_mon_tollerance     : std_logic_vector(15 downto 0); -- Phase lock monitor (used in phase alignment): this is the half-size of the lock window, or the number of phase units plus/minus the target (LOCKMON_TARGET_PHASE) where the phase is considered locked
     end record;    
 
     type t_ttc_ctrl is record
@@ -91,16 +93,14 @@ package ttc_pkg is
         sync_done               : std_logic; -- Jitter cleaned clock is locked and phase alignment procedure is finished (use this to start the GTH startup FSM)
         mmcm_locked             : std_logic; -- MMCM is locked (input is jitter cleaned 160MHz clock)
         phase_locked            : std_logic; -- Jitter cleaned 40MHz clock is in phase with the backplane 40MHz TTC clock
-        sync_restart_cnt        : std_logic_vector(15 downto 0); -- number of times the sync procedure was restarted due to loosing MMCM lock after sync was done
+        phasemon_mmcm_locked    : std_logic; -- The phase measurement MMCM is locked (DMTD clock)
+        ttc_clk_present         : std_logic; -- The backplane 40MHz TTC clock is present 
         mmcm_unlock_cnt         : std_logic_vector(15 downto 0); -- number of times the MMCM lock signal has gone low
         phase_unlock_cnt        : std_logic_vector(15 downto 0); -- number of times the phase monitoring PLL lock signal has gone low
+        ttc_clk_loss_cnt        : std_logic_vector(15 downto 0); -- number of times that the TTC clock was lost (the ttc_clk_present has gone low)
         sync_done_time          : std_logic_vector(15 downto 0); -- number of seconds since last sync was done
         phase_unlock_time       : std_logic_vector(15 downto 0); -- number of seconds since last phase unlock
-        pll_lock_time           : std_logic_vector(23 downto 0); -- number of clock cycles it took the phase monitoring PLL to lock
-        pll_lock_window         : std_logic_vector(15 downto 0); -- the width of the phase lock window
-        pa_phase_shift_cnt      : std_logic_vector(15 downto 0); -- number of phase shifts done by the phase alignment FSM
-        pa_shift_back_fail_cnt  : std_logic_vector(7 downto 0);  -- the number of times that the phase alignment FSM found no lock after shifting back to the center of the lock window
-        pa_fsm_state            : std_logic_vector(2 downto 0);  -- phase alignment FSM state
+        ttc_clk_loss_time       : std_logic_vector(15 downto 0); -- number of seconds since last TTC clock loss
         phase_monitor           : t_phase_monitor_status;
     end record;
 
