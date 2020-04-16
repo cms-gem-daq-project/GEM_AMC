@@ -354,7 +354,7 @@ begin                                   -- syn
         if rising_edge(clk_sys_i) then
             if (reset_i = '1') then
                 acc          <= (others => '0');
-                avg_cnt      <= to_unsigned(1, avg_cnt'length);
+                avg_cnt      <= (others => '0');
                 phase_avg    <= (others => '0');
                 phase_avg_p  <= '0';
                 phase_lo_cnt <= (others => '0');
@@ -520,7 +520,7 @@ begin                                   -- syn
         if rising_edge(clk_sys_i) then
             if (reset_i = '1') then
                 lm_acc           <= (others => '0');
-                lm_avg_cnt       <= to_unsigned(1, avg_cnt'length);
+                lm_avg_cnt       <= (others => '0');
                 lm_offset_pos    <= (others => '1');
                 lm_offset_neg    <= (others => '1');
                 lm_offset_p      <= '0';
