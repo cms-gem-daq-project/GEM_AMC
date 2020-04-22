@@ -243,7 +243,7 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../../common/hdl/utils/synchronizer.vhd">
+      <File Path="$PPRDIR/../../common/hdl/utils/synchronizer__xpm.vhd">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="simulation"/>
@@ -807,7 +807,7 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../../common/hdl/utils/oneshot_cross_domain.vhd">
+      <File Path="$PPRDIR/../../common/hdl/utils/oneshot_cross_domain__xpm.vhd">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="simulation"/>

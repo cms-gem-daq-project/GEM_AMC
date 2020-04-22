@@ -3,18 +3,20 @@
 -- Engineer: Evaldas Juska (evaldas.juska@cern.ch, evka85@gmail.com)
 -- 
 -- Create Date:    23:40 2016-12-18
--- Module Name:    oneshot
+-- Module Name:    oneshot (generic variant)
 -- Description:    given an input signal, the output is asserted high for one clock cycle when input goes from low to high.
 --                 Even if the input signal stays high for longe that one clock cycle, the output is only asserted high for one cycle.
 --                 Both input and output signals are on the same clock domain. Use oneshot_cross_domain if you need them to be on separate domains.
 ------------------------------------------------------------------------------------------------------------------------------------------------------
-
 
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 entity oneshot_cross_domain is
+    generic(
+        G_N_STAGES    : integer := 3
+    );
     port(
         reset_i         : in  std_logic;
         input_clk_i     : in  std_logic;
@@ -24,7 +26,7 @@ entity oneshot_cross_domain is
     );
 end oneshot_cross_domain;
 
-architecture oneshot_cross_domain_arch of oneshot_cross_domain is
+architecture generic_arch of oneshot_cross_domain is
     
     signal last_input       : std_logic := '0';
     signal oneshot_req      : std_logic := '0';
@@ -104,4 +106,4 @@ begin
         end if;
     end process;
     
-end oneshot_cross_domain_arch;
+end generic_arch;

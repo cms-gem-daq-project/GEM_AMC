@@ -25,7 +25,7 @@ end oneshot;
 
 architecture oneshot_arch of oneshot is
     
-    signal last_input   : std_logic;
+    signal last_input   : std_logic := '0';
         
 begin
 
