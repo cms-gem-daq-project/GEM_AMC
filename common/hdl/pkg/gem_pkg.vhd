@@ -121,7 +121,7 @@ package gem_pkg is
     -- 3.9.11 Came back to using the MGT refclk as the source for all fabric clocks
     -- 3.10.0 Reworked TTC clocking, added manual shifting possibility and phase monitoring (DMTD method used in TCDS), also bypassing the delay aligner in the GBT MGTs
     -- 3.10.1 Reworked the phase alignment FSM to use the DMTD phase measurement instead of the PLL lock signal, this also allows for a configurable lock target phase and tollerance
-    -- 3.10.2 Trigger output links to EMTF added, using LpGBT ASIC TX encoding at 10.24Gb/s, and the protocol agreed with EMTF 
+    -- 3.10.2 Trigger output links to EMTF added, using LpGBT ASIC TX encoding at 10.24Gb/s, and the protocol agreed with EMTF (note the RX side of these MGTs is still running at 3.2Gb/s to receive trigger data from OHs)  
 
     --======================--
     --==      General     ==--
