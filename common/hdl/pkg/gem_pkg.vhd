@@ -10,10 +10,10 @@ package gem_pkg is
     --==  Firmware version  ==--
     --========================-- 
 
-    constant C_FIRMWARE_DATE    : std_logic_vector(31 downto 0) := x"20200409";
+    constant C_FIRMWARE_DATE    : std_logic_vector(31 downto 0) := x"20200422";
     constant C_FIRMWARE_MAJOR   : integer range 0 to 255        := 3;
     constant C_FIRMWARE_MINOR   : integer range 0 to 255        := 10;
-    constant C_FIRMWARE_BUILD   : integer range 0 to 255        := 1;
+    constant C_FIRMWARE_BUILD   : integer range 0 to 255        := 2;
     
     ------ Change log ------
     -- 1.8.6 no gbt sync procedure with oh
@@ -121,6 +121,7 @@ package gem_pkg is
     -- 3.9.11 Came back to using the MGT refclk as the source for all fabric clocks
     -- 3.10.0 Reworked TTC clocking, added manual shifting possibility and phase monitoring (DMTD method used in TCDS), also bypassing the delay aligner in the GBT MGTs
     -- 3.10.1 Reworked the phase alignment FSM to use the DMTD phase measurement instead of the PLL lock signal, this also allows for a configurable lock target phase and tollerance
+    -- 3.10.2 Trigger output links to EMTF, using LpGBT ASIC TX encoding at 10.24Gb/s, and the protocol agreed with EMTF 
 
     --======================--
     --==      General     ==--
@@ -250,6 +251,7 @@ package gem_pkg is
         rx_reset_done   : std_logic;
         tx_cpll_locked  : std_logic;
         rx_cpll_locked  : std_logic;
+        qpll_locked     : std_logic;
     end record;
 
     type t_mgt_status_arr is array(integer range <>) of t_mgt_status;

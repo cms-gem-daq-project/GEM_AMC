@@ -534,7 +534,53 @@ begin
       i_gth_single_10p24g : entity work.gth_single_10p24g
         generic map
         (
+          g_USE_QPLL => TRUE,
           g_REFCLK_01 => 1,
+                                        -- Simulation attributes
+          g_GT_SIM_GTRESET_SPEEDUP => g_GT_SIM_GTRESET_SPEEDUP
+          )
+        port map
+        (
+          gth_rx_serial_i => s_gth_rx_serial_arr(n),
+          gth_tx_serial_o => s_gth_tx_serial_arr(n),
+          gth_gt_clk_i    => s_gth_gt_clk_in_arr(n),
+          gth_gt_clk_o    => s_gth_gt_clk_out_arr(n),
+
+          gth_cpll_ctrl_i   => s_gth_cpll_ctrl_arr(n),
+          gth_cpll_init_i   => s_gth_cpll_init_arr(n),
+          gth_cpll_status_o => s_gth_cpll_status_arr(n),
+
+          gth_gt_drp_i      => s_gth_gt_drp_in_arr(n),
+          gth_gt_drp_o      => s_gth_gt_drp_out_arr(n),
+          gth_tx_ctrl_i     => s_gth_tx_ctrl_arr(n),
+          gth_tx_init_i     => s_gth_tx_init_arr(n),
+          gth_tx_status_o   => s_gth_tx_status_arr(n),
+          gth_rx_ctrl_i     => s_gth_rx_ctrl_arr(n),
+          gth_rx_ctrl_2_i   => s_gth_rx_ctrl_2_arr(n),
+          gth_rx_init_i     => s_gth_rx_init_arr(n),
+          gth_rx_status_o   => s_gth_rx_status_arr(n),
+          gth_misc_ctrl_i   => s_gth_misc_ctrl_arr(n),
+          gth_misc_status_o => s_gth_misc_status_arr(n),
+          gth_tx_data_i     => s_gth_tx_data_arr(n),
+          gth_rx_data_o     => s_gth_rx_data_arr(n)
+          );        
+    end generate;
+
+    gen_gth_tx_10p24g_rx_3p2g : if c_gth_config_arr(n).gth_link_type = gth_tx_10p24g_rx_3p2g generate
+      
+      gth_rx_data_arr_o(n) <= s_gth_rx_data_arr(n);
+      s_gth_rx_status_arr(n).rxnotintable <= s_gth_rx_data_arr(n).rxnotintable;
+      s_gth_rx_status_arr(n).rxdisperr <= s_gth_rx_data_arr(n).rxdisperr;
+            
+      s_gth_tx_data_arr(n).txdata <= gth_gbt_tx_data_arr_i(n)(31 downto 0);
+      s_gth_tx_data_arr(n).txchardispmode <= (others => '0');
+      s_gth_tx_data_arr(n).txchardispval <= (others => '0');
+      s_gth_tx_data_arr(n).txcharisk <= (others => '0');
+            
+      i_gth_single_tx_10p24g_rx_3p2g : entity work.gth_single_tx_10p24g_rx_3p2g
+        generic map
+        (
+          g_RX_REFCLK_01 => 0,
                                         -- Simulation attributes
           g_GT_SIM_GTRESET_SPEEDUP => g_GT_SIM_GTRESET_SPEEDUP
           )
@@ -613,35 +659,34 @@ begin
   s_gth_common_drp_in_arr <= gth_common_drp_arr_i;
   gth_common_drp_arr_o    <= s_gth_common_drp_out_arr;
 
-  s_gth_common_clk_in_arr(0).GTREFCLK0 <= s_refclk_F_1(3);
-  s_gth_common_clk_in_arr(1).GTREFCLK0 <= s_refclk_F_1(3);
+  s_gth_common_clk_in_arr(0).GTREFCLK1 <= s_refclk_F_1(3);
+  s_gth_common_clk_in_arr(1).GTREFCLK1 <= s_refclk_F_1(3);
 
-  s_gth_common_clk_in_arr(2).GTREFCLK0 <= s_refclk_F_1(2);
-  s_gth_common_clk_in_arr(3).GTREFCLK0 <= s_refclk_F_1(2);
-  s_gth_common_clk_in_arr(4).GTREFCLK0 <= s_refclk_F_1(2);
+  s_gth_common_clk_in_arr(2).GTREFCLK1 <= s_refclk_F_1(2);
+  s_gth_common_clk_in_arr(3).GTREFCLK1 <= s_refclk_F_1(2);
+  s_gth_common_clk_in_arr(4).GTREFCLK1 <= s_refclk_F_1(2);
 
-  s_gth_common_clk_in_arr(5).GTREFCLK0 <= s_refclk_F_1(1);
-  s_gth_common_clk_in_arr(6).GTREFCLK0 <= s_refclk_F_1(1);
-  s_gth_common_clk_in_arr(7).GTREFCLK0 <= s_refclk_F_1(1);
+  s_gth_common_clk_in_arr(5).GTREFCLK1 <= s_refclk_F_1(1);
+  s_gth_common_clk_in_arr(6).GTREFCLK1 <= s_refclk_F_1(1);
+  s_gth_common_clk_in_arr(7).GTREFCLK1 <= s_refclk_F_1(1);
 
-  s_gth_common_clk_in_arr(8).GTREFCLK0 <= s_refclk_F_1(0);
-  s_gth_common_clk_in_arr(9).GTREFCLK0 <= s_refclk_F_1(0);
+  s_gth_common_clk_in_arr(8).GTREFCLK1 <= s_refclk_F_1(0);
+  s_gth_common_clk_in_arr(9).GTREFCLK1 <= s_refclk_F_1(0);
 
 
-  s_gth_common_clk_in_arr(10).GTREFCLK0 <= s_refclk_B_1(3);
-  s_gth_common_clk_in_arr(11).GTREFCLK0 <= s_refclk_B_1(3);
+  s_gth_common_clk_in_arr(10).GTREFCLK1 <= s_refclk_B_1(3);
+  s_gth_common_clk_in_arr(11).GTREFCLK1 <= s_refclk_B_1(3);
 
-  s_gth_common_clk_in_arr(12).GTREFCLK0 <= s_refclk_B_1(2);
-  s_gth_common_clk_in_arr(13).GTREFCLK0 <= s_refclk_B_1(2);
-  s_gth_common_clk_in_arr(14).GTREFCLK0 <= s_refclk_B_1(2);
+  s_gth_common_clk_in_arr(12).GTREFCLK1 <= s_refclk_B_1(2);
+  s_gth_common_clk_in_arr(13).GTREFCLK1 <= s_refclk_B_1(2);
+  s_gth_common_clk_in_arr(14).GTREFCLK1 <= s_refclk_B_1(2);
 
-  s_gth_common_clk_in_arr(15).GTREFCLK0 <= s_refclk_B_1(1);
+  s_gth_common_clk_in_arr(15).GTREFCLK1 <= s_refclk_B_1(1);
 
   gth_common_status_arr_o <= s_gth_common_status_arr;
   gth_cpll_status_arr_o   <= s_gth_cpll_status_arr;
 
 
-  -- GTH Common not used in this demo project for TAMU. Commented out.
   gen_gth_common : for n in 0 to (g_NUM_OF_GTH_COMMONs-1) generate
   begin
 
@@ -654,23 +699,25 @@ begin
     -- tools handle the complexity of the multiplexers and associated routing.
     s_gth_common_ctrl_arr(n).QPLLREFCLKSEL <= "001";  -- Let the tool figure out proper reference clock routing
 
---    i_gth_common : entity work.gth_common
---      generic map
---      (
---                                        -- Simulation attributes
---        g_GT_SIM_GTRESET_SPEEDUP => g_GT_SIM_GTRESET_SPEEDUP,  -- Set to "true" to speed up sim reset
---        g_STABLE_CLOCK_PERIOD    => g_STABLE_CLOCK_PERIOD  -- Period of the stable clock driving this state-machine, unit is [ns]
---        )
---      port map
---      (
---        clk_stable_i        => clk_stable_i,
---        gth_common_clk_i    => s_gth_common_clk_in_arr(n),
---        gth_common_clk_o    => s_gth_common_clk_out_arr(n),
---        gth_common_ctrl_i   => s_gth_common_ctrl_arr(n),
---        gth_common_status_o => s_gth_common_status_arr(n),
---        gth_common_drp_i    => s_gth_common_drp_in_arr(n),
---        gth_common_drp_o    => s_gth_common_drp_out_arr(n)
---        );
+    i_gth_common : entity work.gth_common
+      generic map
+      (
+                                        -- Simulation attributes
+        g_QPLL_FBDIV_TOP => 32,
+        g_REFCLK_01 => 1,
+        g_GT_SIM_GTRESET_SPEEDUP => g_GT_SIM_GTRESET_SPEEDUP,  -- Set to "true" to speed up sim reset
+        g_STABLE_CLOCK_PERIOD    => g_STABLE_CLOCK_PERIOD  -- Period of the stable clock driving this state-machine, unit is [ns]
+        )
+      port map
+      (
+        clk_stable_i        => clk_stable_i,
+        gth_common_clk_i    => s_gth_common_clk_in_arr(n),
+        gth_common_clk_o    => s_gth_common_clk_out_arr(n),
+        gth_common_ctrl_i   => s_gth_common_ctrl_arr(n),
+        gth_common_status_o => s_gth_common_status_arr(n),
+        gth_common_drp_i    => s_gth_common_drp_in_arr(n),
+        gth_common_drp_o    => s_gth_common_drp_out_arr(n)
+        );
 
   end generate;
 
@@ -685,8 +732,8 @@ begin
           EXAMPLE_SIMULATION     => g_EXAMPLE_SIMULATION,
           STABLE_CLOCK_PERIOD    => g_STABLE_CLOCK_PERIOD,  -- Period of the stable clock driving this state-machine, unit is [ns]
           RETRY_COUNTER_BITWIDTH => 8,
-          TX_QPLL_USED           => false,  -- the TX and RX Reset FSMs must
-          RX_QPLL_USED           => false,  -- share these two generic values
+          TX_QPLL_USED           => (c_gth_config_arr(i*4+j).gth_link_type = gth_10p24g) or (c_gth_config_arr(i*4+j).gth_link_type = gth_tx_10p24g_rx_3p2g),  -- the TX and RX Reset FSMs must
+          RX_QPLL_USED           => c_gth_config_arr(i*4+j).gth_link_type = gth_10p24g,  -- share these two generic values
           PHASE_ALIGNMENT_MANUAL => true  -- Decision if a manual phase-alignment is necessary or the automatic
                                           -- is enough. For single-lane applications the automatic alignment is
                                           -- sufficient
@@ -695,10 +742,10 @@ begin
           STABLE_CLOCK      => clk_stable_i,
           TXUSERCLK         => s_clk_gth_tx_usrclk_arr(i*4+j),
           SOFT_RESET        => gth_gt_txreset_i(i*4+j),
-          QPLLREFCLKLOST    => '0',
+          QPLLREFCLKLOST    => s_gth_common_status_arr(i).QPLLREFCLKLOST,
           CPLLREFCLKLOST    => '0',
-          QPLLLOCK          => '1',
-          CPLLLOCK          => s_gth_cpll_status_arr(i).CPLLLOCK,
+          QPLLLOCK          => s_gth_common_status_arr(i).QPLLLOCK,
+          CPLLLOCK          => s_gth_cpll_status_arr(i*4+j).CPLLLOCK,
           TXRESETDONE       => s_gth_tx_status_arr(i*4+j).txresetdone,
           MMCM_LOCK         => s_tx_startup_fsm_mmcm_lock(i*4+j),
           GTTXRESET         => s_gth_tx_init_arr(i*4+j).gttxreset,
@@ -720,8 +767,8 @@ begin
           EQ_MODE                => "LPM",  --Rx Equalization Mode - Set to DFE or LPM
           STABLE_CLOCK_PERIOD    => g_STABLE_CLOCK_PERIOD,  --Period of the stable clock driving this state-machine, unit is [ns]
           RETRY_COUNTER_BITWIDTH => 8,
-          TX_QPLL_USED           => false,  -- the TX and RX Reset FSMs must
-          RX_QPLL_USED           => false,  -- share these two generic values
+          TX_QPLL_USED           => (c_gth_config_arr(i*4+j).gth_link_type = gth_10p24g) or (c_gth_config_arr(i*4+j).gth_link_type = gth_tx_10p24g_rx_3p2g),  -- the TX and RX Reset FSMs must
+          RX_QPLL_USED           => c_gth_config_arr(i*4+j).gth_link_type = gth_10p24g,  -- share these two generic values
           PHASE_ALIGNMENT_MANUAL => false  -- Decision if a manual phase-alignment is necessary or the automatic
                                            -- is enough. For single-lane applications the automatic alignment is
                                            -- sufficient
@@ -733,10 +780,10 @@ begin
           DONT_RESET_ON_DATA_ERROR => '1',
           RXPMARESETDONE           => s_gth_rx_status_arr(i*4+j).RXPMARESETDONE,
           RXOUTCLK                 => s_gth_gt_clk_out_arr(i*4+j).rxoutclk,
-          QPLLREFCLKLOST           => '0',
-          CPLLREFCLKLOST           => s_gth_cpll_status_arr(i).CPLLREFCLKLOST,
-          QPLLLOCK                 => '1',
-          CPLLLOCK                 => s_gth_cpll_status_arr(i).CPLLLOCK,
+          QPLLREFCLKLOST           => s_gth_common_status_arr(i).QPLLREFCLKLOST,
+          CPLLREFCLKLOST           => s_gth_cpll_status_arr(i*4+j).CPLLREFCLKLOST,
+          QPLLLOCK                 => s_gth_common_status_arr(i).QPLLLOCK,
+          CPLLLOCK                 => s_gth_cpll_status_arr(i*4+j).CPLLLOCK,
           RXRESETDONE              => s_gth_rx_status_arr(i*4+j).rxresetdone,
           MMCM_LOCK                => '1',
           RECCLK_STABLE            => s_gth_recclk_stable(i*4+j),

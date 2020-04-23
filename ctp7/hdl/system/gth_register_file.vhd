@@ -1100,6 +1100,13 @@ begin
     gth_common_reset_o(i) <= s_qpll_rst_reg(i)(0);
     s_qpll_stat_reg(i)(0) <= gth_common_status_arr_i(i).QPLLLOCK;
     s_qpll_stat_reg(i)(1) <= gth_common_status_arr_i(i).QPLLREFCLKLOST;
+    
+    gen_gth_common_channel : for j in 0 to 3 generate
+    
+      s_gth_stat_reg(i*4+j)(4) <= gth_common_status_arr_i(i).QPLLLOCK;
+      s_gth_stat_reg(i*4+j)(5) <= gth_common_status_arr_i(i).QPLLREFCLKLOST;
+
+    end generate;
 
   end generate;
 

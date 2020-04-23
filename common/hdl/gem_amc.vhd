@@ -53,9 +53,10 @@ entity gem_amc is
         gt_trig1_rx_clk_arr_i   : in  std_logic_vector(g_NUM_OF_OHs - 1 downto 0);
         gt_trig1_rx_data_arr_i  : in  t_gt_8b10b_rx_data_arr(g_NUM_OF_OHs - 1 downto 0);
 
-        -- Trigger TX GTH links (3.2Gbs, 16bit @ 160MHz w/ 8b10b encoding) -- this is just for testing right now, will be changed to (9.6Gbs, 32bit @ 240MHz w/ 8b10b encoding)
-        gt_trig_tx_data_arr_o   : out t_gt_8b10b_tx_data_arr(g_NUM_TRIG_TX_LINKS - 1 downto 0);
+        -- Trigger TX GTH links (10.24Gbs, 32bit @ 320MHz with LpGBT encoding)
+        gt_trig_tx_data_arr_o   : out t_std32_array(g_NUM_TRIG_TX_LINKS - 1 downto 0);
         gt_trig_tx_clk_i        : in  std_logic;
+        gt_trig_tx_status_arr_i : in  t_mgt_status_arr(g_NUM_TRIG_TX_LINKS - 1 downto 0);
 
         -- GBT DAQ + Control GTX / GTH links (4.8Gbs, 40bit @ 120MHz without encoding when using GBTX, and 10.24Gbp, lower 32bit @ 320MHz without encoding when using LpGBT)
         gt_gbt_rx_data_arr_i    : in  t_gt_gbt_data_arr(g_NUM_OF_OHs * g_NUM_GBTS_PER_OH - 1 downto 0);
@@ -162,6 +163,7 @@ architecture gem_amc_arch of gem_amc is
     --== Trigger signals ==--    
     signal sbit_clusters_arr        : t_oh_sbits_arr(g_NUM_OF_OHs - 1 downto 0);
     signal sbit_links_status_arr    : t_oh_sbit_links_arr(g_NUM_OF_OHs - 1 downto 0);
+    signal emtf_data_arr            : t_std234_array(g_NUM_TRIG_TX_LINKS - 1 downto 0);
     
     --== GBT ==--
     signal gbt_tx_data_arr              : t_gbt_frame_array(g_NUM_OF_OHs * g_NUM_GBTS_PER_OH - 1 downto 0);    
@@ -432,14 +434,39 @@ begin
             sbit_clusters_i    => sbit_clusters_arr,
             sbit_link_status_i => sbit_links_status_arr,
             trig_led_o         => led_trigger_o,
-            tx_link_clk_i      => gt_trig_tx_clk_i,
-            trig_tx_data_arr_o => gt_trig_tx_data_arr_o,      
+            trig_tx_data_arr_o => emtf_data_arr,      
             ipb_reset_i        => ipb_reset,
             ipb_clk_i          => ipb_clk_i,
             ipb_miso_o         => ipb_miso_arr(C_IPB_SLV.trigger),
             ipb_mosi_i         => ipb_mosi_arr_i(C_IPB_SLV.trigger)
         );
 
+    --================================--
+    -- EMTF Transmitters (LpGBT TX)  
+    --================================--
+    
+    g_emtf_links_enabled : if g_USE_TRIG_TX_LINKS generate
+        g_emtf_links : for i in 0 to g_NUM_TRIG_TX_LINKS - 1 generate
+            
+            i_emtf_lpgbt_tx : entity work.lpgbt_10g_tx
+                port map(
+                    reset_i            => reset,
+                    clk40_i            => ttc_clocks_i.clk_40,
+                    mgt_tx_usrclk_i    => gt_trig_tx_clk_i,
+                    mgt_tx_ready_i     => gt_trig_tx_status_arr_i(i).tx_reset_done,
+                    mgt_tx_data_o      => gt_trig_tx_data_arr_o(i),
+                    tx_data_i          => emtf_data_arr(i),
+                    tx_ready_o         => open,
+                    tx_had_not_ready_o => open
+                );
+            
+        end generate;
+    end generate;
+    
+    g_emtf_links_disabled : if not g_USE_TRIG_TX_LINKS generate
+        gt_trig_tx_data_arr_o <= (others => (others => '0'));
+    end generate;
+    
     --================================--
     -- ME0 Trigger  
     --================================--

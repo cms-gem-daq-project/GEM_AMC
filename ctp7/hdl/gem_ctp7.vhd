@@ -143,7 +143,7 @@ architecture gem_ctp7_arch of gem_ctp7 is
     signal gth_rxreset_arr      : std_logic_vector(g_NUM_OF_GTH_GTs - 1 downto 0);
     signal gth_txreset_arr      : std_logic_vector(g_NUM_OF_GTH_GTs - 1 downto 0);
     signal gt_gbt_ctrl_arr      : t_mgt_ctrl_arr(g_NUM_OF_GTH_GTs - 1 downto 0) := (others => (txreset => '0', rxreset => '0', rxslide => '0'));
-    signal gt_gbt_status_arr    : t_mgt_status_arr(g_NUM_OF_GTH_GTs - 1 downto 0) := (others => (tx_reset_done => '0', rx_reset_done => '0', tx_cpll_locked => '0', rx_cpll_locked => '0'));
+    signal gt_gbt_status_arr    : t_mgt_status_arr(g_NUM_OF_GTH_GTs - 1 downto 0) := (others => (tx_reset_done => '0', rx_reset_done => '0', tx_cpll_locked => '0', rx_cpll_locked => '0', qpll_locked => '0'));
     
     -------------------- GTHs mapped to GEM links ---------------------------------
     
@@ -153,9 +153,10 @@ architecture gem_ctp7_arch of gem_ctp7 is
     signal gem_gt_trig1_rx_clk_arr  : std_logic_vector(CFG_NUM_OF_OHs - 1 downto 0);
     signal gem_gt_trig1_rx_data_arr : t_gt_8b10b_rx_data_arr(CFG_NUM_OF_OHs - 1 downto 0);
 
-    -- Trigger TX GTH links (3.2Gbs, 16bit @ 160MHz w/ 8b10b encoding) -- this is just for testing right now, will be changed to (9.6Gbs, 32bit @ 240MHz w/ 8b10b encoding)
+    -- Trigger TX GTH links (10.24Gbs, 32bit @ 320MHz w/o encoding)
     signal gem_gt_trig_tx_clk       : std_logic;
-    signal gem_gt_trig_tx_data_arr  : t_gt_8b10b_tx_data_arr(CFG_NUM_TRIG_TX - 1 downto 0);
+    signal gem_gt_trig_tx_data_arr  : t_std32_array(CFG_NUM_TRIG_TX - 1 downto 0);
+    signal gem_gt_trig_tx_status_arr: t_mgt_status_arr(CFG_NUM_TRIG_TX - 1 downto 0);
 
     -- GBT GTX/GTH links (4.8Gbs, 40bit @ 120MHz w/o 8b10b encoding)
     signal gem_gt_gbt_rx_data_arr   : t_gt_gbt_data_arr(CFG_NUM_OF_OHs * CFG_NUM_GBTS_PER_OH - 1 downto 0);
@@ -255,7 +256,7 @@ begin
             gth_gbt_rx_data_arr_o          => gth_gbt_rx_data_arr,
 
             gth_gbt_common_rxusrclk_o      => gth_gbt_common_rxusrclk,
-            gth_3p2g_common_txusrclk_o     => gem_gt_trig_tx_clk,
+            gth_3p2g_common_txusrclk_o     => open,
             
             gth_rxreset_arr_o              => gth_rxreset_arr,
             gth_txreset_arr_o              => gth_txreset_arr,
@@ -345,6 +346,7 @@ begin
     
                 gt_trig_tx_data_arr_o   => gem_gt_trig_tx_data_arr,
                 gt_trig_tx_clk_i        => gem_gt_trig_tx_clk,
+                gt_trig_tx_status_arr_i => gem_gt_trig_tx_status_arr,
     
                 gt_gbt_rx_data_arr_i    => gem_gt_gbt_rx_data_arr,
                 gt_gbt_tx_data_arr_o    => gem_gt_gbt_tx_data_arr,
@@ -432,8 +434,11 @@ begin
         
         -- GTH mapping to EMTF links
         g_emtf_links : for i in 0 to CFG_NUM_TRIG_TX - 1 generate
-            gth_tx_data_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_TRIG_TX_LINK_CONFIG_ARR(i)).tx) <= gem_gt_trig_tx_data_arr(i);
+            gth_gbt_tx_data_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_TRIG_TX_LINK_CONFIG_ARR(i)).tx)(31 downto 0) <= gem_gt_trig_tx_data_arr(i);
+            gem_gt_trig_tx_status_arr(i) <= gt_gbt_status_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_TRIG_TX_LINK_CONFIG_ARR(i)).tx);
         end generate;
+        gem_gt_trig_tx_clk <= clk_gth_tx_arr(CFG_CXP_FIBER_TO_GTH_MAP(CFG_TRIG_TX_LINK_CONFIG_ARR(0)).tx);
+        
     end generate;
     
     -------------------------- LpGBT loopback test without GEM logic ---------------------------------

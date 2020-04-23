@@ -20,7 +20,8 @@ entity txGearbox is
     generic (
         c_clockRatio                  : integer;                                                --! Clock ratio is clock_out / clock_in (shall be an integer)
         c_inputWidth                  : integer;                                                --! Bus size of the input word
-        c_outputWidth                 : integer                                                 --! Bus size of the output word (Warning: c_clockRatio/(c_inputWidth/c_outputWidth) shall be an integer)
+        c_outputWidth                 : integer;                                                 --! Bus size of the output word (Warning: c_clockRatio/(c_inputWidth/c_outputWidth) shall be an integer)
+        c_reset_dly                   : integer := 0
     );
     port (
         -- Clock and reset
@@ -51,6 +52,7 @@ architecture behavioral of txGearbox is
 
     signal gearboxSyncReset                      : std_logic;
     signal rst_gearbox_s                         : std_logic;
+    signal rst_gearbox_dly_s                     : integer := c_reset_dly;
 
     signal txFrame_from_frameInverter_s          : std_logic_vector (c_inputWidth-1 downto 0);
     signal txFrame_from_frameInverter_pipe_s     : std_logic_vector (c_inputWidth-1 downto 0);
@@ -85,10 +87,14 @@ begin                 --========####   Architecture Body   ####========--
     begin
         if rst_gearbox_i = '1' then
             rst_gearbox_s <= '1';
+            rst_gearbox_dly_s <= rst_gearbox_dly_s;
 
         elsif rising_edge(clk_inClk_i) then
-            if clk_clkEn_i = '1' then
+            if clk_clkEn_i = '1' and rst_gearbox_dly_s = 0 then
                 rst_gearbox_s <= '0';
+                rst_gearbox_dly_s <= 0;
+            elsif clk_clkEn_i = '1' then
+                rst_gearbox_dly_s <= rst_gearbox_dly_s - 1;
             end if;
         end if;
     end process;

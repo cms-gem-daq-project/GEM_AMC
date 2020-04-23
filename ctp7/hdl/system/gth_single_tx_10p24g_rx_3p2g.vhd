@@ -1,13 +1,13 @@
 -------------------------------------------------------------------------------
 --                                                                            
---       Unit Name: gth_single_10p24g                                            
+--       Unit Name: gth_single_tx_10p24g_rx_3p2g                                            
 --                                                                            
---     Description: 
+--     Description: Asymetric GTH with 10.24Gb/s TX (raw, meant for LpGBT encoding), and 3.2Gb/s 8b10b RX.
 --
 --                                                                            
 -------------------------------------------------------------------------------
 --                                                                            
---           Notes: Requires 320MHz refclk                                                          
+--           Notes: TX is using QPLL, and RX is using CPLL with 160MHz ref clk
 --                                                                            
 -------------------------------------------------------------------------------
 
@@ -26,13 +26,12 @@ use work.gem_pkg.all;
 --============================================================================
 --                                                          Entity declaration
 --============================================================================
-entity gth_single_10p24g is
+entity gth_single_tx_10p24g_rx_3p2g is
   generic
     (
       -- Simulation attributes
       g_GT_SIM_GTRESET_SPEEDUP : string := "TRUE";  -- Set to "TRUE" to speed up sim reset
-      g_REFCLK_01              : integer range 0 to 1 := 0; -- when CPLL is used (g_USE_QPLL is set to FALSE) this selects which ref clock should be used
-      g_USE_QPLL               : boolean := FALSE -- when set to true the QPLL is used for ref clock 
+      g_RX_REFCLK_01           : integer range 0 to 1 := 0 -- selects which ref clock should be used for RX
       );
   port
     (
@@ -68,12 +67,12 @@ entity gth_single_10p24g is
       );
 
 
-end gth_single_10p24g;
+end gth_single_tx_10p24g_rx_3p2g;
 
 --============================================================================
 --                                                        Architecture section
 --============================================================================
-architecture gth_single_10p24g_arch of gth_single_10p24g is
+architecture gth_single_tx_10p24g_rx_3p2g_arch of gth_single_tx_10p24g_rx_3p2g is
 
 
 --============================================================================
@@ -105,8 +104,6 @@ architecture gth_single_10p24g_arch of gth_single_10p24g is
   signal s_cpllpd_sync                                      : std_logic;
 
   signal refclks        : std_logic_vector(1 downto 0);
-  signal rxsysclksel    : std_logic_vector(1 downto 0);
-  signal txsysclksel    : std_logic_vector(1 downto 0);
 
 --============================================================================
 --                                                          Architecture begin
@@ -114,28 +111,15 @@ architecture gth_single_10p24g_arch of gth_single_10p24g is
 begin
 
   -- CPLL is used
-  g_cpll : if not g_USE_QPLL generate
-    g_ref_clk0: if g_REFCLK_01 = 0 generate
-      refclks(0) <= gth_gt_clk_i.GTREFCLK0;
-    end generate;
-
-    g_ref_clk1: if g_REFCLK_01 = 1 generate
-      refclks(1) <= gth_gt_clk_i.GTREFCLK1;
-    end generate;
-
-    rxsysclksel <= "00";
-    txsysclksel <= "00";
-    s_cpll_pd <= '0';
-  
+  g_ref_clk0: if g_RX_REFCLK_01 = 0 generate
+    refclks(0) <= gth_gt_clk_i.GTREFCLK0;
   end generate;
 
-  -- QPLL is used
-  g_qpll : if g_USE_QPLL generate
-    refclks <= "00";
-    rxsysclksel <= "11";
-    txsysclksel <= "11";
-    s_cpll_pd <= '1';
+  g_ref_clk1: if g_RX_REFCLK_01 = 1 generate
+    refclks(1) <= gth_gt_clk_i.GTREFCLK1;
   end generate;
+
+--  s_cpll_pd <= '0';
 
   ----------------------------- GTHE2 Instance  --------------------------   
 
@@ -154,28 +138,28 @@ begin
       ------------------RX Byte and Word Alignment Attributes---------------
       ALIGN_COMMA_DOUBLE => ("FALSE"),
       ALIGN_COMMA_ENABLE => ("1111111111"),
-      ALIGN_COMMA_WORD   => (4),
+      ALIGN_COMMA_WORD   => (2),
       ALIGN_MCOMMA_DET   => ("TRUE"),
       ALIGN_MCOMMA_VALUE => ("1010000011"),
       ALIGN_PCOMMA_DET   => ("TRUE"),
       ALIGN_PCOMMA_VALUE => ("0101111100"),
-      SHOW_REALIGN_COMMA => ("FALSE"),
+      SHOW_REALIGN_COMMA => ("TRUE"),
       RXSLIDE_AUTO_WAIT  => (7),
-      RXSLIDE_MODE       => ("PMA"),
+      RXSLIDE_MODE       => ("PCS"),
       RX_SIG_VALID_DLY   => (10),
 
       ------------------RX 8B/10B Decoder Attributes---------------
-      RX_DISPERR_SEQ_MATCH => ("FALSE"),
+      RX_DISPERR_SEQ_MATCH => ("TRUE"),
       DEC_MCOMMA_DETECT    => ("TRUE"),
       DEC_PCOMMA_DETECT    => ("TRUE"),
       DEC_VALID_COMMA_ONLY => ("FALSE"),
 
       ------------------------RX Clock Correction Attributes----------------------
-      CBCC_DATA_SOURCE_SEL => ("ENCODED"),
+      CBCC_DATA_SOURCE_SEL => ("DECODED"),
       CLK_COR_SEQ_2_USE    => ("FALSE"),
       CLK_COR_KEEP_IDLE    => ("FALSE"),
-      CLK_COR_MAX_LAT      => (19),
-      CLK_COR_MIN_LAT      => (15),
+      CLK_COR_MAX_LAT      => (10),
+      CLK_COR_MIN_LAT      => (8),
       CLK_COR_PRECEDENCE   => ("TRUE"),
       CLK_COR_REPEAT_WAIT  => (0),
       CLK_COR_SEQ_LEN      => (1),
@@ -223,7 +207,7 @@ begin
       ES_VERT_OFFSET => ("000000000"),
 
       -------------------------FPGA RX Interface Attributes-------------------------
-      RX_DATA_WIDTH => (32),
+      RX_DATA_WIDTH => (20),
 
       ---------------------------PMA Attributes----------------------------
       OUTREFCLK_SEL_INV => ("11"),
@@ -240,7 +224,7 @@ begin
       TERM_RCAL_CFG     => ("100001000010000"),
       TERM_RCAL_OVRD    => ("000"),
       TST_RSV           => (x"00000000"),
-      RX_CLK25_DIV      => (13),
+      RX_CLK25_DIV      => (7),
       TX_CLK25_DIV      => (13),
       UCODEER_CLR       => ('0'),
 
@@ -291,7 +275,7 @@ begin
       --For SATA Gen2 GTP- set RXCDR_CFG=83'h0_0000_47FE_2060_2448_1010
 
       --For SATA Gen1 GTP- set RXCDR_CFG=83'h0_0000_47FE_1060_2448_1010
-      RXCDR_CFG               => (x"0002007FE2000C208001A"),
+      RXCDR_CFG               => (x"0002007FE2000C2080018"),
       RXCDR_FR_RESET_ON_EIDLE => ('0'),
       RXCDR_HOLD_DURING_EIDLE => ('0'),
       RXCDR_PH_RESET_ON_EIDLE => ('0'),
@@ -381,8 +365,8 @@ begin
 
       ----------------------------CPLL Attributes----------------------------
       CPLL_CFG        => (x"00BC07DC"),
-      CPLL_FBDIV      => (4),
-      CPLL_FBDIV_45   => (4),
+      CPLL_FBDIV      => (2),
+      CPLL_FBDIV_45   => (5),
       CPLL_INIT_CFG   => (x"00001E"),
       CPLL_LOCK_CFG   => (x"01E8"),
       CPLL_REFCLK_DIV => (1),
@@ -412,7 +396,7 @@ begin
       TX_CLKMUX_PD => ('1'),
 
       -------------------------FPGA RX Interface Attribute-------------------------
-      RX_INT_DATAWIDTH => (1),
+      RX_INT_DATAWIDTH => (0),
 
       -------------------------FPGA TX Interface Attribute-------------------------
       TX_INT_DATAWIDTH => (1),
@@ -436,19 +420,19 @@ begin
 
       ------------------ RX Phase Interpolator Attributes---------------
       RXPI_CFG0 => ("00"),
-      RXPI_CFG1 => ("11"),
-      RXPI_CFG2 => ("11"),
+      RXPI_CFG1 => ("00"),
+      RXPI_CFG2 => ("00"),
       RXPI_CFG3 => ("11"),
-      RXPI_CFG4 => ('0'),
-      RXPI_CFG5 => ('0'),
-      RXPI_CFG6 => ("100"),
+      RXPI_CFG4 => ('1'),
+      RXPI_CFG5 => ('1'),
+      RXPI_CFG6 => ("001"),
 
       --------------RX Decision Feedback Equalizer(DFE)-------------
       RX_DFELPM_CFG0             => ("0110"),
       RX_DFELPM_CFG1             => ('0'),
       RX_DFELPM_KLKH_AGC_STUP_EN => ('1'),
       RX_DFE_AGC_CFG0            => ("00"),
-      RX_DFE_AGC_CFG1            => ("100"),
+      RX_DFE_AGC_CFG1            => ("010"),
       RX_DFE_AGC_CFG2            => ("0000"),
       RX_DFE_AGC_OVRDEN          => ('1'),
       RX_DFE_H6_CFG              => (x"020"),
@@ -457,7 +441,7 @@ begin
       RX_DFE_KL_LPM_KH_CFG1      => ("010"),
       RX_DFE_KL_LPM_KH_CFG2      => ("0010"),
       RX_DFE_KL_LPM_KH_OVRDEN    => ('1'),
-      RX_DFE_KL_LPM_KL_CFG0      => ("10"),
+      RX_DFE_KL_LPM_KL_CFG0      => ("01"),
       RX_DFE_KL_LPM_KL_CFG1      => ("010"),
       RX_DFE_KL_LPM_KL_CFG2      => ("0010"),
       RX_DFE_KL_LPM_KL_OVRDEN    => ('1'),
@@ -538,8 +522,8 @@ begin
       GTREFCLKMONITOR            => open,
       QPLLCLK                    => gth_gt_clk_i.qpllclk,
       QPLLREFCLK                 => gth_gt_clk_i.qpllrefclk,
-      RXSYSCLKSEL                => rxsysclksel, --gth_rx_ctrl_i.rxsysclksel,
-      TXSYSCLKSEL                => txsysclksel, --gth_tx_ctrl_i.txsysclksel,
+      RXSYSCLKSEL                => "00", -- CPLL
+      TXSYSCLKSEL                => "11", -- QPLL
       ----------------- FPGA TX Interface Datapath Configuration  ----------------
       TX8B10BEN                  => '0',
       ------------------------------- Loopback Ports -----------------------------
@@ -585,7 +569,7 @@ begin
       ------------------- Receive Ports - Digital Monitor Ports ------------------
       DMONITOROUT                => open,
       ---------- Receive Ports - FPGA RX Interface Datapath Configuration --------
-      RX8B10BEN                  => '0',
+      RX8B10BEN                  => '1',
       ------------------ Receive Ports - FPGA RX Interface Ports -----------------
       RXUSRCLK                   => gth_gt_clk_i.rxusrclk,
       RXUSRCLK2                  => gth_gt_clk_i.rxusrclk2,
@@ -632,8 +616,8 @@ begin
       RXBYTEREALIGN              => gth_rx_data_o.rxbyterealign,
       RXCOMMADET                 => gth_rx_data_o.rxcommadet,
       RXCOMMADETEN               => '1',
-      RXMCOMMAALIGNEN            => '0',
-      RXPCOMMAALIGNEN            => '0',
+      RXMCOMMAALIGNEN            => '1',
+      RXPCOMMAALIGNEN            => '1',
       ------------------ Receive Ports - RX Channel Bonding Ports ----------------
       RXCHANBONDSEQ              => open,
       RXCHBONDEN                 => '0',
@@ -896,7 +880,7 @@ begin
 
   s_cpll_reset <= gth_cpll_init_i.CPLLRESET;
 
-end gth_single_10p24g_arch;
+end gth_single_tx_10p24g_rx_3p2g_arch;
 --============================================================================
 --                                                            Architecture end
 --============================================================================

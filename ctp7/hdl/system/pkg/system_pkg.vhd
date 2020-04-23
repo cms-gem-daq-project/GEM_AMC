@@ -26,7 +26,7 @@ package system_package is
   constant g_NUM_OF_GTH_COMMONs : integer := 16;
   constant g_NUM_OF_GTH_GTs     : integer := get_num_gt(CFG_GEM_STATION);
 
-  type t_gth_link_type is (gth_null, gth_4p8g, gth_3p2g, gth_10p24g, gth_9p6g, gth_2p56g); -- the 3.2Gbps and 9.6Gbps are 8b10b, while 4.8, 10.24, and 2.56Gbps are raw (used with GBT core)
+  type t_gth_link_type is (gth_null, gth_4p8g, gth_3p2g, gth_10p24g, gth_tx_10p24g_rx_3p2g, gth_9p6g, gth_2p56g); -- the 3.2Gbps and 9.6Gbps are 8b10b, while 4.8, 10.24, and 2.56Gbps are raw (used with GBT core)
 
   type t_gth_config is
   record
@@ -80,53 +80,39 @@ package system_package is
     (gth_4p8g, false),                  -- GTH FW Ch 34
     (gth_4p8g, false),                  -- GTH FW Ch 35
 
--- for trigger links of CXP2 use this:    
---    (gth_3p2g, TRUE),                  -- GTH FW Ch 24
---    (gth_3p2g, false),                  -- GTH FW Ch 25
---    (gth_3p2g, false),                  -- GTH FW Ch 26
---    (gth_3p2g, false),                  -- GTH FW Ch 27
---    (gth_3p2g, false),                  -- GTH FW Ch 28
---    (gth_3p2g, false),                  -- GTH FW Ch 29
---    (gth_3p2g, false),                  -- GTH FW Ch 30
---    (gth_3p2g, false),                  -- GTH FW Ch 31
---    (gth_3p2g, false),                  -- GTH FW Ch 32
---    (gth_3p2g, false),                  -- GTH FW Ch 33
---    (gth_3p2g, false),                  -- GTH FW Ch 34
---    (gth_3p2g, false)                   -- GTH FW Ch 35
-
     ---=== MP 2 ===---
-    (gth_3p2g, false),                   -- GTH FW Ch 36
-    (gth_3p2g, false),                  -- GTH FW Ch 37
-    (gth_3p2g, false),                  -- GTH FW Ch 38
-    (gth_3p2g, false),                  -- GTH FW Ch 39
-    (gth_3p2g, false),                  -- GTH FW Ch 40
-    (gth_3p2g, false),                  -- GTH FW Ch 41
-    (gth_3p2g, false),                  -- GTH FW Ch 42
-    (gth_3p2g, false),                  -- GTH FW Ch 43
+    (gth_tx_10p24g_rx_3p2g, false),                  -- GTH FW Ch 36
+    (gth_tx_10p24g_rx_3p2g, false),                  -- GTH FW Ch 37
+    (gth_tx_10p24g_rx_3p2g, false),                  -- GTH FW Ch 38
+    (gth_tx_10p24g_rx_3p2g, false),                  -- GTH FW Ch 39
+    (gth_tx_10p24g_rx_3p2g, false),                  -- GTH FW Ch 40
+    (gth_tx_10p24g_rx_3p2g, false),                  -- GTH FW Ch 41
+    (gth_tx_10p24g_rx_3p2g, false),                  -- GTH FW Ch 42
+    (gth_tx_10p24g_rx_3p2g, false),                  -- GTH FW Ch 43
 
     ---=== MP 1 / MP TX ===---
-    (gth_3p2g, false),                  -- GTH FW Ch 44
-    (gth_3p2g, false),                  -- GTH FW Ch 45
-    (gth_3p2g, false),                  -- GTH FW Ch 46
-    (gth_3p2g, false),                  -- GTH FW Ch 47
-    (gth_3p2g, false),                  -- GTH FW Ch 48
-    (gth_3p2g, TRUE),                   -- GTH FW Ch 49
-    (gth_3p2g, false),                  -- GTH FW Ch 50
-    (gth_3p2g, false),                  -- GTH FW Ch 51
-    (gth_3p2g, false),                  -- GTH FW Ch 52
-    (gth_3p2g, false),                  -- GTH FW Ch 53
-    (gth_3p2g, false),                  -- GTH FW Ch 54
-    (gth_3p2g, false),                  -- GTH FW Ch 55
+    (gth_tx_10p24g_rx_3p2g, false),                  -- GTH FW Ch 44
+    (gth_tx_10p24g_rx_3p2g, false),                  -- GTH FW Ch 45
+    (gth_tx_10p24g_rx_3p2g, false),                  -- GTH FW Ch 46
+    (gth_tx_10p24g_rx_3p2g, false),                  -- GTH FW Ch 47
+    (gth_tx_10p24g_rx_3p2g, false),                  -- GTH FW Ch 48
+    (gth_tx_10p24g_rx_3p2g, false),                  -- GTH FW Ch 49
+    (gth_tx_10p24g_rx_3p2g, false),                  -- GTH FW Ch 50
+    (gth_tx_10p24g_rx_3p2g, false),                  -- GTH FW Ch 51
+    (gth_tx_10p24g_rx_3p2g, false),                  -- GTH FW Ch 52
+    (gth_tx_10p24g_rx_3p2g, false),                  -- GTH FW Ch 53
+    (gth_tx_10p24g_rx_3p2g, false),                  -- GTH FW Ch 54
+    (gth_tx_10p24g_rx_3p2g, false),                  -- GTH FW Ch 55
 
     ---=== MP 2 / MP TX ===---
-    (gth_3p2g, false),                  -- GTH FW Ch 56
-    (gth_3p2g, false),                  -- GTH FW Ch 57
-    (gth_3p2g, false),                  -- GTH FW Ch 58
-    (gth_3p2g, false),                  -- GTH FW Ch 59
-    (gth_3p2g, false),                  -- GTH FW Ch 60
-    (gth_3p2g, false),                  -- GTH FW Ch 61
-    (gth_3p2g, false),                  -- GTH FW Ch 62
-    (gth_3p2g, false)                   -- GTH FW Ch 63
+    (gth_tx_10p24g_rx_3p2g, false),                  -- GTH FW Ch 56
+    (gth_tx_10p24g_rx_3p2g, false),                  -- GTH FW Ch 57
+    (gth_tx_10p24g_rx_3p2g, false),                  -- GTH FW Ch 58
+    (gth_tx_10p24g_rx_3p2g, false),                  -- GTH FW Ch 59
+    (gth_tx_10p24g_rx_3p2g, false),                  -- GTH FW Ch 60
+    (gth_tx_10p24g_rx_3p2g, false),                  -- GTH FW Ch 61
+    (gth_tx_10p24g_rx_3p2g, false),                  -- GTH FW Ch 62
+    (gth_tx_10p24g_rx_3p2g, false)                   -- GTH FW Ch 63
 
     );
 

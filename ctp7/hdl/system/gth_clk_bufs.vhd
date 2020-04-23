@@ -190,6 +190,11 @@ begin
 
     end generate;
 
+    gen_gth_trigger_txuserclk : if c_gth_config_arr(n).gth_link_type = gth_tx_10p24g_rx_3p2g generate
+        clk_gth_tx_usrclk_arr_o(n) <= ttc_clks_i.clk_320;
+    end generate;
+
+
     gen_gth_3p2g_txuserclk : if c_gth_config_arr(n).gth_link_type = gth_3p2g generate
 
       gen_gth_3p2g_txuserclk_master : if c_gth_config_arr(n).gth_txclk_out_master = true generate

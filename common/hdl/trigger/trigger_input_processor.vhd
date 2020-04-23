@@ -26,6 +26,7 @@ port(
     
     -- this flag is asserted whenever there are any valid sbit clusters
     trigger_o           : out std_logic;
+    num_valid_clusters_o: out std_logic_vector(3 downto 0);
     
     -- counters
     sbit_overflow_cnt_o : out std_logic_vector(31 downto 0);
@@ -46,15 +47,19 @@ architecture trigger_input_processor_arch of trigger_input_processor is
     signal valid_clusters   : std_logic_vector(7 downto 0);
     signal trigger          : std_logic;
     signal cluster_cnt_strb : std_logic_vector(8 downto 0);
+    signal num_valid_cls    : integer range 0 to 8;
 
 begin
 
     trigger_o <= trigger;
+    num_valid_clusters_o <= std_logic_vector(to_unsigned(num_valid_cls, 4));
 
     g_valid_clusters:
     for i in 0 to 7 generate
         valid_clusters(i) <= '0' when sbit_clusters_i(i).address(10 downto 9) = "11" else '1';
     end generate;
+    
+    num_valid_cls <= count_ones(valid_clusters);
 
 --    p_trigger:
 --    process (clk_i)
@@ -68,12 +73,10 @@ begin
     
     p_cluster_size_strb:
     process (clk_i)
-        variable cluster_cnt : integer range 0 to 8;
     begin
         if (rising_edge(clk_i)) then
-            cluster_cnt := count_ones(valid_clusters);
             cluster_cnt_strb <= (others => '0');
-            cluster_cnt_strb(cluster_cnt) <= '1';
+            cluster_cnt_strb(num_valid_cls) <= '1';
         end if;    
     end process;
     

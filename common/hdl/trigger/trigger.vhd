@@ -37,8 +37,7 @@ entity trigger is
 
         -- Outputs
         trig_led_o          : out std_logic;
-        tx_link_clk_i       : in  std_logic;
-        trig_tx_data_arr_o  : out t_gt_8b10b_tx_data_arr(g_NUM_TRIG_TX_LINKS - 1 downto 0);
+        trig_tx_data_arr_o  : out t_std234_array(g_NUM_TRIG_TX_LINKS - 1 downto 0);
 
         -- IPbus
         ipb_reset_i         : in  std_logic;
@@ -57,6 +56,7 @@ architecture trigger_arch of trigger is
     
     signal oh_mask              : std_logic_vector(23 downto 0) := (others => '0');
     signal oh_triggers          : std_logic_vector(g_NUM_OF_OHs - 1 downto 0) := (others => '0');
+    signal oh_num_valid_arr     : t_std4_array(g_NUM_OF_OHs - 1 downto 0);
     signal or_trigger           : std_logic;
         
     signal sbitmon_reset        : std_logic;
@@ -162,6 +162,7 @@ begin
                 link_status_i        => sbit_link_status_i(i),
                 masked_i             => oh_mask(i),
                 trigger_o            => oh_triggers(i),
+                num_valid_clusters_o => oh_num_valid_arr(i),
                 sbit_overflow_cnt_o  => sbit_overflow_cnt(i),
                 missed_comma_cnt_o   => missed_comma_cnt(i),
                 link_overflow_cnt_o  => link_overflow_cnt(i),
@@ -205,15 +206,17 @@ begin
                 ttc_clk_i          => ttc_clk_i,
                 ttc_cmds_i         => ttc_cmds_i,
                 sbit_clusters_i    => sbit_clusters_i,
+                sbit_num_valid_i   => oh_num_valid_arr,
+                oh_triggers_i      => oh_triggers,
+                oh_mask_i          => oh_mask(g_NUM_OF_OHs - 1 downto 0),
                 sbit_link_status_i => sbit_link_status_i,
-                tx_link_clk_i      => tx_link_clk_i,
                 trig_tx_data_arr_o => trig_tx_data_arr_o
             );
     end generate;
 
     g_fake_trig_out : if not g_USE_TRIG_TX_LINKS generate
         g_fake_trig_link : for i in 0 to g_NUM_TRIG_TX_LINKS - 1 generate
-            trig_tx_data_arr_o(i) <= (txdata => (others => '0'), txcharisk => (others => '0'), txchardispmode => (others => '0'), txchardispval => (others => '0'));
+            trig_tx_data_arr_o(i) <= (others => '1');
         end generate;
     end generate;    
     
