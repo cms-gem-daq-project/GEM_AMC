@@ -107,6 +107,21 @@ architecture gem_ctp7_arch of gem_ctp7 is
         );
     end component;
 
+    component ila_emtf_loopback
+        port(
+            clk    : in std_logic;
+            probe0 : in std_logic_vector(233 downto 0);
+            probe1 : in std_logic;
+            probe2 : in std_logic;
+            probe3 : in std_logic;
+            probe4 : in std_logic;
+            probe5 : in std_logic;
+            probe6 : in std_logic_vector(15 downto 0);
+            probe7 : in std_logic;
+            probe8 : in std_logic_vector(233 downto 0)
+        );
+    end component;
+
     --============================================================================
     --                                                         Signal declarations
     --============================================================================
@@ -176,6 +191,22 @@ architecture gem_ctp7_arch of gem_ctp7 is
     signal to_gem_loader        : t_to_gem_loader := (clk => '0', en => '0');
     signal from_gem_loader      : t_from_gem_loader;
 
+    -------------------- Other ---------------------------------
+
+    signal gem_powerup_reset    : std_logic;
+
+    -------------------- EMTF RX test signals ---------------------------------
+    
+    signal emtf_tx_data                 : t_std234_array(CFG_NUM_TRIG_TX - 1 downto 0); 
+    signal emtf_rx_data                 : std_logic_vector(233 downto 0);
+    signal emtf_rx_ready                : std_logic;
+    signal emtf_rx_had_not_ready        : std_logic;
+    signal emtf_rx_header_locked        : std_logic;
+    signal emtf_rx_header_had_unlock    : std_logic;
+    signal emtf_rx_gearbox_ready        : std_logic;
+    signal emtf_rx_correction_cnt       : std_logic_vector(15 downto 0);
+    signal emtf_rx_correction_flag      : std_logic;
+                
     -------------------- LpGBT loopback ---------------------------------
     constant LB_PATTERN_LENGTH          : integer := 2;
     constant LB_GBT_USE_CLK_EN          : boolean := false;
@@ -256,7 +287,6 @@ begin
             gth_gbt_rx_data_arr_o          => gth_gbt_rx_data_arr,
 
             gth_gbt_common_rxusrclk_o      => gth_gbt_common_rxusrclk,
-            gth_3p2g_common_txusrclk_o     => open,
             
             gth_rxreset_arr_o              => gth_rxreset_arr,
             gth_txreset_arr_o              => gth_txreset_arr,
@@ -330,7 +360,7 @@ begin
             )
             port map(
                 reset_i                 => '0',
-                reset_pwrup_o           => open,
+                reset_pwrup_o           => gem_powerup_reset,
                 
                 ttc_data_p_i            => ttc_data_p_i,
                 ttc_data_n_i            => ttc_data_n_i,
@@ -347,6 +377,7 @@ begin
                 gt_trig_tx_data_arr_o   => gem_gt_trig_tx_data_arr,
                 gt_trig_tx_clk_i        => gem_gt_trig_tx_clk,
                 gt_trig_tx_status_arr_i => gem_gt_trig_tx_status_arr,
+                trig_tx_data_raw_arr_o  => emtf_tx_data,
     
                 gt_gbt_rx_data_arr_i    => gem_gt_gbt_rx_data_arr,
                 gt_gbt_tx_data_arr_o    => gem_gt_gbt_tx_data_arr,
@@ -578,6 +609,50 @@ begin
                     sta_gbRdy_o    => lb_gbt_gb_ready
                 );
         end generate;
+        
+    end generate;
+
+    -------------------------- EMTF RX test ---------------------------------
+
+    g_emtf_rx_test : if CFG_LPGBT_EMTF_LOOP_TEST generate
+        
+        i_lpgbt_emtf_rx_test : entity work.lpgbt_10g_bidir
+            port map(
+                reset_i                => gem_powerup_reset,
+                clk40_i                => ttc_clocks.clk_40,
+                mgt_tx_usrclk_i        => '0',
+                mgt_rx_usrclk_i        => clk_gth_rx_arr(CFG_LPGBT_EMTF_LOOP_RX_GTH),
+                mgt_tx_ready_i         => '1',
+                mgt_rx_ready_i         => gt_gbt_status_arr(CFG_LPGBT_EMTF_LOOP_RX_GTH).rx_reset_done,
+                mgt_rx_slide_o         => gt_gbt_ctrl_arr(CFG_LPGBT_EMTF_LOOP_RX_GTH).rxslide,
+                mgt_tx_data_o          => open,
+                mgt_rx_data_i          => gth_gbt_rx_data_arr(CFG_LPGBT_EMTF_LOOP_RX_GTH)(31 downto 0),
+                tx_data_i              => (others => '0'),
+                rx_data_o              => emtf_rx_data,
+                tx_ready_o             => open,
+                tx_had_not_ready_o     => open,
+                rx_ready_o             => emtf_rx_ready,
+                rx_had_not_ready_o     => emtf_rx_had_not_ready,
+                rx_header_locked_o     => emtf_rx_header_locked,
+                rx_header_had_unlock_o => emtf_rx_header_had_unlock,
+                rx_gearbox_ready_o     => emtf_rx_gearbox_ready,
+                rx_correction_cnt_o    => emtf_rx_correction_cnt,
+                rx_correction_flag_o   => emtf_rx_correction_flag
+            );
+        
+        i_ila_emtf_rx_test : ila_emtf_loopback
+            port map(
+                clk    => ttc_clocks.clk_40,
+                probe0 => emtf_rx_data,
+                probe1 => emtf_rx_ready,
+                probe2 => emtf_rx_had_not_ready,
+                probe3 => emtf_rx_header_locked,
+                probe4 => emtf_rx_header_had_unlock,
+                probe5 => emtf_rx_gearbox_ready,
+                probe6 => emtf_rx_correction_cnt,
+                probe7 => emtf_rx_correction_flag,
+                probe8 => emtf_tx_data(CFG_LPGBT_EMTF_LOOP_TX_LINK)
+            );
         
     end generate;
 

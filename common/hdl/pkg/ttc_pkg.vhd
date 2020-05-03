@@ -26,9 +26,9 @@ package ttc_pkg is
     type t_ttc_clks is record
         clk_40              : std_logic;
         clk_80              : std_logic;
+        clk_120             : std_logic;
         clk_160             : std_logic;
         clk_320             : std_logic;
-        clk_gbt_mgt_usrclk  : std_logic;
     end record;
 
     type t_ttc_cmds is record

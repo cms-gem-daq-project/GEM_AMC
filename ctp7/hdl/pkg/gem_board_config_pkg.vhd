@@ -40,6 +40,9 @@ package gem_board_config_package is
     
     ------------ DEBUG FLAGS ------------
     constant CFG_LPGBT_2P56G_LOOPBACK_TEST  : boolean := false; -- setting this to true will result in a test firmware with 2.56Gbps transceivers only usable for PRBS loopback tests with LpGBT chip, note that none of the GEM logic will be included (also no LpGBT core will be instantiated)
+    constant CFG_LPGBT_EMTF_LOOP_TEST       : boolean := false;  -- setting this to true will instantiate an LpGBT RX core on the CFG_LPGBT_EMTF_RX_GTH, and an ILA 
+    constant CFG_LPGBT_EMTF_LOOP_RX_GTH     : integer := 66;
+    constant CFG_LPGBT_EMTF_LOOP_TX_LINK    : integer := 11;
     constant CFG_ILA_GBT0_MGT_EN            : boolean := false; -- setting this to 1 enables the instantiation of ILA on GBT link 0 MGT
 
     --========================--

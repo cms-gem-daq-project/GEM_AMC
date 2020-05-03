@@ -57,6 +57,7 @@ entity gem_amc is
         gt_trig_tx_data_arr_o   : out t_std32_array(g_NUM_TRIG_TX_LINKS - 1 downto 0);
         gt_trig_tx_clk_i        : in  std_logic;
         gt_trig_tx_status_arr_i : in  t_mgt_status_arr(g_NUM_TRIG_TX_LINKS - 1 downto 0);
+        trig_tx_data_raw_arr_o  : out t_std234_array(g_NUM_TRIG_TX_LINKS - 1 downto 0); -- this raw data before lpgbt encoding, and is only meant for debugging
 
         -- GBT DAQ + Control GTX / GTH links (4.8Gbs, 40bit @ 120MHz without encoding when using GBTX, and 10.24Gbp, lower 32bit @ 320MHz without encoding when using LpGBT)
         gt_gbt_rx_data_arr_i    : in  t_gt_gbt_data_arr(g_NUM_OF_OHs * g_NUM_GBTS_PER_OH - 1 downto 0);
@@ -462,6 +463,8 @@ begin
             
         end generate;
     end generate;
+    
+    trig_tx_data_raw_arr_o <= emtf_data_arr;
     
     g_emtf_links_disabled : if not g_USE_TRIG_TX_LINKS generate
         gt_trig_tx_data_arr_o <= (others => (others => '0'));

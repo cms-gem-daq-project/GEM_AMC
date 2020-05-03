@@ -104,9 +104,7 @@ entity gth_wrapper is
     gth_gbt_rx_data_arr_o : out t_gt_gbt_data_arr(g_NUM_OF_GTH_GTs-1 downto 0);
     
     gth_gbt_common_rxusrclk_o : out std_logic;
-    gth_gbt_common_txoutclk_o : out std_logic;
-    
-    gth_3p2g_common_txusrclk_o : out std_logic
+    gth_gbt_common_txoutclk_o : out std_logic
     
     );
 end gth_wrapper;
@@ -224,10 +222,9 @@ begin
 
   gen_tx_mmcm_sigs : for n in 0 to g_NUM_OF_GTH_GTs-1 generate
 
+    s_tx_startup_fsm_mmcm_lock(n) <= s_gth_gbt_tx_mmcm_locked;
 
     gen_gth_gbt_txuserclk : if c_gth_config_arr(n).gth_link_type = gth_4p8g or c_gth_config_arr(n).gth_link_type = gth_10p24g generate
-
-      s_tx_startup_fsm_mmcm_lock(n) <= s_gth_gbt_tx_mmcm_locked;
 
       gen_gth_gbt_txuserclk_master : if c_gth_config_arr(n).gth_txclk_out_master = true generate
 
@@ -278,9 +275,8 @@ begin
 
       gth_gbt_tx_mmcm_locked_o => s_gth_gbt_tx_mmcm_locked,
       clk_gth_gbt_common_rxusrclk_o => s_gth_gbt_common_rxusrclk,
-      clk_gth_gbt_common_txoutclk_o => gth_gbt_common_txoutclk_o,
+      clk_gth_gbt_common_txoutclk_o => gth_gbt_common_txoutclk_o
       
-      clk_gth_3p2g_common_txusrclk_o => gth_3p2g_common_txusrclk_o
       );
 
   ttc_clks_reset_o <= s_gth_gbt_tx_mmcm_reset;
@@ -356,7 +352,7 @@ begin
     end generate;
   end generate;
 
-  gen_qpll_refclk_assign_Q214 : for i in 15 to 15 generate
+  gen_qpll_refclk_assign_Q213_to_Q214 : for i in 15 to 16 generate
   begin
     gen_qpll_inner : for j in 0 to 3 generate
     begin
@@ -682,6 +678,7 @@ begin
   s_gth_common_clk_in_arr(14).GTREFCLK1 <= s_refclk_B_1(2);
 
   s_gth_common_clk_in_arr(15).GTREFCLK1 <= s_refclk_B_1(1);
+  s_gth_common_clk_in_arr(16).GTREFCLK1 <= s_refclk_B_1(1);
 
   gth_common_status_arr_o <= s_gth_common_status_arr;
   gth_cpll_status_arr_o   <= s_gth_cpll_status_arr;

@@ -55,6 +55,7 @@ architecture behavioral of txGearbox is
     signal rst_gearbox_dly_s                     : integer := c_reset_dly;
 
     signal txFrame_from_frameInverter_s          : std_logic_vector (c_inputWidth-1 downto 0);
+    signal txFrame_from_frameInverter_pipe0_s    : std_logic_vector (c_inputWidth-1 downto 0);
     signal txFrame_from_frameInverter_pipe_s     : std_logic_vector (c_inputWidth-1 downto 0);
     signal in_txFrame_from_frameInverter_s       : std_logic_vector (c_inputWidth-1 downto 0);
     signal txFrame_from_frameInverter_reg_s      : std_logic_vector (c_inputWidth-1 downto 0);
@@ -112,7 +113,8 @@ begin                 --========####   Architecture Body   ####========--
     pipeline_proc: process(clk_outClk_i)
     begin
         if rising_edge(clk_outClk_i) then
-            txFrame_from_frameInverter_pipe_s  <= in_txFrame_from_frameInverter_s;
+            txFrame_from_frameInverter_pipe0_s <= in_txFrame_from_frameInverter_s;
+            txFrame_from_frameInverter_pipe_s  <= txFrame_from_frameInverter_pipe0_s;
         end if;
     end process;
 

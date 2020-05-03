@@ -86,9 +86,9 @@ END COMPONENT  ;
 
     signal clk_40               : std_logic;
     signal clk_80               : std_logic;
+    signal clk_120              : std_logic;
     signal clk_160              : std_logic;
     signal clk_320              : std_logic;
-    signal clk_gbt_mgt_usrclk   : std_logic;
 
     signal ttc_clocks_bufg      : t_ttc_clks;
     
@@ -107,22 +107,6 @@ END COMPONENT  ;
             return 6.0;  
         end if;
     end function get_clkfbout_mult;    
-
-    -- this function determines the division factor to get the MGT user clk based on whether the station is using LpGBT or GBTX
-    function get_gbt_mgt_clk_divide(gem_station : integer; is_lpgbt_loopback : boolean) return integer is
-    begin
-        if is_lpgbt_loopback then
-            return 12;
-        elsif gem_station = 0 then
-            return 3;
-        elsif gem_station = 1 then
-            return 8;
-        elsif gem_station = 2 then
-            return 8;
-        else -- hmm whatever, lets say 8
-            return 8;  
-        end if;
-    end function get_gbt_mgt_clk_divide;    
 
     function get_clkin_period(gem_station : integer; is_lpgbt_loopback : boolean) return real is
     begin
@@ -156,7 +140,6 @@ END COMPONENT  ;
 
 
     constant CFG_CLKFBOUT_MULT : real := get_clkfbout_mult(CFG_GEM_STATION, CFG_LPGBT_2P56G_LOOPBACK_TEST);
-    constant CFG_GBT_MGT_CLK_DIVIDE : integer := get_gbt_mgt_clk_divide(CFG_GEM_STATION, CFG_LPGBT_2P56G_LOOPBACK_TEST);
     constant CFG_CLKIN1_PERIOD : real := get_clkin_period(CFG_GEM_STATION, CFG_LPGBT_2P56G_LOOPBACK_TEST);
     constant CFG_CLKIN1_FREQ_SLV32 : std_logic_vector := get_clkin_frequency_slv32(CFG_GEM_STATION, CFG_LPGBT_2P56G_LOOPBACK_TEST);
     
@@ -286,7 +269,7 @@ begin
             CLKOUT1_PHASE        => 0.000,
             CLKOUT1_DUTY_CYCLE   => 0.500,
             CLKOUT1_USE_FINE_PS  => false,
-            CLKOUT2_DIVIDE       => CFG_GBT_MGT_CLK_DIVIDE,
+            CLKOUT2_DIVIDE       => 8,
             CLKOUT2_PHASE        => 0.000,
             CLKOUT2_DUTY_CYCLE   => 0.500,
             CLKOUT2_USE_FINE_PS  => false,
@@ -308,7 +291,7 @@ begin
             CLKOUT0B     => open,
             CLKOUT1      => clk_80,
             CLKOUT1B     => open,
-            CLKOUT2      => clk_gbt_mgt_usrclk,
+            CLKOUT2      => clk_120,
             CLKOUT2B     => open,
             CLKOUT3      => clk_160,
             CLKOUT3B     => open,
@@ -358,6 +341,12 @@ begin
             I => clk_80
         );
 
+    i_bufg_clk_120 : BUFG
+        port map(
+            O => ttc_clocks_bufg.clk_120,
+            I => clk_120
+        );
+
     i_bufg_clk_160 : BUFG
         port map(
             O => ttc_clocks_bufg.clk_160,
@@ -368,12 +357,6 @@ begin
         port map(
             O => ttc_clocks_bufg.clk_320,
             I => clk_320
-        );
-
-    i_bufg_clk_gbt : BUFG
-        port map(
-            O => ttc_clocks_bufg.clk_gbt_mgt_usrclk,
-            I => clk_gbt_mgt_usrclk
         );
 
     clocks_o <= ttc_clocks_bufg;

@@ -289,6 +289,10 @@ begin
           when addr_encode(C_GTH_RST_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH61, 17)  => s_gth_rst_reg(C_CH61)  <= BRAM_CTRL_GTH_REG_FILE_din;
           when addr_encode(C_GTH_RST_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH62, 17)  => s_gth_rst_reg(C_CH62)  <= BRAM_CTRL_GTH_REG_FILE_din;
           when addr_encode(C_GTH_RST_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH63, 17)  => s_gth_rst_reg(C_CH63)  <= BRAM_CTRL_GTH_REG_FILE_din;
+          when addr_encode(C_GTH_RST_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH64, 17)  => s_gth_rst_reg(C_CH64)  <= BRAM_CTRL_GTH_REG_FILE_din;
+          when addr_encode(C_GTH_RST_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH65, 17)  => s_gth_rst_reg(C_CH65)  <= BRAM_CTRL_GTH_REG_FILE_din;
+          when addr_encode(C_GTH_RST_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH66, 17)  => s_gth_rst_reg(C_CH66)  <= BRAM_CTRL_GTH_REG_FILE_din;
+          when addr_encode(C_GTH_RST_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH67, 17)  => s_gth_rst_reg(C_CH67)  <= BRAM_CTRL_GTH_REG_FILE_din;
 
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -356,6 +360,10 @@ begin
           when addr_encode(C_GTH_CTRL_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH61, 17)  => s_gth_ctrl_reg(C_CH61)  <= BRAM_CTRL_GTH_REG_FILE_din;
           when addr_encode(C_GTH_CTRL_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH62, 17)  => s_gth_ctrl_reg(C_CH62)  <= BRAM_CTRL_GTH_REG_FILE_din;
           when addr_encode(C_GTH_CTRL_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH63, 17)  => s_gth_ctrl_reg(C_CH63)  <= BRAM_CTRL_GTH_REG_FILE_din;
+          when addr_encode(C_GTH_CTRL_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH64, 17)  => s_gth_ctrl_reg(C_CH64)  <= BRAM_CTRL_GTH_REG_FILE_din;
+          when addr_encode(C_GTH_CTRL_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH65, 17)  => s_gth_ctrl_reg(C_CH65)  <= BRAM_CTRL_GTH_REG_FILE_din;
+          when addr_encode(C_GTH_CTRL_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH66, 17)  => s_gth_ctrl_reg(C_CH66)  <= BRAM_CTRL_GTH_REG_FILE_din;
+          when addr_encode(C_GTH_CTRL_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH67, 17)  => s_gth_ctrl_reg(C_CH67)  <= BRAM_CTRL_GTH_REG_FILE_din;
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
           when addr_encode(C_GTH_PRBS_SEL_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH0, 17)  => s_gth_prbs_sel_reg(C_CH0)  <= BRAM_CTRL_GTH_REG_FILE_din;
@@ -422,6 +430,10 @@ begin
           when addr_encode(C_GTH_PRBS_SEL_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH61, 17)  => s_gth_prbs_sel_reg(C_CH61)  <= BRAM_CTRL_GTH_REG_FILE_din;
           when addr_encode(C_GTH_PRBS_SEL_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH62, 17)  => s_gth_prbs_sel_reg(C_CH62)  <= BRAM_CTRL_GTH_REG_FILE_din;
           when addr_encode(C_GTH_PRBS_SEL_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH63, 17)  => s_gth_prbs_sel_reg(C_CH63)  <= BRAM_CTRL_GTH_REG_FILE_din;
+          when addr_encode(C_GTH_PRBS_SEL_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH64, 17)  => s_gth_prbs_sel_reg(C_CH64)  <= BRAM_CTRL_GTH_REG_FILE_din;
+          when addr_encode(C_GTH_PRBS_SEL_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH65, 17)  => s_gth_prbs_sel_reg(C_CH65)  <= BRAM_CTRL_GTH_REG_FILE_din;
+          when addr_encode(C_GTH_PRBS_SEL_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH66, 17)  => s_gth_prbs_sel_reg(C_CH66)  <= BRAM_CTRL_GTH_REG_FILE_din;
+          when addr_encode(C_GTH_PRBS_SEL_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH67, 17)  => s_gth_prbs_sel_reg(C_CH67)  <= BRAM_CTRL_GTH_REG_FILE_din;
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
           when addr_encode(C_GTH_PRBS_CNT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH0, 17)  => s_gth_prbs_cnt_rst_reg(C_CH0)  <= BRAM_CTRL_GTH_REG_FILE_din;
@@ -488,6 +500,10 @@ begin
           when addr_encode(C_GTH_PRBS_CNT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH61, 17)  => s_gth_prbs_cnt_rst_reg(C_CH61)  <= BRAM_CTRL_GTH_REG_FILE_din;
           when addr_encode(C_GTH_PRBS_CNT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH62, 17)  => s_gth_prbs_cnt_rst_reg(C_CH62)  <= BRAM_CTRL_GTH_REG_FILE_din;
           when addr_encode(C_GTH_PRBS_CNT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH63, 17)  => s_gth_prbs_cnt_rst_reg(C_CH63)  <= BRAM_CTRL_GTH_REG_FILE_din;
+          when addr_encode(C_GTH_PRBS_CNT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH64, 17)  => s_gth_prbs_cnt_rst_reg(C_CH64)  <= BRAM_CTRL_GTH_REG_FILE_din;
+          when addr_encode(C_GTH_PRBS_CNT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH65, 17)  => s_gth_prbs_cnt_rst_reg(C_CH65)  <= BRAM_CTRL_GTH_REG_FILE_din;
+          when addr_encode(C_GTH_PRBS_CNT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH66, 17)  => s_gth_prbs_cnt_rst_reg(C_CH66)  <= BRAM_CTRL_GTH_REG_FILE_din;
+          when addr_encode(C_GTH_PRBS_CNT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH67, 17)  => s_gth_prbs_cnt_rst_reg(C_CH67)  <= BRAM_CTRL_GTH_REG_FILE_din;
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
           when addr_encode(C_GTH_RX_NOTINTABLE_CNT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH0, 17)  => s_gth_rxerror_rst_reg(C_CH0)  <= BRAM_CTRL_GTH_REG_FILE_din;
@@ -554,6 +570,10 @@ begin
           when addr_encode(C_GTH_RX_NOTINTABLE_CNT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH61, 17)  => s_gth_rxerror_rst_reg(C_CH61)  <= BRAM_CTRL_GTH_REG_FILE_din;
           when addr_encode(C_GTH_RX_NOTINTABLE_CNT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH62, 17)  => s_gth_rxerror_rst_reg(C_CH62)  <= BRAM_CTRL_GTH_REG_FILE_din;
           when addr_encode(C_GTH_RX_NOTINTABLE_CNT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH63, 17)  => s_gth_rxerror_rst_reg(C_CH63)  <= BRAM_CTRL_GTH_REG_FILE_din;
+          when addr_encode(C_GTH_RX_NOTINTABLE_CNT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH64, 17)  => s_gth_rxerror_rst_reg(C_CH64)  <= BRAM_CTRL_GTH_REG_FILE_din;
+          when addr_encode(C_GTH_RX_NOTINTABLE_CNT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH65, 17)  => s_gth_rxerror_rst_reg(C_CH65)  <= BRAM_CTRL_GTH_REG_FILE_din;
+          when addr_encode(C_GTH_RX_NOTINTABLE_CNT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH66, 17)  => s_gth_rxerror_rst_reg(C_CH66)  <= BRAM_CTRL_GTH_REG_FILE_din;
+          when addr_encode(C_GTH_RX_NOTINTABLE_CNT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH67, 17)  => s_gth_rxerror_rst_reg(C_CH67)  <= BRAM_CTRL_GTH_REG_FILE_din;
 
 -------------------------------------------------------------------------------------------------------------------------------------------------------------
           
@@ -633,6 +653,10 @@ begin
         when addr_encode(C_GTH_STAT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH61, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_stat_reg(C_CH61);
         when addr_encode(C_GTH_STAT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH62, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_stat_reg(C_CH62);
         when addr_encode(C_GTH_STAT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH63, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_stat_reg(C_CH63);
+        when addr_encode(C_GTH_STAT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH64, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_stat_reg(C_CH64);
+        when addr_encode(C_GTH_STAT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH65, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_stat_reg(C_CH65);
+        when addr_encode(C_GTH_STAT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH66, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_stat_reg(C_CH66);
+        when addr_encode(C_GTH_STAT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH67, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_stat_reg(C_CH67);
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
         when addr_encode(C_GTH_RST_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH0, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_rst_reg(C_CH0);
@@ -699,6 +723,10 @@ begin
         when addr_encode(C_GTH_RST_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH61, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_rst_reg(C_CH61);
         when addr_encode(C_GTH_RST_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH62, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_rst_reg(C_CH62);
         when addr_encode(C_GTH_RST_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH63, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_rst_reg(C_CH63);
+        when addr_encode(C_GTH_RST_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH64, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_rst_reg(C_CH64);
+        when addr_encode(C_GTH_RST_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH65, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_rst_reg(C_CH65);
+        when addr_encode(C_GTH_RST_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH66, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_rst_reg(C_CH66);
+        when addr_encode(C_GTH_RST_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH67, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_rst_reg(C_CH67);
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
         when addr_encode(C_GTH_CTRL_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH0, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_ctrl_reg(C_CH0);
@@ -765,6 +793,10 @@ begin
         when addr_encode(C_GTH_CTRL_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH61, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_ctrl_reg(C_CH61);
         when addr_encode(C_GTH_CTRL_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH62, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_ctrl_reg(C_CH62);
         when addr_encode(C_GTH_CTRL_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH63, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_ctrl_reg(C_CH63);
+        when addr_encode(C_GTH_CTRL_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH64, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_ctrl_reg(C_CH64);
+        when addr_encode(C_GTH_CTRL_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH65, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_ctrl_reg(C_CH65);
+        when addr_encode(C_GTH_CTRL_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH66, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_ctrl_reg(C_CH66);
+        when addr_encode(C_GTH_CTRL_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH67, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_ctrl_reg(C_CH67);
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
         when addr_encode(C_GTH_PRBS_SEL_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH0, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_prbs_sel_reg(C_CH0);
@@ -831,6 +863,10 @@ begin
         when addr_encode(C_GTH_PRBS_SEL_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH61, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_prbs_sel_reg(C_CH61);
         when addr_encode(C_GTH_PRBS_SEL_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH62, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_prbs_sel_reg(C_CH62);
         when addr_encode(C_GTH_PRBS_SEL_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH63, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_prbs_sel_reg(C_CH63);
+        when addr_encode(C_GTH_PRBS_SEL_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH64, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_prbs_sel_reg(C_CH64);
+        when addr_encode(C_GTH_PRBS_SEL_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH65, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_prbs_sel_reg(C_CH65);
+        when addr_encode(C_GTH_PRBS_SEL_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH66, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_prbs_sel_reg(C_CH66);
+        when addr_encode(C_GTH_PRBS_SEL_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH67, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_prbs_sel_reg(C_CH67);
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
         when addr_encode(C_GTH_PRBS_CNT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH0, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_prbs_cnt_reg(C_CH0);
@@ -897,6 +933,10 @@ begin
         when addr_encode(C_GTH_PRBS_CNT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH61, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_prbs_cnt_reg(C_CH61);
         when addr_encode(C_GTH_PRBS_CNT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH62, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_prbs_cnt_reg(C_CH62);
         when addr_encode(C_GTH_PRBS_CNT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH63, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_prbs_cnt_reg(C_CH63);
+        when addr_encode(C_GTH_PRBS_CNT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH64, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_prbs_cnt_reg(C_CH64);
+        when addr_encode(C_GTH_PRBS_CNT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH65, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_prbs_cnt_reg(C_CH65);
+        when addr_encode(C_GTH_PRBS_CNT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH66, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_prbs_cnt_reg(C_CH66);
+        when addr_encode(C_GTH_PRBS_CNT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH67, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_prbs_cnt_reg(C_CH67);
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
         when addr_encode(C_GTH_RX_NOTINTABLE_CNT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH0, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_rxnotintable_cnt_reg(C_CH0);
@@ -963,6 +1003,10 @@ begin
         when addr_encode(C_GTH_RX_NOTINTABLE_CNT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH61, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_rxnotintable_cnt_reg(C_CH61);
         when addr_encode(C_GTH_RX_NOTINTABLE_CNT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH62, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_rxnotintable_cnt_reg(C_CH62);
         when addr_encode(C_GTH_RX_NOTINTABLE_CNT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH63, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_rxnotintable_cnt_reg(C_CH63);
+        when addr_encode(C_GTH_RX_NOTINTABLE_CNT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH64, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_rxnotintable_cnt_reg(C_CH64);
+        when addr_encode(C_GTH_RX_NOTINTABLE_CNT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH65, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_rxnotintable_cnt_reg(C_CH65);
+        when addr_encode(C_GTH_RX_NOTINTABLE_CNT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH66, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_rxnotintable_cnt_reg(C_CH66);
+        when addr_encode(C_GTH_RX_NOTINTABLE_CNT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH67, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_rxnotintable_cnt_reg(C_CH67);
         
 ------------------------------------------------------------------------------------------------------------------------------------------------------
         when addr_encode(C_GTH_RX_DISPERR_CNT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH0, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_rxdisperr_cnt_reg(C_CH0);
@@ -1029,6 +1073,10 @@ begin
         when addr_encode(C_GTH_RX_DISPERR_CNT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH61, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_rxdisperr_cnt_reg(C_CH61);
         when addr_encode(C_GTH_RX_DISPERR_CNT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH62, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_rxdisperr_cnt_reg(C_CH62);
         when addr_encode(C_GTH_RX_DISPERR_CNT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH63, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_rxdisperr_cnt_reg(C_CH63);
+        when addr_encode(C_GTH_RX_DISPERR_CNT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH64, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_rxdisperr_cnt_reg(C_CH64);
+        when addr_encode(C_GTH_RX_DISPERR_CNT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH65, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_rxdisperr_cnt_reg(C_CH65);
+        when addr_encode(C_GTH_RX_DISPERR_CNT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH66, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_rxdisperr_cnt_reg(C_CH66);
+        when addr_encode(C_GTH_RX_DISPERR_CNT_CH0_ADDR, C_GTH_CH_to_CH_ADDR_OFFSET, C_CH67, 17)  => BRAM_CTRL_GTH_REG_FILE_dout <= s_gth_rxdisperr_cnt_reg(C_CH67);
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------
 

@@ -86,7 +86,6 @@ entity system is
     gth_gbt_rx_data_arr_o       : out t_gt_gbt_data_arr(g_NUM_OF_GTH_GTs-1 downto 0);
 
     gth_gbt_common_rxusrclk_o   : out std_logic;
-    gth_3p2g_common_txusrclk_o  : out std_logic;
 
     gth_rxreset_arr_o           : out std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0); 
     gth_txreset_arr_o           : out std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
@@ -541,9 +540,8 @@ begin
       gth_rx_serial_arr_i   => s_gth_rx_serial_arr,
 
       gth_gbt_common_rxusrclk_o => gth_gbt_common_rxusrclk_o,
-      gth_gbt_common_txoutclk_o => gbt_mgt_txoutclk,
+      gth_gbt_common_txoutclk_o => gbt_mgt_txoutclk
       
-      gth_3p2g_common_txusrclk_o => gth_3p2g_common_txusrclk_o
       );
   
   gen_gth_gem_stat_ctrl : for i in 0 to g_NUM_OF_GTH_GTs - 1 generate
