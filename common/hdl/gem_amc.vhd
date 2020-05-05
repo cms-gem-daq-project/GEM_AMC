@@ -49,19 +49,19 @@ entity gem_amc is
         
         -- Trigger RX GTX / GTH links (3.2Gbs, 16bit @ 160MHz w/ 8b10b encoding)
         gt_trig0_rx_clk_arr_i   : in  std_logic_vector(g_NUM_OF_OHs - 1 downto 0);
-        gt_trig0_rx_data_arr_i  : in  t_gt_8b10b_rx_data_arr(g_NUM_OF_OHs - 1 downto 0);
+        gt_trig0_rx_data_arr_i  : in  t_mgt_16b_rx_data_arr(g_NUM_OF_OHs - 1 downto 0);
         gt_trig1_rx_clk_arr_i   : in  std_logic_vector(g_NUM_OF_OHs - 1 downto 0);
-        gt_trig1_rx_data_arr_i  : in  t_gt_8b10b_rx_data_arr(g_NUM_OF_OHs - 1 downto 0);
+        gt_trig1_rx_data_arr_i  : in  t_mgt_16b_rx_data_arr(g_NUM_OF_OHs - 1 downto 0);
 
         -- Trigger TX GTH links (10.24Gbs, 32bit @ 320MHz with LpGBT encoding)
-        gt_trig_tx_data_arr_o   : out t_std32_array(g_NUM_TRIG_TX_LINKS - 1 downto 0);
+        gt_trig_tx_data_arr_o   : out t_std64_array(g_NUM_TRIG_TX_LINKS - 1 downto 0);
         gt_trig_tx_clk_i        : in  std_logic;
         gt_trig_tx_status_arr_i : in  t_mgt_status_arr(g_NUM_TRIG_TX_LINKS - 1 downto 0);
         trig_tx_data_raw_arr_o  : out t_std234_array(g_NUM_TRIG_TX_LINKS - 1 downto 0); -- this raw data before lpgbt encoding, and is only meant for debugging
 
         -- GBT DAQ + Control GTX / GTH links (4.8Gbs, 40bit @ 120MHz without encoding when using GBTX, and 10.24Gbp, lower 32bit @ 320MHz without encoding when using LpGBT)
-        gt_gbt_rx_data_arr_i    : in  t_gt_gbt_data_arr(g_NUM_OF_OHs * g_NUM_GBTS_PER_OH - 1 downto 0);
-        gt_gbt_tx_data_arr_o    : out t_gt_gbt_data_arr(g_NUM_OF_OHs * g_NUM_GBTS_PER_OH - 1 downto 0);
+        gt_gbt_rx_data_arr_i    : in  t_std40_array(g_NUM_OF_OHs * g_NUM_GBTS_PER_OH - 1 downto 0);
+        gt_gbt_tx_data_arr_o    : out t_std40_array(g_NUM_OF_OHs * g_NUM_GBTS_PER_OH - 1 downto 0);
         gt_gbt_rx_clk_arr_i     : in  std_logic_vector(g_NUM_OF_OHs * g_NUM_GBTS_PER_OH - 1 downto 0);
         gt_gbt_tx_clk_arr_i     : in  std_logic_vector(g_NUM_OF_OHs * g_NUM_GBTS_PER_OH - 1 downto 0);
         gt_gbt_rx_common_clk_i  : in  std_logic;
@@ -450,6 +450,10 @@ begin
         g_emtf_links : for i in 0 to g_NUM_TRIG_TX_LINKS - 1 generate
             
             i_emtf_lpgbt_tx : entity work.lpgbt_10g_tx
+                generic map (
+                    g_MGT_TX_BUS_WIDTH => 64,
+                    g_TXUSRCLK_TO_TTC40_RATIO => 4
+                )
                 port map(
                     reset_i            => reset,
                     clk40_i            => ttc_clocks_i.clk_40,

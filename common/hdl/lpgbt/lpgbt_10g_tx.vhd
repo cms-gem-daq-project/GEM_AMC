@@ -22,6 +22,10 @@ use ieee.std_logic_misc.all;
 use work.lpgbtfpga_package.all;
 
 entity lpgbt_10g_tx is
+    generic(
+      g_MGT_TX_BUS_WIDTH        : integer range 0 to 64 := 32; -- select the TX bus width, valid options are 32 and 64 
+      g_TXUSRCLK_TO_TTC40_RATIO : integer range 0 to 8 := 8    -- select the TXUSRCLK / TTC_CLK40 ratio (if TXUSRCLK is 320MHz, set this to 8, and if it's 160MHz set it to 4)
+    );
     port(
         -- reset
         reset_i                 : in  std_logic;
@@ -32,7 +36,7 @@ entity lpgbt_10g_tx is
         
         -- MGT signals
         mgt_tx_ready_i          : in  std_logic; -- low during MGT reset, high when TX PLL is locked and MGT reset has been completed
-        mgt_tx_data_o           : out std_logic_vector(31 downto 0); -- clocked on mgt_tx_usrclk_i (to MGT)
+        mgt_tx_data_o           : out std_logic_vector(g_MGT_TX_BUS_WIDTH - 1 downto 0); -- clocked on mgt_tx_usrclk_i (to MGT)
         
         -- GBT data
         tx_data_i               : in  std_logic_vector(233 downto 0); -- clocked on clk40_i
@@ -77,7 +81,7 @@ architecture lpgbt_10g_tx_arch of lpgbt_10g_tx is
     --------- TX gearbox ---------
     signal tx_gb_reset      : std_logic;
     signal tx_gb_ready      : std_logic;
-    signal tx_gb_out_data   : std_logic_vector(31 downto 0);
+    signal tx_gb_out_data   : std_logic_vector(g_MGT_TX_BUS_WIDTH - 1 downto 0);
     
 begin
 
@@ -152,9 +156,9 @@ begin
     
     i_tx_gearbox: entity work.txGearbox
         generic map (
-            c_clockRatio                  => 8,
+            c_clockRatio                  => g_TXUSRCLK_TO_TTC40_RATIO,
             c_inputWidth                  => 256,
-            c_outputWidth                 => 32,
+            c_outputWidth                 => g_MGT_TX_BUS_WIDTH,
             c_reset_dly                   => 4
         )
         port map (

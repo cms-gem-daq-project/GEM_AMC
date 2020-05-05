@@ -84,38 +84,38 @@ package system_package is
     (gth_4p8g, false, GTH_USRCLK_120, GTH_USRCLK_120),                  -- GTH FW Ch 35
 
     ---=== MP 2 ===---
-    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_320),                  -- GTH FW Ch 36
-    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_320),                  -- GTH FW Ch 37
-    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_320),                  -- GTH FW Ch 38
-    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_320),                  -- GTH FW Ch 39
-    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_320),                  -- GTH FW Ch 40
-    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_320),                  -- GTH FW Ch 41
-    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_320),                  -- GTH FW Ch 42
-    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_320),                  -- GTH FW Ch 43
+    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_160),                  -- GTH FW Ch 36
+    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_160),                  -- GTH FW Ch 37
+    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_160),                  -- GTH FW Ch 38
+    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_160),                  -- GTH FW Ch 39
+    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_160),                  -- GTH FW Ch 40
+    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_160),                  -- GTH FW Ch 41
+    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_160),                  -- GTH FW Ch 42
+    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_160),                  -- GTH FW Ch 43
 
     ---=== MP 1 / MP TX ===---
-    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_320),                  -- GTH FW Ch 44
-    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_320),                  -- GTH FW Ch 45
-    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_320),                  -- GTH FW Ch 46
-    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_320),                  -- GTH FW Ch 47
-    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_320),                  -- GTH FW Ch 48
-    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_320),                  -- GTH FW Ch 49
-    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_320),                  -- GTH FW Ch 50
-    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_320),                  -- GTH FW Ch 51
-    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_320),                  -- GTH FW Ch 52
-    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_320),                  -- GTH FW Ch 53
-    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_320),                  -- GTH FW Ch 54
-    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_320),                  -- GTH FW Ch 55
+    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_160),                  -- GTH FW Ch 44
+    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_160),                  -- GTH FW Ch 45
+    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_160),                  -- GTH FW Ch 46
+    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_160),                  -- GTH FW Ch 47
+    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_160),                  -- GTH FW Ch 48
+    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_160),                  -- GTH FW Ch 49
+    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_160),                  -- GTH FW Ch 50
+    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_160),                  -- GTH FW Ch 51
+    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_160),                  -- GTH FW Ch 52
+    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_160),                  -- GTH FW Ch 53
+    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_160),                  -- GTH FW Ch 54
+    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_160),                  -- GTH FW Ch 55
 
     ---=== MP 2 / MP TX ===---
-    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_320),                  -- GTH FW Ch 56
-    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_320),                  -- GTH FW Ch 57
-    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_320),                  -- GTH FW Ch 58
-    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_320),                  -- GTH FW Ch 59
-    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_320),                  -- GTH FW Ch 60
-    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_320),                  -- GTH FW Ch 61
-    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_320),                  -- GTH FW Ch 62
-    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_320),                  -- GTH FW Ch 63
+    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_160),                  -- GTH FW Ch 56
+    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_160),                  -- GTH FW Ch 57
+    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_160),                  -- GTH FW Ch 58
+    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_160),                  -- GTH FW Ch 59
+    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_160),                  -- GTH FW Ch 60
+    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_160),                  -- GTH FW Ch 61
+    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_160),                  -- GTH FW Ch 62
+    (gth_tx_10p24g_rx_3p2g, false, GTH_USRCLK_320, GTH_USRCLK_160),                  -- GTH FW Ch 63
     (gth_10p24g, false, GTH_USRCLK_320, GTH_USRCLK_320),                             -- GTH FW Ch 64
     (gth_10p24g, false, GTH_USRCLK_320, GTH_USRCLK_320),                             -- GTH FW Ch 65
     (gth_10p24g, false, GTH_USRCLK_320, GTH_USRCLK_320),                             -- GTH FW Ch 66

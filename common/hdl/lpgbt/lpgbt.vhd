@@ -50,8 +50,8 @@ entity lpgbt is
         
         mgt_status_arr_i            : in  t_mgt_status_arr(g_NUM_LINKS - 1 downto 0);
         mgt_ctrl_arr_o              : out t_mgt_ctrl_arr(g_NUM_LINKS - 1 downto 0);
-        mgt_tx_data_arr_o           : out t_gt_gbt_data_arr(g_NUM_LINKS - 1 downto 0); -- only 32 out of the 40 bits are used
-        mgt_rx_data_arr_i           : in  t_gt_gbt_data_arr(g_NUM_LINKS - 1 downto 0); -- only 32 out of the 40 bits are used
+        mgt_tx_data_arr_o           : out t_std40_array(g_NUM_LINKS - 1 downto 0); -- only 32 out of the 40 bits are used
+        mgt_rx_data_arr_i           : in  t_std40_array(g_NUM_LINKS - 1 downto 0); -- only 32 out of the 40 bits are used
         
         --========--
         -- GBT TX --
