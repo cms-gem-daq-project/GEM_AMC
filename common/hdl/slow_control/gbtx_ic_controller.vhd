@@ -180,7 +180,7 @@ begin
                             
                             tx_frame(ser_frame_pos) <= ser_parity(ser_word_pos);
                             
-                            if (ic_w_data_i((ser_data_word_idx * 8) + ser_word_pos) = '1') then
+                            if (ser_parity(ser_word_pos) = '1') then
                                 ser_set_bit_cnt <= ser_set_bit_cnt + 1;
                             else
                                 ser_set_bit_cnt <= 0;

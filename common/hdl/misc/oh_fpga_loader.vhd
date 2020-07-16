@@ -92,6 +92,7 @@ architecture Behavioral of oh_fpga_loader is
     signal wait_init_timer  : unsigned(19 downto 0) := (others => '0');
     signal wait_data_timer  : unsigned(31 downto 0) := (others => '0');
     signal byte_cnt         : unsigned(31 downto 0) := (others => '0');
+    signal last_byte_idx    : unsigned(31 downto 0) := (others => '0');
     signal loading_started  : std_logic := '0';
     signal gap_detected     : std_logic := '0';
     
@@ -134,6 +135,7 @@ begin
                 fifo_reset <= '1';
                 load_req_cnt <= (others => '0');
                 gap_det_cnt <= (others => '0');
+                last_byte_idx <= (others => '0');
             else
                 case state is
                     when IDLE =>
@@ -149,6 +151,12 @@ begin
                         if (gap_detected = '1') then
                             gap_det_cnt <= gap_det_cnt + 1;
                         end if;
+                        if (g_LOADER_CLK_80_MHZ) then
+                            last_byte_idx <= unsigned(from_gem_loader_i.size and x"fffffffe") - 2;
+                        else
+                            last_byte_idx <= unsigned(from_gem_loader_i.size) - 1;
+                        end if;
+                        
                         hard_reset_prev <= hard_reset;
                         if ((hard_reset_prev = '0') and (hard_reset = '1')) then
                             state <= RESET_OH;
@@ -219,7 +227,7 @@ begin
                             state <= IDLE;
                         end if;
                         
-                        if (byte_cnt >= unsigned(from_gem_loader_i.size)) then
+                        if (byte_cnt = last_byte_idx) then
                             state <= IDLE;
                             success_cnt <= success_cnt + 1;
                         end if;

@@ -79,8 +79,8 @@ entity gbt is
         --========-- 
         
         mgt_rx_rdy_arr_i            : in  std_logic_vector(NUM_LINKS - 1 downto 0);
-        mgt_tx_data_arr_o           : out t_gt_gbt_data_arr(NUM_LINKS - 1 downto 0);
-        mgt_rx_data_arr_i           : in  t_gt_gbt_data_arr(NUM_LINKS - 1 downto 0);
+        mgt_tx_data_arr_o           : out t_std40_array(NUM_LINKS - 1 downto 0);
+        mgt_rx_data_arr_i           : in  t_std40_array(NUM_LINKS - 1 downto 0);
 
         --===========--              
         --   Status  --              
@@ -152,7 +152,7 @@ architecture gbt_arch of gbt is
     signal rxHeaderLocked_from_gbtRx : std_logic_vector(NUM_LINKS - 1 downto 0);
 
     signal rx_common_word_clk        : std_logic;
-    signal mgt_sync_rx_data_arr      : t_gt_gbt_data_arr(NUM_LINKS - 1 downto 0);
+    signal mgt_sync_rx_data_arr      : t_std40_array(NUM_LINKS - 1 downto 0);
     signal mgt_sync_rx_valid_arr     : std_logic_vector(NUM_LINKS - 1 downto 0);
    
     signal rx_data_arr               : t_gbt_frame_array(NUM_LINKS - 1 downto 0);

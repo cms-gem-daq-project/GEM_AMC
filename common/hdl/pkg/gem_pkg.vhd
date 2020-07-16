@@ -10,10 +10,10 @@ package gem_pkg is
     --==  Firmware version  ==--
     --========================-- 
 
-    constant C_FIRMWARE_DATE    : std_logic_vector(31 downto 0) := x"20200219";
+    constant C_FIRMWARE_DATE    : std_logic_vector(31 downto 0) := x"20200505";
     constant C_FIRMWARE_MAJOR   : integer range 0 to 255        := 3;
-    constant C_FIRMWARE_MINOR   : integer range 0 to 255        := 9;
-    constant C_FIRMWARE_BUILD   : integer range 0 to 255        := 10;
+    constant C_FIRMWARE_MINOR   : integer range 0 to 255        := 11;
+    constant C_FIRMWARE_BUILD   : integer range 0 to 255        := 0;
     
     ------ Change log ------
     -- 1.8.6 no gbt sync procedure with oh
@@ -118,6 +118,11 @@ package gem_pkg is
     -- 3.9.8  GE2/1 OHv2 support added, and FPGA loader max firmware size increased to support 200T
     -- 3.9.9  Reworked loopback tester, now tests all elinks of a single selected OH with PRBS7 sequence    
     -- 3.9.10 Added a switch to choose the backplane TTC clock as the source for the main MMCM (the switch is called CFG_USE_BACKPLANE_CLK). Also made the OH loader use the bitstream size from the gemloader IP, and also added some registers reporting the loader statistics.
+    -- 3.9.11 Came back to using the MGT refclk as the source for all fabric clocks
+    -- 3.10.0 Reworked TTC clocking, added manual shifting possibility and phase monitoring (DMTD method used in TCDS), also bypassing the delay aligner in the GBT MGTs
+    -- 3.10.1 Reworked the phase alignment FSM to use the DMTD phase measurement instead of the PLL lock signal, this also allows for a configurable lock target phase and tollerance
+    -- 3.10.2 Trigger output links to EMTF added, using LpGBT ASIC TX encoding at 10.24Gb/s, and the protocol agreed with EMTF (note the RX side of these MGTs is still running at 3.2Gb/s to receive trigger data from OHs)
+    -- 3.11.0 Restructured MGTs to allow for easier configuration between different bus widths and usrclks. Now all MGT interfaces at the top level use 64 bit bus, and are remapped to appropriate bus sizes before connecting to gem_amc. The trigger TX MGT now uses 64 bit bus and 160MHz txusrclk2 to ease the timing  
 
     --======================--
     --==      General     ==--
@@ -153,6 +158,8 @@ package gem_pkg is
     type t_std64_array is array(integer range <>) of std_logic_vector(63 downto 0);
 
     type t_std32_array is array(integer range <>) of std_logic_vector(31 downto 0);
+
+    type t_std40_array is array(integer range <>) of std_logic_vector(39 downto 0);
         
     type t_std24_array is array(integer range <>) of std_logic_vector(23 downto 0);
 
@@ -211,14 +218,35 @@ package gem_pkg is
     --== GTH/GTX link types ==--
     --========================--
 
-    type t_gt_8b10b_tx_data is record
+    type t_mgt_64b_tx_data is record
+        txdata         : std_logic_vector(63 downto 0);
+        txcharisk      : std_logic_vector(7 downto 0);
+        txchardispmode : std_logic_vector(7 downto 0);
+        txchardispval  : std_logic_vector(7 downto 0);
+    end record;
+
+    type t_mgt_64b_rx_data is record
+        rxdata          : std_logic_vector(63 downto 0);
+        rxbyteisaligned : std_logic;
+        rxbyterealign   : std_logic;
+        rxcommadet      : std_logic;
+        rxdisperr       : std_logic_vector(7 downto 0);
+        rxnotintable    : std_logic_vector(7 downto 0);
+        rxchariscomma   : std_logic_vector(7 downto 0);
+        rxcharisk       : std_logic_vector(7 downto 0);
+    end record;
+
+    type t_mgt_64b_tx_data_arr is array(integer range <>) of t_mgt_64b_tx_data;
+    type t_mgt_64b_rx_data_arr is array(integer range <>) of t_mgt_64b_rx_data;
+
+    type t_mgt_32b_tx_data is record
         txdata         : std_logic_vector(31 downto 0);
         txcharisk      : std_logic_vector(3 downto 0);
         txchardispmode : std_logic_vector(3 downto 0);
         txchardispval  : std_logic_vector(3 downto 0);
     end record;
 
-    type t_gt_8b10b_rx_data is record
+    type t_mgt_32b_rx_data is record
         rxdata          : std_logic_vector(31 downto 0);
         rxbyteisaligned : std_logic;
         rxbyterealign   : std_logic;
@@ -229,10 +257,29 @@ package gem_pkg is
         rxcharisk       : std_logic_vector(3 downto 0);
     end record;
 
-    type t_gt_8b10b_tx_data_arr is array(integer range <>) of t_gt_8b10b_tx_data;
-    type t_gt_8b10b_rx_data_arr is array(integer range <>) of t_gt_8b10b_rx_data;
+    type t_mgt_32b_tx_data_arr is array(integer range <>) of t_mgt_32b_tx_data;
+    type t_mgt_32b_rx_data_arr is array(integer range <>) of t_mgt_32b_rx_data;
 
-    type t_gt_gbt_data_arr is array(integer range <>) of std_logic_vector(39 downto 0);
+    type t_mgt_16b_tx_data is record
+        txdata         : std_logic_vector(15 downto 0);
+        txcharisk      : std_logic_vector(1 downto 0);
+        txchardispmode : std_logic_vector(1 downto 0);
+        txchardispval  : std_logic_vector(1 downto 0);
+    end record;
+
+    type t_mgt_16b_rx_data is record
+        rxdata          : std_logic_vector(15 downto 0);
+        rxbyteisaligned : std_logic;
+        rxbyterealign   : std_logic;
+        rxcommadet      : std_logic;
+        rxdisperr       : std_logic_vector(1 downto 0);
+        rxnotintable    : std_logic_vector(1 downto 0);
+        rxchariscomma   : std_logic_vector(1 downto 0);
+        rxcharisk       : std_logic_vector(1 downto 0);
+    end record;
+
+    type t_mgt_16b_tx_data_arr is array(integer range <>) of t_mgt_16b_tx_data;
+    type t_mgt_16b_rx_data_arr is array(integer range <>) of t_mgt_16b_rx_data;
 
     type t_mgt_ctrl is record
         txreset     : std_logic;
@@ -247,6 +294,7 @@ package gem_pkg is
         rx_reset_done   : std_logic;
         tx_cpll_locked  : std_logic;
         rx_cpll_locked  : std_logic;
+        qpll_locked     : std_logic;
     end record;
 
     type t_mgt_status_arr is array(integer range <>) of t_mgt_status;

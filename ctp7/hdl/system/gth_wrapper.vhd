@@ -97,16 +97,11 @@ entity gth_wrapper is
     gth_misc_ctrl_arr_i   : in  t_gth_misc_ctrl_arr(g_NUM_OF_GTH_GTs-1 downto 0);
     gth_misc_status_arr_o : out t_gth_misc_status_arr(g_NUM_OF_GTH_GTs-1 downto 0);
 
-    gth_tx_data_arr_i : in  t_gt_8b10b_tx_data_arr(g_NUM_OF_GTH_GTs-1 downto 0);
-    gth_rx_data_arr_o : out t_gt_8b10b_rx_data_arr(g_NUM_OF_GTH_GTs-1 downto 0);
+    gth_tx_data_arr_i : in  t_mgt_64b_tx_data_arr(g_NUM_OF_GTH_GTs-1 downto 0);
+    gth_rx_data_arr_o : out t_mgt_64b_rx_data_arr(g_NUM_OF_GTH_GTs-1 downto 0);
 
-    gth_gbt_tx_data_arr_i : in  t_gt_gbt_data_arr(g_NUM_OF_GTH_GTs-1 downto 0);
-    gth_gbt_rx_data_arr_o : out t_gt_gbt_data_arr(g_NUM_OF_GTH_GTs-1 downto 0);
-    
     gth_gbt_common_rxusrclk_o : out std_logic;
-    gth_gbt_common_txoutclk_o : out std_logic;
-    
-    gth_3p2g_common_txusrclk_o : out std_logic
+    gth_gbt_common_txoutclk_o : out std_logic
     
     );
 end gth_wrapper;
@@ -160,8 +155,8 @@ architecture gth_wrapper_arch of gth_wrapper is
   signal s_gth_misc_ctrl_arr   : t_gth_misc_ctrl_arr(g_NUM_OF_GTH_GTs-1 downto 0);
   signal s_gth_misc_status_arr : t_gth_misc_status_arr(g_NUM_OF_GTH_GTs-1 downto 0);
 
-  signal s_gth_tx_data_arr : t_gt_8b10b_tx_data_arr(g_NUM_OF_GTH_GTs-1 downto 0);
-  signal s_gth_rx_data_arr : t_gt_8b10b_rx_data_arr(g_NUM_OF_GTH_GTs-1 downto 0);
+  signal s_gth_tx_data_arr : t_mgt_64b_tx_data_arr(g_NUM_OF_GTH_GTs-1 downto 0);
+  signal s_gth_rx_data_arr : t_mgt_64b_rx_data_arr(g_NUM_OF_GTH_GTs-1 downto 0);
 
   ---------------------
     
@@ -193,27 +188,28 @@ architecture gth_wrapper_arch of gth_wrapper is
 
   type t_rx_cdr_lock_counter_arr is array(integer range <>) of integer range 0 to C_WAIT_TIME_CDRLOCK;
 
-  signal s_gth_tx_run_phalignment      : std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
-  signal s_gth_tx_run_phalignment_done : std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
-  signal s_gth_tx_rst_phalignment      : std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
+  signal s_gth_tx_run_phalignment       : std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
+  signal s_gth_tx_run_phalignment_done  : std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
+  signal s_gth_tx_rst_phalignment       : std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
 
-  signal s_gth_rx_run_phalignment      : std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
-  signal s_gth_rx_run_phalignment_done : std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
-  signal s_gth_rx_rst_phalignment      : std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
+  signal s_gth_rx_run_phalignment       : std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
+  signal s_gth_rx_run_phalignment_done  : std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
+  signal s_gth_rx_rst_phalignment       : std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
 
-  signal s_gth_recclk_stable      : std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
-  signal s_gth_rx_cdrlocked       : std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
-  signal s_gth_rx_cdrlock_counter : t_rx_cdr_lock_counter_arr(g_NUM_OF_GTH_GTs-1 downto 0);
+  signal s_gth_recclk_stable            : std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
+  signal s_gth_rx_cdrlocked             : std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
+  signal s_gth_rx_cdrlock_counter       : t_rx_cdr_lock_counter_arr(g_NUM_OF_GTH_GTs-1 downto 0);
 
-  signal s_clk_gth_tx_usrclk_arr : std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
-  signal s_clk_gth_rx_usrclk_arr : std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
+  signal s_clk_gth_tx_usrclk_arr        : std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
+  signal s_clk_gth_tx_usrclk2_arr       : std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
+  signal s_clk_gth_rx_usrclk_arr        : std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
 
-  signal s_tx_startup_fsm_mmcm_reset : std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
-  signal s_tx_startup_fsm_mmcm_lock  : std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0) := (others => '1');
+  signal s_tx_startup_fsm_mmcm_reset    : std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
+  signal s_tx_startup_fsm_mmcm_lock     : std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0) := (others => '1');
 
 
-  signal s_gth_gbt_tx_mmcm_reset  : std_logic;
-  signal s_gth_gbt_tx_mmcm_locked : std_logic;
+  signal s_gth_gbt_tx_mmcm_reset        : std_logic;
+  signal s_gth_gbt_tx_mmcm_locked       : std_logic;
 
 
 --============================================================================
@@ -224,10 +220,9 @@ begin
 
   gen_tx_mmcm_sigs : for n in 0 to g_NUM_OF_GTH_GTs-1 generate
 
+    s_tx_startup_fsm_mmcm_lock(n) <= s_gth_gbt_tx_mmcm_locked;
 
     gen_gth_gbt_txuserclk : if c_gth_config_arr(n).gth_link_type = gth_4p8g or c_gth_config_arr(n).gth_link_type = gth_10p24g generate
-
-      s_tx_startup_fsm_mmcm_lock(n) <= s_gth_gbt_tx_mmcm_locked;
 
       gen_gth_gbt_txuserclk_master : if c_gth_config_arr(n).gth_txclk_out_master = true generate
 
@@ -271,20 +266,20 @@ begin
       refclk_B_0_o => s_refclk_B_0,
       refclk_B_1_o => s_refclk_B_1,
 
-      gth_gt_clk_out_arr_i => s_gth_gt_clk_out_arr,
+      gth_gt_clk_out_arr_i      => s_gth_gt_clk_out_arr,
 
-      clk_gth_tx_usrclk_arr_o => s_clk_gth_tx_usrclk_arr,
-      clk_gth_rx_usrclk_arr_o => s_clk_gth_rx_usrclk_arr,
+      clk_gth_tx_usrclk_arr_o   => s_clk_gth_tx_usrclk_arr,
+      clk_gth_tx_usrclk2_arr_o  => s_clk_gth_tx_usrclk2_arr,
+      clk_gth_rx_usrclk_arr_o   => s_clk_gth_rx_usrclk_arr,
 
-      gth_gbt_tx_mmcm_locked_o => s_gth_gbt_tx_mmcm_locked,
+      gth_gbt_tx_mmcm_locked_o  => s_gth_gbt_tx_mmcm_locked,
       clk_gth_gbt_common_rxusrclk_o => s_gth_gbt_common_rxusrclk,
-      clk_gth_gbt_common_txoutclk_o => gth_gbt_common_txoutclk_o,
+      clk_gth_gbt_common_txoutclk_o => gth_gbt_common_txoutclk_o
       
-      clk_gth_3p2g_common_txusrclk_o => gth_3p2g_common_txusrclk_o
       );
 
   ttc_clks_reset_o <= s_gth_gbt_tx_mmcm_reset;
-  clk_gth_tx_usrclk_arr_o <= s_clk_gth_tx_usrclk_arr;
+  clk_gth_tx_usrclk_arr_o <= s_clk_gth_tx_usrclk2_arr;
   clk_gth_rx_usrclk_arr_o <= s_clk_gth_rx_usrclk_arr;
   gth_gbt_common_rxusrclk_o <= s_gth_gbt_common_rxusrclk;
   
@@ -356,7 +351,7 @@ begin
     end generate;
   end generate;
 
-  gen_qpll_refclk_assign_Q214 : for i in 15 to 15 generate
+  gen_qpll_refclk_assign_Q213_to_Q214 : for i in 15 to 16 generate
   begin
     gen_qpll_inner : for j in 0 to 3 generate
     begin
@@ -398,15 +393,17 @@ begin
     s_gth_gt_clk_in_arr(n).rxusrclk  <= s_clk_gth_rx_usrclk_arr(n);
     s_gth_gt_clk_in_arr(n).rxusrclk2 <= s_clk_gth_rx_usrclk_arr(n);
     s_gth_gt_clk_in_arr(n).txusrclk  <= s_clk_gth_tx_usrclk_arr(n);
-    s_gth_gt_clk_in_arr(n).txusrclk2 <= s_clk_gth_tx_usrclk_arr(n);
+    s_gth_gt_clk_in_arr(n).txusrclk2 <= s_clk_gth_tx_usrclk2_arr(n);
 
 
     gen_gth_3p2g : if c_gth_config_arr(n).gth_link_type = gth_3p2g generate
 
       s_gth_tx_data_arr(n) <= gth_tx_data_arr_i(n);
       gth_rx_data_arr_o(n) <= s_gth_rx_data_arr(n);
-      s_gth_rx_status_arr(n).rxnotintable <= s_gth_rx_data_arr(n).rxnotintable;
-      s_gth_rx_status_arr(n).rxdisperr <= s_gth_rx_data_arr(n).rxdisperr;
+      s_gth_rx_status_arr(n).rxnotintable(1 downto 0) <= s_gth_rx_data_arr(n).rxnotintable(1 downto 0);
+      s_gth_rx_status_arr(n).rxnotintable(3 downto 2) <= "00";
+      s_gth_rx_status_arr(n).rxdisperr(1 downto 0) <= s_gth_rx_data_arr(n).rxdisperr(1 downto 0);
+      s_gth_rx_status_arr(n).rxdisperr(3 downto 2) <= "00";
 
       i_gth_single_3p2g : entity work.gth_single_3p2g
         generic map
@@ -447,37 +444,37 @@ begin
     gen_gth_4p8g : if c_gth_config_arr(n).gth_link_type = gth_4p8g generate
 
       -------------  GT txdata_i Assignments for 20 bit datapath  -------  
-      s_gth_tx_data_arr(n).txdata <= gth_gbt_tx_data_arr_i(n)(37 downto 30) &
-                                     gth_gbt_tx_data_arr_i(n)(27 downto 20) &
-                                     gth_gbt_tx_data_arr_i(n)(17 downto 10) &
-                                     gth_gbt_tx_data_arr_i(n)(7 downto 0);
+      s_gth_tx_data_arr(n).txdata(31 downto 0)  <=       gth_tx_data_arr_i(n).txdata(37 downto 30) &
+                                                         gth_tx_data_arr_i(n).txdata(27 downto 20) &
+                                                         gth_tx_data_arr_i(n).txdata(17 downto 10) &
+                                                         gth_tx_data_arr_i(n).txdata(7 downto 0);
 
-      s_gth_tx_data_arr(n).txchardispmode <= gth_gbt_tx_data_arr_i(n)(39) &
-                                             gth_gbt_tx_data_arr_i(n)(29) &
-                                             gth_gbt_tx_data_arr_i(n)(19) &
-                                             gth_gbt_tx_data_arr_i(n)(9);
+      s_gth_tx_data_arr(n).txchardispmode(3 downto 0) <= gth_tx_data_arr_i(n).txdata(39) &
+                                                         gth_tx_data_arr_i(n).txdata(29) &
+                                                         gth_tx_data_arr_i(n).txdata(19) &
+                                                         gth_tx_data_arr_i(n).txdata(9);
 
-      s_gth_tx_data_arr(n).txchardispval <= gth_gbt_tx_data_arr_i(n)(38) &
-                                            gth_gbt_tx_data_arr_i(n)(28) &
-                                            gth_gbt_tx_data_arr_i(n)(18) &
-                                            gth_gbt_tx_data_arr_i(n)(8);
+      s_gth_tx_data_arr(n).txchardispval(3 downto 0) <=  gth_tx_data_arr_i(n).txdata(38) &
+                                                         gth_tx_data_arr_i(n).txdata(28) &
+                                                         gth_tx_data_arr_i(n).txdata(18) &
+                                                         gth_tx_data_arr_i(n).txdata(8);
 
       --s_gth_tx_data_arr(n).txcharisk <= gth_tx_data_arr_i(n).txcharisk;
 
       -------------  GT RXDATA Assignments for 20 bit datapath  -------  
 
-      gth_gbt_rx_data_arr_o(n)        <= s_gth_rx_data_arr(n).rxdisperr(3) &
-                                         s_gth_rx_data_arr(n).rxcharisk(3) &
-                                         s_gth_rx_data_arr(n).rxdata(31 downto 24) &
-                                         s_gth_rx_data_arr(n).rxdisperr(2) &
-                                         s_gth_rx_data_arr(n).rxcharisk(2) &
-                                         s_gth_rx_data_arr(n).rxdata(23 downto 16) &
-                                         s_gth_rx_data_arr(n).rxdisperr(1) &
-                                         s_gth_rx_data_arr(n).rxcharisk(1) &
-                                         s_gth_rx_data_arr(n).rxdata(15 downto 8) &
-                                         s_gth_rx_data_arr(n).rxdisperr(0) &
-                                         s_gth_rx_data_arr(n).rxcharisk(0) &
-                                         s_gth_rx_data_arr(n).rxdata(7 downto 0);
+      gth_rx_data_arr_o(n).rxdata(39 downto 0) <=        s_gth_rx_data_arr(n).rxdisperr(3) &
+                                                         s_gth_rx_data_arr(n).rxcharisk(3) &
+                                                         s_gth_rx_data_arr(n).rxdata(31 downto 24) &
+                                                         s_gth_rx_data_arr(n).rxdisperr(2) &
+                                                         s_gth_rx_data_arr(n).rxcharisk(2) &
+                                                         s_gth_rx_data_arr(n).rxdata(23 downto 16) &
+                                                         s_gth_rx_data_arr(n).rxdisperr(1) &
+                                                         s_gth_rx_data_arr(n).rxcharisk(1) &
+                                                         s_gth_rx_data_arr(n).rxdata(15 downto 8) &
+                                                         s_gth_rx_data_arr(n).rxdisperr(0) &
+                                                         s_gth_rx_data_arr(n).rxcharisk(0) &
+                                                         s_gth_rx_data_arr(n).rxdata(7 downto 0);
 
 
 --      gth_rx_data_arr_o(n).rxbyteisaligned <= s_gth_rx_data_arr(n).rxbyteisaligned;
@@ -525,16 +522,61 @@ begin
     
     gen_gth_10p24g : if c_gth_config_arr(n).gth_link_type = gth_10p24g generate
       
-      gth_gbt_rx_data_arr_o(n)(31 downto 0) <= s_gth_rx_data_arr(n).rxdata;
-      s_gth_tx_data_arr(n).txdata <= gth_gbt_tx_data_arr_i(n)(31 downto 0);
-      s_gth_tx_data_arr(n).txchardispmode <= (others => '0');
-      s_gth_tx_data_arr(n).txchardispval <= (others => '0');
-      s_gth_tx_data_arr(n).txcharisk <= (others => '0');
+      gth_rx_data_arr_o(n).rxdata <= s_gth_rx_data_arr(n).rxdata;
+      s_gth_tx_data_arr(n).txdata <= gth_tx_data_arr_i(n).txdata;
             
       i_gth_single_10p24g : entity work.gth_single_10p24g
         generic map
         (
+          g_USE_QPLL => TRUE,
           g_REFCLK_01 => 1,
+          g_RX_BUS_WIDTH => 32,
+          g_TX_BUS_WIDTH => 32,
+                                        -- Simulation attributes
+          g_GT_SIM_GTRESET_SPEEDUP => g_GT_SIM_GTRESET_SPEEDUP
+          )
+        port map
+        (
+          gth_rx_serial_i => s_gth_rx_serial_arr(n),
+          gth_tx_serial_o => s_gth_tx_serial_arr(n),
+          gth_gt_clk_i    => s_gth_gt_clk_in_arr(n),
+          gth_gt_clk_o    => s_gth_gt_clk_out_arr(n),
+
+          gth_cpll_ctrl_i   => s_gth_cpll_ctrl_arr(n),
+          gth_cpll_init_i   => s_gth_cpll_init_arr(n),
+          gth_cpll_status_o => s_gth_cpll_status_arr(n),
+
+          gth_gt_drp_i      => s_gth_gt_drp_in_arr(n),
+          gth_gt_drp_o      => s_gth_gt_drp_out_arr(n),
+          gth_tx_ctrl_i     => s_gth_tx_ctrl_arr(n),
+          gth_tx_init_i     => s_gth_tx_init_arr(n),
+          gth_tx_status_o   => s_gth_tx_status_arr(n),
+          gth_rx_ctrl_i     => s_gth_rx_ctrl_arr(n),
+          gth_rx_ctrl_2_i   => s_gth_rx_ctrl_2_arr(n),
+          gth_rx_init_i     => s_gth_rx_init_arr(n),
+          gth_rx_status_o   => s_gth_rx_status_arr(n),
+          gth_misc_ctrl_i   => s_gth_misc_ctrl_arr(n),
+          gth_misc_status_o => s_gth_misc_status_arr(n),
+          gth_tx_data_i     => s_gth_tx_data_arr(n),
+          gth_rx_data_o     => s_gth_rx_data_arr(n)
+          );        
+    end generate;
+
+    gen_gth_tx_10p24g_rx_3p2g : if c_gth_config_arr(n).gth_link_type = gth_tx_10p24g_rx_3p2g generate
+      
+      gth_rx_data_arr_o(n) <= s_gth_rx_data_arr(n);
+      s_gth_rx_status_arr(n).rxnotintable(1 downto 0) <= s_gth_rx_data_arr(n).rxnotintable(1 downto 0);
+      s_gth_rx_status_arr(n).rxnotintable(3 downto 2) <= "00";
+      s_gth_rx_status_arr(n).rxdisperr(1 downto 0) <= s_gth_rx_data_arr(n).rxdisperr(1 downto 0);
+      s_gth_rx_status_arr(n).rxdisperr(3 downto 2) <= "00";
+            
+      s_gth_tx_data_arr(n).txdata <= gth_tx_data_arr_i(n).txdata;
+            
+      i_gth_single_tx_10p24g_rx_3p2g : entity work.gth_single_tx_10p24g_rx_3p2g
+        generic map
+        (
+          g_RX_REFCLK_01 => 0,
+          g_TX_BUS_WIDTH => 64,
                                         -- Simulation attributes
           g_GT_SIM_GTRESET_SPEEDUP => g_GT_SIM_GTRESET_SPEEDUP
           )
@@ -566,12 +608,9 @@ begin
     end generate;
 
     gen_gth_2p56g : if c_gth_config_arr(n).gth_link_type = gth_2p56g generate
-        
-      gth_gbt_rx_data_arr_o(n)(31 downto 0) <= s_gth_rx_data_arr(n).rxdata;
-      s_gth_tx_data_arr(n).txdata <= gth_gbt_tx_data_arr_i(n)(31 downto 0);
-      s_gth_tx_data_arr(n).txchardispmode <= (others => '0');
-      s_gth_tx_data_arr(n).txchardispval <= (others => '0');
-      s_gth_tx_data_arr(n).txcharisk <= (others => '0');
+
+      gth_rx_data_arr_o(n).rxdata <= s_gth_rx_data_arr(n).rxdata;
+      s_gth_tx_data_arr(n).txdata <= gth_tx_data_arr_i(n).txdata;
 
       i_gth_single_2p56g : entity work.gth_single_2p56g
         generic map
@@ -613,35 +652,35 @@ begin
   s_gth_common_drp_in_arr <= gth_common_drp_arr_i;
   gth_common_drp_arr_o    <= s_gth_common_drp_out_arr;
 
-  s_gth_common_clk_in_arr(0).GTREFCLK0 <= s_refclk_F_1(3);
-  s_gth_common_clk_in_arr(1).GTREFCLK0 <= s_refclk_F_1(3);
+  s_gth_common_clk_in_arr(0).GTREFCLK1 <= s_refclk_F_1(3);
+  s_gth_common_clk_in_arr(1).GTREFCLK1 <= s_refclk_F_1(3);
 
-  s_gth_common_clk_in_arr(2).GTREFCLK0 <= s_refclk_F_1(2);
-  s_gth_common_clk_in_arr(3).GTREFCLK0 <= s_refclk_F_1(2);
-  s_gth_common_clk_in_arr(4).GTREFCLK0 <= s_refclk_F_1(2);
+  s_gth_common_clk_in_arr(2).GTREFCLK1 <= s_refclk_F_1(2);
+  s_gth_common_clk_in_arr(3).GTREFCLK1 <= s_refclk_F_1(2);
+  s_gth_common_clk_in_arr(4).GTREFCLK1 <= s_refclk_F_1(2);
 
-  s_gth_common_clk_in_arr(5).GTREFCLK0 <= s_refclk_F_1(1);
-  s_gth_common_clk_in_arr(6).GTREFCLK0 <= s_refclk_F_1(1);
-  s_gth_common_clk_in_arr(7).GTREFCLK0 <= s_refclk_F_1(1);
+  s_gth_common_clk_in_arr(5).GTREFCLK1 <= s_refclk_F_1(1);
+  s_gth_common_clk_in_arr(6).GTREFCLK1 <= s_refclk_F_1(1);
+  s_gth_common_clk_in_arr(7).GTREFCLK1 <= s_refclk_F_1(1);
 
-  s_gth_common_clk_in_arr(8).GTREFCLK0 <= s_refclk_F_1(0);
-  s_gth_common_clk_in_arr(9).GTREFCLK0 <= s_refclk_F_1(0);
+  s_gth_common_clk_in_arr(8).GTREFCLK1 <= s_refclk_F_1(0);
+  s_gth_common_clk_in_arr(9).GTREFCLK1 <= s_refclk_F_1(0);
 
 
-  s_gth_common_clk_in_arr(10).GTREFCLK0 <= s_refclk_B_1(3);
-  s_gth_common_clk_in_arr(11).GTREFCLK0 <= s_refclk_B_1(3);
+  s_gth_common_clk_in_arr(10).GTREFCLK1 <= s_refclk_B_1(3);
+  s_gth_common_clk_in_arr(11).GTREFCLK1 <= s_refclk_B_1(3);
 
-  s_gth_common_clk_in_arr(12).GTREFCLK0 <= s_refclk_B_1(2);
-  s_gth_common_clk_in_arr(13).GTREFCLK0 <= s_refclk_B_1(2);
-  s_gth_common_clk_in_arr(14).GTREFCLK0 <= s_refclk_B_1(2);
+  s_gth_common_clk_in_arr(12).GTREFCLK1 <= s_refclk_B_1(2);
+  s_gth_common_clk_in_arr(13).GTREFCLK1 <= s_refclk_B_1(2);
+  s_gth_common_clk_in_arr(14).GTREFCLK1 <= s_refclk_B_1(2);
 
-  s_gth_common_clk_in_arr(15).GTREFCLK0 <= s_refclk_B_1(1);
+  s_gth_common_clk_in_arr(15).GTREFCLK1 <= s_refclk_B_1(1);
+  s_gth_common_clk_in_arr(16).GTREFCLK1 <= s_refclk_B_1(1);
 
   gth_common_status_arr_o <= s_gth_common_status_arr;
   gth_cpll_status_arr_o   <= s_gth_cpll_status_arr;
 
 
-  -- GTH Common not used in this demo project for TAMU. Commented out.
   gen_gth_common : for n in 0 to (g_NUM_OF_GTH_COMMONs-1) generate
   begin
 
@@ -654,23 +693,25 @@ begin
     -- tools handle the complexity of the multiplexers and associated routing.
     s_gth_common_ctrl_arr(n).QPLLREFCLKSEL <= "001";  -- Let the tool figure out proper reference clock routing
 
---    i_gth_common : entity work.gth_common
---      generic map
---      (
---                                        -- Simulation attributes
---        g_GT_SIM_GTRESET_SPEEDUP => g_GT_SIM_GTRESET_SPEEDUP,  -- Set to "true" to speed up sim reset
---        g_STABLE_CLOCK_PERIOD    => g_STABLE_CLOCK_PERIOD  -- Period of the stable clock driving this state-machine, unit is [ns]
---        )
---      port map
---      (
---        clk_stable_i        => clk_stable_i,
---        gth_common_clk_i    => s_gth_common_clk_in_arr(n),
---        gth_common_clk_o    => s_gth_common_clk_out_arr(n),
---        gth_common_ctrl_i   => s_gth_common_ctrl_arr(n),
---        gth_common_status_o => s_gth_common_status_arr(n),
---        gth_common_drp_i    => s_gth_common_drp_in_arr(n),
---        gth_common_drp_o    => s_gth_common_drp_out_arr(n)
---        );
+    i_gth_common : entity work.gth_common
+      generic map
+      (
+                                        -- Simulation attributes
+        g_QPLL_FBDIV_TOP => 32,
+        g_REFCLK_01 => 1,
+        g_GT_SIM_GTRESET_SPEEDUP => g_GT_SIM_GTRESET_SPEEDUP,  -- Set to "true" to speed up sim reset
+        g_STABLE_CLOCK_PERIOD    => g_STABLE_CLOCK_PERIOD  -- Period of the stable clock driving this state-machine, unit is [ns]
+        )
+      port map
+      (
+        clk_stable_i        => clk_stable_i,
+        gth_common_clk_i    => s_gth_common_clk_in_arr(n),
+        gth_common_clk_o    => s_gth_common_clk_out_arr(n),
+        gth_common_ctrl_i   => s_gth_common_ctrl_arr(n),
+        gth_common_status_o => s_gth_common_status_arr(n),
+        gth_common_drp_i    => s_gth_common_drp_in_arr(n),
+        gth_common_drp_o    => s_gth_common_drp_out_arr(n)
+        );
 
   end generate;
 
@@ -685,8 +726,8 @@ begin
           EXAMPLE_SIMULATION     => g_EXAMPLE_SIMULATION,
           STABLE_CLOCK_PERIOD    => g_STABLE_CLOCK_PERIOD,  -- Period of the stable clock driving this state-machine, unit is [ns]
           RETRY_COUNTER_BITWIDTH => 8,
-          TX_QPLL_USED           => false,  -- the TX and RX Reset FSMs must
-          RX_QPLL_USED           => false,  -- share these two generic values
+          TX_QPLL_USED           => (c_gth_config_arr(i*4+j).gth_link_type = gth_10p24g) or (c_gth_config_arr(i*4+j).gth_link_type = gth_tx_10p24g_rx_3p2g),  -- the TX and RX Reset FSMs must
+          RX_QPLL_USED           => c_gth_config_arr(i*4+j).gth_link_type = gth_10p24g,  -- share these two generic values
           PHASE_ALIGNMENT_MANUAL => true  -- Decision if a manual phase-alignment is necessary or the automatic
                                           -- is enough. For single-lane applications the automatic alignment is
                                           -- sufficient
@@ -695,10 +736,10 @@ begin
           STABLE_CLOCK      => clk_stable_i,
           TXUSERCLK         => s_clk_gth_tx_usrclk_arr(i*4+j),
           SOFT_RESET        => gth_gt_txreset_i(i*4+j),
-          QPLLREFCLKLOST    => '0',
+          QPLLREFCLKLOST    => s_gth_common_status_arr(i).QPLLREFCLKLOST,
           CPLLREFCLKLOST    => '0',
-          QPLLLOCK          => '1',
-          CPLLLOCK          => s_gth_cpll_status_arr(i).CPLLLOCK,
+          QPLLLOCK          => s_gth_common_status_arr(i).QPLLLOCK,
+          CPLLLOCK          => s_gth_cpll_status_arr(i*4+j).CPLLLOCK,
           TXRESETDONE       => s_gth_tx_status_arr(i*4+j).txresetdone,
           MMCM_LOCK         => s_tx_startup_fsm_mmcm_lock(i*4+j),
           GTTXRESET         => s_gth_tx_init_arr(i*4+j).gttxreset,
@@ -720,8 +761,8 @@ begin
           EQ_MODE                => "LPM",  --Rx Equalization Mode - Set to DFE or LPM
           STABLE_CLOCK_PERIOD    => g_STABLE_CLOCK_PERIOD,  --Period of the stable clock driving this state-machine, unit is [ns]
           RETRY_COUNTER_BITWIDTH => 8,
-          TX_QPLL_USED           => false,  -- the TX and RX Reset FSMs must
-          RX_QPLL_USED           => false,  -- share these two generic values
+          TX_QPLL_USED           => (c_gth_config_arr(i*4+j).gth_link_type = gth_10p24g) or (c_gth_config_arr(i*4+j).gth_link_type = gth_tx_10p24g_rx_3p2g),  -- the TX and RX Reset FSMs must
+          RX_QPLL_USED           => c_gth_config_arr(i*4+j).gth_link_type = gth_10p24g,  -- share these two generic values
           PHASE_ALIGNMENT_MANUAL => false  -- Decision if a manual phase-alignment is necessary or the automatic
                                            -- is enough. For single-lane applications the automatic alignment is
                                            -- sufficient
@@ -733,10 +774,10 @@ begin
           DONT_RESET_ON_DATA_ERROR => '1',
           RXPMARESETDONE           => s_gth_rx_status_arr(i*4+j).RXPMARESETDONE,
           RXOUTCLK                 => s_gth_gt_clk_out_arr(i*4+j).rxoutclk,
-          QPLLREFCLKLOST           => '0',
-          CPLLREFCLKLOST           => s_gth_cpll_status_arr(i).CPLLREFCLKLOST,
-          QPLLLOCK                 => '1',
-          CPLLLOCK                 => s_gth_cpll_status_arr(i).CPLLLOCK,
+          QPLLREFCLKLOST           => s_gth_common_status_arr(i).QPLLREFCLKLOST,
+          CPLLREFCLKLOST           => s_gth_cpll_status_arr(i*4+j).CPLLREFCLKLOST,
+          QPLLLOCK                 => s_gth_common_status_arr(i).QPLLLOCK,
+          CPLLLOCK                 => s_gth_cpll_status_arr(i*4+j).CPLLLOCK,
           RXRESETDONE              => s_gth_rx_status_arr(i*4+j).rxresetdone,
           MMCM_LOCK                => '1',
           RECCLK_STABLE            => s_gth_recclk_stable(i*4+j),

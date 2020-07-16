@@ -7,7 +7,8 @@
 --                                                                            
 -------------------------------------------------------------------------------
 --                                                                            
---           Notes: requires 160MHz refclk                                                 
+--           Notes: 8b10b 3.2Gb/s TX/RX intended to receive OH trigger data (8b10b, buffers are bypassed). CPLL is used, expecting 160MHz refclk (only one refclk is used based on g_REFCLK_01 generic).
+--                  user bus width is 16 bits wide. All usrclks are expected to be 160MHz.                                            
 --                                                                            
 -------------------------------------------------------------------------------
 
@@ -62,8 +63,8 @@ entity gth_single_3p2g is
       gth_misc_ctrl_i   : in  t_gth_misc_ctrl;
       gth_misc_status_o : out t_gth_misc_status;
 
-      gth_tx_data_i : in  t_gt_8b10b_tx_data;
-      gth_rx_data_o : out t_gt_8b10b_rx_data
+      gth_tx_data_i : in  t_mgt_64b_tx_data;
+      gth_rx_data_o : out t_mgt_64b_rx_data
       );
 
 
@@ -572,7 +573,7 @@ begin
       RXUSRCLK2                  => gth_gt_clk_i.rxusrclk2,
       ------------------ Receive Ports - FPGA RX interface Ports -----------------
       RXDATA(63 downto 32)       => s_rxdata_float,
-      RXDATA(31 downto 0)        => gth_rx_data_o.rxdata,
+      RXDATA(31 downto 0)        => gth_rx_data_o.rxdata(31 downto 0),
       ------------------- Receive Ports - Pattern Checker Ports ------------------
       RXPRBSERR                  => gth_rx_status_o.rxprbserr,
       RXPRBSSEL                  => gth_rx_ctrl_i.rxprbssel,
@@ -580,9 +581,9 @@ begin
       RXPRBSCNTRESET             => gth_rx_ctrl_i.rxprbscntreset,
       ------------------ Receive Ports - RX 8B/10B Decoder Ports -----------------
       RXDISPERR(7 downto 4)      => s_rxdisperr_float,
-      RXDISPERR(3 downto 0)      => gth_rx_data_o.rxdisperr,
+      RXDISPERR(3 downto 0)      => gth_rx_data_o.rxdisperr(3 downto 0),
       RXNOTINTABLE(7 downto 4)   => s_rxnotintable_float,
-      RXNOTINTABLE(3 downto 0)   => gth_rx_data_o.rxnotintable,
+      RXNOTINTABLE(3 downto 0)   => gth_rx_data_o.rxnotintable(3 downto 0),
       ------------------------ Receive Ports - RX AFE Ports ----------------------
       GTHRXN                     => gth_rx_serial_i.gthrxn,
       ------------------- Receive Ports - RX Buffer Bypass Ports -----------------
@@ -720,9 +721,9 @@ begin
       RXPOLARITY                 => gth_rx_ctrl_i.rxpolarity,
       ------------------- Receive Ports - RX8B/10B Decoder Ports -----------------
       RXCHARISCOMMA(7 downto 4)  => s_rxchariscomma_float,
-      RXCHARISCOMMA(3 downto 0)  => gth_rx_data_o.rxchariscomma,
+      RXCHARISCOMMA(3 downto 0)  => gth_rx_data_o.rxchariscomma(3 downto 0),
       RXCHARISK(7 downto 4)      => s_rxcharisk_float,
-      RXCHARISK(3 downto 0)      => gth_rx_data_o.rxcharisk,
+      RXCHARISK(3 downto 0)      => gth_rx_data_o.rxcharisk(3 downto 0),
       ------------------ Receive Ports - Rx Channel Bonding Ports ----------------
       RXCHBONDI                  => "00000",
       ------------------------ Receive Ports -RX AFE Ports -----------------------
@@ -763,10 +764,10 @@ begin
       TXHEADER                   => "000",
       ---------------- Transmit Ports - 8b10b Encoder Control Ports --------------
       TXCHARDISPMODE(7 downto 4) => s_txchardispmode_float,
-      TXCHARDISPMODE(3 downto 0) => gth_tx_data_i.txchardispmode,
+      TXCHARDISPMODE(3 downto 0) => gth_tx_data_i.txchardispmode(3 downto 0),
 
       TXCHARDISPVAL(7 downto 4) => s_txchardispval_float,
-      TXCHARDISPVAL(3 downto 0) => gth_tx_data_i.txchardispval,
+      TXCHARDISPVAL(3 downto 0) => gth_tx_data_i.txchardispval(3 downto 0),
       ------------------ Transmit Ports - FPGA TX Interface Ports ----------------
       TXUSRCLK                  => gth_gt_clk_i.txusrclk,
       TXUSRCLK2                 => gth_gt_clk_i.txusrclk2,
@@ -810,7 +811,7 @@ begin
       TXPISOPD                  => '0',
       ------------------ Transmit Ports - TX Data Path interface -----------------
       TXDATA(63 downto 32)      => x"00000000",
-      TXDATA(31 downto 0)       => gth_tx_data_i.txdata,
+      TXDATA(31 downto 0)       => gth_tx_data_i.txdata(31 downto 0),
       ---------------- Transmit Ports - TX Driver and OOB signaling --------------
       GTHTXN                    => gth_tx_serial_o.gthtxn,
       GTHTXP                    => gth_tx_serial_o.gthtxp,
@@ -844,7 +845,7 @@ begin
       TXPRBSSEL                 => gth_tx_ctrl_i.txprbssel,
       ----------- Transmit Transmit Ports - 8b10b Encoder Control Ports ----------
       TXCHARISK(7 downto 4)     => "0000",
-      TXCHARISK(3 downto 0)     => gth_tx_data_i.txcharisk,
+      TXCHARISK(3 downto 0)     => gth_tx_data_i.txcharisk(3 downto 0),
       ----------------------- Tx Configurable Driver  Ports ----------------------
       TXQPISENN                 => open,
       TXQPISENP                 => open

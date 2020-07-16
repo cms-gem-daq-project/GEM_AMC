@@ -1,15 +1,15 @@
--------------------------------------------------------------------------------
---                                                                            
---       Unit Name: gth_single_2p56g                                            
---                                                                            
---     Description: 
---
---                                                                            
--------------------------------------------------------------------------------
---                                                                            
---           Notes: Requires 320MHz refclk                                                          
---                                                                            
--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Company: TAMU
+-- Engineer: Evaldas Juska (evaldas.juska@cern.ch, evka85@gmail.com)
+-- 
+-- Create Date: 05/05/2020
+-- Module Name: GTH_SINGLE_2p56g
+-- Project Name: GEM_AMC
+-- Description: raw 2.56Gb/s TX & 2.56Gb/s RX intended to be used for LpGBT ASIC loopback tests. Both TX and RX elastic buffers are bypassed, and there is no encoding.
+--              CPLL is used, refclk is expected to be 320MHz, the usrclks have to be 80MHz, user bus width is 32 bits.
+--              only one CPLL refclk is connected based on the g_REFCLK_01 generic (the tool then automagically configures the MGT to use the correct one, just make sure to set CPLLREFCLKSEL to "001").
+-- 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -62,8 +62,8 @@ entity gth_single_2p56g is
       gth_misc_ctrl_i   : in  t_gth_misc_ctrl;
       gth_misc_status_o : out t_gth_misc_status;
 
-      gth_tx_data_i : in  t_gt_8b10b_tx_data;
-      gth_rx_data_o : out t_gt_8b10b_rx_data
+      gth_tx_data_i : in  t_mgt_64b_tx_data;
+      gth_rx_data_o : out t_mgt_64b_rx_data
       );
 
 
@@ -80,13 +80,10 @@ architecture gth_single_2p56g_arch of gth_single_2p56g is
 --============================================================================
   -- dummy signals to surpress synth. warnings
   signal s_rxdata_float        : std_logic_vector(31 downto 0);
-  signal s_rxchariscomma_float : std_logic_vector(3 downto 0);
-  signal s_rxcharisk_float     : std_logic_vector(3 downto 0);
-  signal s_rxdisperr_float     : std_logic_vector(3 downto 0);
-  signal s_rxnotintable_float  : std_logic_vector(3 downto 0);
-
-  constant s_txchardispmode_float : std_logic_vector(3 downto 0) := "0000";
-  constant s_txchardispval_float  : std_logic_vector(3 downto 0) := "0000";
+  signal s_rxchariscomma_float : std_logic_vector(7 downto 0);
+  signal s_rxcharisk_float     : std_logic_vector(7 downto 0);
+  signal s_rxdisperr_float     : std_logic_vector(7 downto 0);
+  signal s_rxnotintable_float  : std_logic_vector(7 downto 0);
 
 --============================================================================
 
@@ -572,17 +569,15 @@ begin
       RXUSRCLK2                  => gth_gt_clk_i.rxusrclk2,
       ------------------ Receive Ports - FPGA RX interface Ports -----------------
       RXDATA(63 downto 32)       => s_rxdata_float,
-      RXDATA(31 downto 0)        => gth_rx_data_o.rxdata,
+      RXDATA(31 downto 0)        => gth_rx_data_o.rxdata(31 downto 0),
       ------------------- Receive Ports - Pattern Checker Ports ------------------
       RXPRBSERR                  => gth_rx_status_o.rxprbserr,
       RXPRBSSEL                  => gth_rx_ctrl_i.rxprbssel,
       ------------------- Receive Ports - Pattern Checker ports ------------------
       RXPRBSCNTRESET             => gth_rx_ctrl_i.rxprbscntreset,
       ------------------ Receive Ports - RX 8B/10B Decoder Ports -----------------
-      RXDISPERR(7 downto 4)      => s_rxdisperr_float,
-      RXDISPERR(3 downto 0)      => gth_rx_data_o.rxdisperr,
-      RXNOTINTABLE(7 downto 4)   => s_rxnotintable_float,
-      RXNOTINTABLE(3 downto 0)   => gth_rx_data_o.rxnotintable,
+      RXDISPERR                  => s_rxdisperr_float,
+      RXNOTINTABLE               => s_rxnotintable_float,
       ------------------------ Receive Ports - RX AFE Ports ----------------------
       GTHRXN                     => gth_rx_serial_i.gthrxn,
       ------------------- Receive Ports - RX Buffer Bypass Ports -----------------
@@ -719,10 +714,8 @@ begin
       ----------------- Receive Ports - RX Polarity Control Ports ----------------
       RXPOLARITY                 => gth_rx_ctrl_i.rxpolarity,
       ------------------- Receive Ports - RX8B/10B Decoder Ports -----------------
-      RXCHARISCOMMA(7 downto 4)  => s_rxchariscomma_float,
-      RXCHARISCOMMA(3 downto 0)  => gth_rx_data_o.rxchariscomma,
-      RXCHARISK(7 downto 4)      => s_rxcharisk_float,
-      RXCHARISK(3 downto 0)      => gth_rx_data_o.rxcharisk,
+      RXCHARISCOMMA              => s_rxchariscomma_float,
+      RXCHARISK                  => s_rxcharisk_float,
       ------------------ Receive Ports - Rx Channel Bonding Ports ----------------
       RXCHBONDI                  => "00000",
       ------------------------ Receive Ports -RX AFE Ports -----------------------
@@ -762,11 +755,8 @@ begin
       -------------- Transmit Ports - 64b66b and 64b67b Gearbox Ports ------------
       TXHEADER                   => "000",
       ---------------- Transmit Ports - 8b10b Encoder Control Ports --------------
-      TXCHARDISPMODE(7 downto 4) => s_txchardispmode_float,
-      TXCHARDISPMODE(3 downto 0) => gth_tx_data_i.txchardispmode,
-
-      TXCHARDISPVAL(7 downto 4) => s_txchardispval_float,
-      TXCHARDISPVAL(3 downto 0) => gth_tx_data_i.txchardispval,
+      TXCHARDISPMODE             => "00000000",
+      TXCHARDISPVAL              => "00000000",
       ------------------ Transmit Ports - FPGA TX Interface Ports ----------------
       TXUSRCLK                  => gth_gt_clk_i.txusrclk,
       TXUSRCLK2                 => gth_gt_clk_i.txusrclk2,
@@ -810,7 +800,7 @@ begin
       TXPISOPD                  => '0',
       ------------------ Transmit Ports - TX Data Path interface -----------------
       TXDATA(63 downto 32)      => x"00000000",
-      TXDATA(31 downto 0)       => gth_tx_data_i.txdata,
+      TXDATA(31 downto 0)       => gth_tx_data_i.txdata(31 downto 0),
       ---------------- Transmit Ports - TX Driver and OOB signaling --------------
       GTHTXN                    => gth_tx_serial_o.gthtxn,
       GTHTXP                    => gth_tx_serial_o.gthtxp,
@@ -843,8 +833,7 @@ begin
       ------------------ Transmit Ports - pattern Generator Ports ----------------
       TXPRBSSEL                 => gth_tx_ctrl_i.txprbssel,
       ----------- Transmit Transmit Ports - 8b10b Encoder Control Ports ----------
-      TXCHARISK(7 downto 4)     => "0000",
-      TXCHARISK(3 downto 0)     => gth_tx_data_i.txcharisk,
+      TXCHARISK                 => "00000000",
       ----------------------- Tx Configurable Driver  Ports ----------------------
       TXQPISENN                 => open,
       TXQPISENP                 => open

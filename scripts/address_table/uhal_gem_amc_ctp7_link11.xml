@@ -27191,7 +27191,6 @@
       </node>
     </node>
     <node id="OPTICAL_LINKS" address="0x1400000" >
-      <node id="DISABLE_TTC_PHASE_ALIGN" address="0x11000" permission="rw" mask="0x1" />
       <node id="MGT_CHANNEL_0" address="0x0" >
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />

@@ -44,7 +44,7 @@ begin
                 count_o <= (others => '0');
                 count <= (others => '0');
             else
-                if en_i = '1' and (count < max_count or g_ALLOW_ROLLOVER) then
+                if en_i = '1' and (count /= max_count or g_ALLOW_ROLLOVER) then
                     count <= count + g_INCREMENT_STEP;
                 end if;
                 count_o <= std_logic_vector(count);

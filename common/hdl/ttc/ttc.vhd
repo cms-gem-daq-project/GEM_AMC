@@ -30,33 +30,34 @@ use work.registers.all;
 entity ttc is
     port(
         -- reset
-        reset_i           : in  std_logic;
+        reset_i             : in  std_logic;
 
         -- TTC clocks
-        ttc_clks_i        : in t_ttc_clks;
-        ttc_clks_locked_i : in std_logic;
+        ttc_clks_i          : in  t_ttc_clks;
+        ttc_clks_status_i   : in  t_ttc_clk_status;
+        ttc_clks_ctrl_o     : out t_ttc_clk_ctrl;
 
         -- TTC backplane data signals
-        ttc_data_p_i      : in  std_logic;
-        ttc_data_n_i      : in  std_logic;
+        ttc_data_p_i        : in  std_logic;
+        ttc_data_n_i        : in  std_logic;
 
         -- TTC commands
-        ttc_cmds_o        : out t_ttc_cmds;
+        ttc_cmds_o          : out t_ttc_cmds;
     
         -- DAQ counters (L1A ID, Orbit ID, BX ID)
-        ttc_daq_cntrs_o   : out t_ttc_daq_cntrs;
+        ttc_daq_cntrs_o     : out t_ttc_daq_cntrs;
 
         -- TTC status
-        ttc_status_o      : out t_ttc_status;
+        ttc_status_o        : out t_ttc_status;
         
         -- L1A LED
-        l1a_led_o         : out std_logic;
+        l1a_led_o           : out std_logic;
 
         -- IPbus
-        ipb_reset_i       : in  std_logic;
-        ipb_clk_i         : in  std_logic;
-        ipb_mosi_i        : in  ipb_wbus;
-        ipb_miso_o        : out ipb_rbus
+        ipb_reset_i         : in  std_logic;
+        ipb_clk_i           : in  std_logic;
+        ipb_mosi_i          : in  ipb_wbus;
+        ipb_miso_o          : out ipb_rbus
     );
 
 end ttc;
@@ -72,11 +73,6 @@ architecture ttc_arch of ttc is
 
     signal reset_global             : std_logic;
     signal reset                    : std_logic;
-
-    -- MMCM lock monitor
-    signal ttc_clocks_locked_sync   : std_logic;
-    signal mmcm_unlock_en           : std_logic;
-    signal mmcm_unlock_cnt          : std_logic_vector(15 downto 0);   
 
     -- commands
     signal ttc_cmd                  : std_logic_vector(7 downto 0);
@@ -164,18 +160,11 @@ begin
 
     ------------- Wiring and resets -------------
 
-    ttc_status.mmcm_locked <= ttc_clocks_locked_sync;
+    ttc_ctrl.clk_ctrl.reset_cnt <= ttc_ctrl.cnt_reset or ttc_ctrl.reset_local;
+    ttc_clks_ctrl_o <= ttc_ctrl.clk_ctrl;
+    
+    ttc_status.clk_status <= ttc_clks_status_i;
     ttc_status_o <= ttc_status;
-
-    i_ttc_clocks_locked_sync: entity work.synchronizer
-        generic map(
-            N_STAGES => 3
-        )
-        port map(
-            async_i => ttc_clks_locked_i,
-            clk_i   => ttc_clks_i.clk_40,
-            sync_o  => ttc_clocks_locked_sync
-        );
 
     i_reset_sync: 
     entity work.synchronizer
@@ -189,27 +178,6 @@ begin
         );
 
     reset <= reset_global or ttc_ctrl.reset_local;
-
-    ------------- MMCM unlock monitor -------------
-    i_mmcm_unlock_oneshot : entity work.oneshot
-        port map(
-            reset_i   => reset,
-            clk_i     => ttc_clks_i.clk_40,
-            input_i   => not ttc_clocks_locked_sync,
-            oneshot_o => mmcm_unlock_en
-        );
-        
-    i_mmcm_unlock_cnt : entity work.counter
-        generic map(
-            g_COUNTER_WIDTH  => 16,
-            g_ALLOW_ROLLOVER => false
-        )
-        port map(
-            ref_clk_i => ttc_clks_i.clk_40,
-            reset_i   => reset,
-            en_i      => mmcm_unlock_en,
-            count_o   => mmcm_unlock_cnt
-        );
 
     ------------- LEDs -------------
 
@@ -391,7 +359,7 @@ begin
             if (reset = '1') then
                 l1id_cnt <= x"000001";
             else
-                if (ec0_cmd = '1') then
+                if (ec0_cmd = '1' or resync_cmd = '1') then
                     l1id_cnt <= x"000001";
                 elsif (l1a_cmd = '1') then
                     l1id_cnt <= std_logic_vector(unsigned(l1id_cnt) + 1);
@@ -424,11 +392,16 @@ begin
     process(ttc_clks_i.clk_40) is
     begin
         if (rising_edge(ttc_clks_i.clk_40)) then
-            if (bc0_cmd = '1' and reset = '0') then
+            if (reset = '1' or ttc_ctrl.cnt_reset = '1') then
+                ttc_status.bc0_status.err <= '0';
+                ttc_status.bc0_status.locked <= '0';
+                ttc_status.bc0_status.ovf_cnt <= (others => '0');
+                ttc_status.bc0_status.udf_cnt <= (others => '0');
+                ttc_status.bc0_status.unlocked_cnt <= (others => '0');
+            elsif (bc0_cmd = '1') then            
                 if (unsigned(bx_cnt) < unsigned(C_TTC_NUM_BXs)) then
                     ttc_status.bc0_status.err <= '1';
                     ttc_status.bc0_status.locked <= '0';
-                    ttc_status.bc0_status.udf_cnt <= std_logic_vector(unsigned(ttc_status.bc0_status.udf_cnt) + 1); 
                     if (ttc_status.bc0_status.unlocked_cnt /= x"ffff") then
                         ttc_status.bc0_status.unlocked_cnt <= std_logic_vector(unsigned(ttc_status.bc0_status.unlocked_cnt) + 1);
                     end if; 
@@ -546,149 +519,204 @@ begin
       );
 
     -- Addresses
-    regs_addresses(0)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= "00" & x"0";
-    regs_addresses(1)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= "00" & x"1";
-    regs_addresses(2)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= "00" & x"2";
-    regs_addresses(3)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= "00" & x"3";
-    regs_addresses(4)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= "00" & x"4";
-    regs_addresses(5)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= "00" & x"5";
-    regs_addresses(6)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= "00" & x"6";
-    regs_addresses(7)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= "00" & x"7";
-    regs_addresses(8)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= "00" & x"8";
-    regs_addresses(9)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= "00" & x"9";
-    regs_addresses(10)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= "00" & x"a";
-    regs_addresses(11)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= "00" & x"b";
-    regs_addresses(12)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= "00" & x"c";
-    regs_addresses(13)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= "00" & x"d";
-    regs_addresses(14)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= "00" & x"e";
-    regs_addresses(15)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= "00" & x"f";
-    regs_addresses(16)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= "01" & x"0";
-    regs_addresses(17)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= "01" & x"1";
-    regs_addresses(18)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= "01" & x"2";
-    regs_addresses(19)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= "01" & x"3";
-    regs_addresses(20)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= "01" & x"4";
-    regs_addresses(21)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= "01" & x"5";
-    regs_addresses(22)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= "01" & x"6";
-    regs_addresses(23)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= "01" & x"7";
-    regs_addresses(24)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= "01" & x"8";
-    regs_addresses(25)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= "01" & x"9";
-    regs_addresses(26)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= "10" & x"0";
-    regs_addresses(27)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= "10" & x"1";
-    regs_addresses(28)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= "10" & x"2";
-    regs_addresses(29)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= "10" & x"3";
-    regs_addresses(30)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= "10" & x"4";
-    regs_addresses(31)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= "10" & x"5";
-    regs_addresses(32)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= "10" & x"6";
-    regs_addresses(33)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= "10" & x"7";
+    regs_addresses(0)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= x"00";
+    regs_addresses(1)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= x"01";
+    regs_addresses(2)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= x"02";
+    regs_addresses(3)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= x"03";
+    regs_addresses(4)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= x"04";
+    regs_addresses(5)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= x"05";
+    regs_addresses(6)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= x"06";
+    regs_addresses(7)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= x"07";
+    regs_addresses(8)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= x"08";
+    regs_addresses(9)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= x"10";
+    regs_addresses(10)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= x"11";
+    regs_addresses(11)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= x"12";
+    regs_addresses(12)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= x"20";
+    regs_addresses(13)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= x"21";
+    regs_addresses(14)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= x"22";
+    regs_addresses(15)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= x"23";
+    regs_addresses(16)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= x"26";
+    regs_addresses(17)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= x"27";
+    regs_addresses(18)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= x"28";
+    regs_addresses(19)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= x"40";
+    regs_addresses(20)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= x"41";
+    regs_addresses(21)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= x"42";
+    regs_addresses(22)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= x"43";
+    regs_addresses(23)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= x"50";
+    regs_addresses(24)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= x"51";
+    regs_addresses(25)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= x"52";
+    regs_addresses(26)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= x"53";
+    regs_addresses(27)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= x"54";
+    regs_addresses(28)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= x"55";
+    regs_addresses(29)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= x"56";
+    regs_addresses(30)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= x"57";
+    regs_addresses(31)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= x"58";
+    regs_addresses(32)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= x"59";
+    regs_addresses(33)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= x"60";
+    regs_addresses(34)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= x"61";
+    regs_addresses(35)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= x"62";
+    regs_addresses(36)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= x"70";
+    regs_addresses(37)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= x"71";
+    regs_addresses(38)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= x"72";
+    regs_addresses(39)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= x"73";
+    regs_addresses(40)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= x"74";
+    regs_addresses(41)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= x"75";
+    regs_addresses(42)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= x"76";
+    regs_addresses(43)(REG_TTC_ADDRESS_MSB downto REG_TTC_ADDRESS_LSB) <= x"77";
 
     -- Connect read signals
     regs_read_arr(4)(REG_TTC_CTRL_L1A_ENABLE_BIT) <= ttc_ctrl.l1a_enable;
     regs_read_arr(4)(REG_TTC_CTRL_CALIBRATION_MODE_BIT) <= ttc_ctrl.calib_mode;
+    regs_read_arr(4)(REG_TTC_CTRL_DISABLE_PHASE_ALIGNMENT_BIT) <= ttc_ctrl.clk_ctrl.phase_align_disable;
+    regs_read_arr(4)(REG_TTC_CTRL_PA_DISABLE_INIT_SHIFT_OUT_BIT) <= ttc_ctrl.clk_ctrl.pa_no_init_shift_out;
+    regs_read_arr(4)(REG_TTC_CTRL_PA_MANUAL_OVERRIDE_BIT) <= ttc_ctrl.clk_ctrl.pa_manual_shift_ovrd;
+    regs_read_arr(4)(REG_TTC_CTRL_PA_MANUAL_SHIFT_DIR_BIT) <= ttc_ctrl.clk_ctrl.pa_manual_shift_dir;
+    regs_read_arr(4)(REG_TTC_CTRL_PHASEMON_LOG2_N_AVG_MSB downto REG_TTC_CTRL_PHASEMON_LOG2_N_AVG_LSB) <= ttc_ctrl.clk_ctrl.phase_mon_log2_navg;
     regs_read_arr(4)(REG_TTC_CTRL_CALPULSE_L1A_DELAY_MSB downto REG_TTC_CTRL_CALPULSE_L1A_DELAY_LSB) <= ttc_ctrl.calib_l1a_delay;
-    regs_read_arr(5)(REG_TTC_CONFIG_CMD_BC0_MSB downto REG_TTC_CONFIG_CMD_BC0_LSB) <= ttc_conf.cmd_bc0;
-    regs_read_arr(5)(REG_TTC_CONFIG_CMD_EC0_MSB downto REG_TTC_CONFIG_CMD_EC0_LSB) <= ttc_conf.cmd_ec0;
-    regs_read_arr(5)(REG_TTC_CONFIG_CMD_RESYNC_MSB downto REG_TTC_CONFIG_CMD_RESYNC_LSB) <= ttc_conf.cmd_resync;
-    regs_read_arr(5)(REG_TTC_CONFIG_CMD_OC0_MSB downto REG_TTC_CONFIG_CMD_OC0_LSB) <= ttc_conf.cmd_oc0;
-    regs_read_arr(6)(REG_TTC_CONFIG_CMD_HARD_RESET_MSB downto REG_TTC_CONFIG_CMD_HARD_RESET_LSB) <= ttc_conf.cmd_hard_reset;
-    regs_read_arr(6)(REG_TTC_CONFIG_CMD_CALPULSE_MSB downto REG_TTC_CONFIG_CMD_CALPULSE_LSB) <= ttc_conf.cmd_calpulse;
-    regs_read_arr(6)(REG_TTC_CONFIG_CMD_START_MSB downto REG_TTC_CONFIG_CMD_START_LSB) <= ttc_conf.cmd_start;
-    regs_read_arr(6)(REG_TTC_CONFIG_CMD_STOP_MSB downto REG_TTC_CONFIG_CMD_STOP_LSB) <= ttc_conf.cmd_stop;
-    regs_read_arr(7)(REG_TTC_CONFIG_CMD_TEST_SYNC_MSB downto REG_TTC_CONFIG_CMD_TEST_SYNC_LSB) <= ttc_conf.cmd_test_sync;
-    regs_read_arr(8)(REG_TTC_STATUS_MMCM_LOCKED_BIT) <= ttc_status.mmcm_locked;
-    regs_read_arr(8)(REG_TTC_STATUS_MMCM_UNLOCK_CNT_MSB downto REG_TTC_STATUS_MMCM_UNLOCK_CNT_LSB) <= mmcm_unlock_cnt;
-    regs_read_arr(9)(REG_TTC_STATUS_TTC_SINGLE_ERROR_CNT_MSB downto REG_TTC_STATUS_TTC_SINGLE_ERROR_CNT_LSB) <= ttc_status.single_err;
-    regs_read_arr(9)(REG_TTC_STATUS_TTC_DOUBLE_ERROR_CNT_MSB downto REG_TTC_STATUS_TTC_DOUBLE_ERROR_CNT_LSB) <= ttc_status.double_err;
-    regs_read_arr(10)(REG_TTC_STATUS_BC0_LOCKED_BIT) <= ttc_status.bc0_status.locked;
-    regs_read_arr(11)(REG_TTC_STATUS_BC0_UNLOCK_CNT_MSB downto REG_TTC_STATUS_BC0_UNLOCK_CNT_LSB) <= ttc_status.bc0_status.unlocked_cnt;
-    regs_read_arr(12)(REG_TTC_STATUS_BC0_OVERFLOW_CNT_MSB downto REG_TTC_STATUS_BC0_OVERFLOW_CNT_LSB) <= ttc_status.bc0_status.ovf_cnt;
-    regs_read_arr(12)(REG_TTC_STATUS_BC0_UNDERFLOW_CNT_MSB downto REG_TTC_STATUS_BC0_UNDERFLOW_CNT_LSB) <= ttc_status.bc0_status.udf_cnt;
-    regs_read_arr(13)(REG_TTC_CMD_COUNTERS_L1A_MSB downto REG_TTC_CMD_COUNTERS_L1A_LSB) <= ttc_cmds_cnt_arr(0);
-    regs_read_arr(14)(REG_TTC_CMD_COUNTERS_BC0_MSB downto REG_TTC_CMD_COUNTERS_BC0_LSB) <= ttc_cmds_cnt_arr(1);
-    regs_read_arr(15)(REG_TTC_CMD_COUNTERS_EC0_MSB downto REG_TTC_CMD_COUNTERS_EC0_LSB) <= ttc_cmds_cnt_arr(2);
-    regs_read_arr(16)(REG_TTC_CMD_COUNTERS_RESYNC_MSB downto REG_TTC_CMD_COUNTERS_RESYNC_LSB) <= ttc_cmds_cnt_arr(3);
-    regs_read_arr(17)(REG_TTC_CMD_COUNTERS_OC0_MSB downto REG_TTC_CMD_COUNTERS_OC0_LSB) <= ttc_cmds_cnt_arr(4);
-    regs_read_arr(18)(REG_TTC_CMD_COUNTERS_HARD_RESET_MSB downto REG_TTC_CMD_COUNTERS_HARD_RESET_LSB) <= ttc_cmds_cnt_arr(5);
-    regs_read_arr(19)(REG_TTC_CMD_COUNTERS_CALPULSE_MSB downto REG_TTC_CMD_COUNTERS_CALPULSE_LSB) <= ttc_cmds_cnt_arr(6);
-    regs_read_arr(20)(REG_TTC_CMD_COUNTERS_START_MSB downto REG_TTC_CMD_COUNTERS_START_LSB) <= ttc_cmds_cnt_arr(7);
-    regs_read_arr(21)(REG_TTC_CMD_COUNTERS_STOP_MSB downto REG_TTC_CMD_COUNTERS_STOP_LSB) <= ttc_cmds_cnt_arr(8);
-    regs_read_arr(22)(REG_TTC_CMD_COUNTERS_TEST_SYNC_MSB downto REG_TTC_CMD_COUNTERS_TEST_SYNC_LSB) <= ttc_cmds_cnt_arr(9);
-    regs_read_arr(23)(REG_TTC_L1A_ID_MSB downto REG_TTC_L1A_ID_LSB) <= l1id_cnt;
-    regs_read_arr(24)(REG_TTC_L1A_RATE_MSB downto REG_TTC_L1A_RATE_LSB) <= l1a_rate;
-    regs_read_arr(25)(REG_TTC_TTC_SPY_BUFFER_MSB downto REG_TTC_TTC_SPY_BUFFER_LSB) <= ttc_spy_buffer;
-    regs_read_arr(27)(REG_TTC_GENERATOR_ENABLE_BIT) <= gen_enable;
-    regs_read_arr(27)(REG_TTC_GENERATOR_CYCLIC_RUNNING_BIT) <= gen_cyclic_l1a_running;
-    regs_read_arr(27)(REG_TTC_GENERATOR_ENABLE_CALPULSE_ONLY_BIT) <= gen_enable_cal_only;
-    regs_read_arr(27)(REG_TTC_GENERATOR_CYCLIC_L1A_GAP_MSB downto REG_TTC_GENERATOR_CYCLIC_L1A_GAP_LSB) <= gen_cyclic_l1a_gap;
-    regs_read_arr(27)(REG_TTC_GENERATOR_CYCLIC_CALPULSE_TO_L1A_GAP_MSB downto REG_TTC_GENERATOR_CYCLIC_CALPULSE_TO_L1A_GAP_LSB) <= gen_cyclic_cal_l1a_gap;
-    regs_read_arr(31)(REG_TTC_GENERATOR_CYCLIC_L1A_COUNT_MSB downto REG_TTC_GENERATOR_CYCLIC_L1A_COUNT_LSB) <= gen_cyclic_l1a_cnt;
-    regs_read_arr(33)(REG_TTC_GENERATOR_CYCLIC_CALPULSE_PRESCALE_MSB downto REG_TTC_GENERATOR_CYCLIC_CALPULSE_PRESCALE_LSB) <= gen_cyclic_cal_prescale;
+    regs_read_arr(7)(REG_TTC_CTRL_PHASEMON_JUMP_THRESH_MSB downto REG_TTC_CTRL_PHASEMON_JUMP_THRESH_LSB) <= ttc_ctrl.clk_ctrl.phase_mon_jump_thresh;
+    regs_read_arr(7)(REG_TTC_CTRL_LOCKMON_LOG2_N_AVG_MSB downto REG_TTC_CTRL_LOCKMON_LOG2_N_AVG_LSB) <= ttc_ctrl.clk_ctrl.lock_mon_log2_navg;
+    regs_read_arr(8)(REG_TTC_CTRL_LOCKMON_TARGET_PHASE_MSB downto REG_TTC_CTRL_LOCKMON_TARGET_PHASE_LSB) <= ttc_ctrl.clk_ctrl.lock_mon_target_phase;
+    regs_read_arr(8)(REG_TTC_CTRL_LOCKMON_TOLLERANCE_MSB downto REG_TTC_CTRL_LOCKMON_TOLLERANCE_LSB) <= ttc_ctrl.clk_ctrl.lock_mon_tollerance;
+    regs_read_arr(9)(REG_TTC_CONFIG_CMD_BC0_MSB downto REG_TTC_CONFIG_CMD_BC0_LSB) <= ttc_conf.cmd_bc0;
+    regs_read_arr(9)(REG_TTC_CONFIG_CMD_EC0_MSB downto REG_TTC_CONFIG_CMD_EC0_LSB) <= ttc_conf.cmd_ec0;
+    regs_read_arr(9)(REG_TTC_CONFIG_CMD_RESYNC_MSB downto REG_TTC_CONFIG_CMD_RESYNC_LSB) <= ttc_conf.cmd_resync;
+    regs_read_arr(9)(REG_TTC_CONFIG_CMD_OC0_MSB downto REG_TTC_CONFIG_CMD_OC0_LSB) <= ttc_conf.cmd_oc0;
+    regs_read_arr(10)(REG_TTC_CONFIG_CMD_HARD_RESET_MSB downto REG_TTC_CONFIG_CMD_HARD_RESET_LSB) <= ttc_conf.cmd_hard_reset;
+    regs_read_arr(10)(REG_TTC_CONFIG_CMD_CALPULSE_MSB downto REG_TTC_CONFIG_CMD_CALPULSE_LSB) <= ttc_conf.cmd_calpulse;
+    regs_read_arr(10)(REG_TTC_CONFIG_CMD_START_MSB downto REG_TTC_CONFIG_CMD_START_LSB) <= ttc_conf.cmd_start;
+    regs_read_arr(10)(REG_TTC_CONFIG_CMD_STOP_MSB downto REG_TTC_CONFIG_CMD_STOP_LSB) <= ttc_conf.cmd_stop;
+    regs_read_arr(11)(REG_TTC_CONFIG_CMD_TEST_SYNC_MSB downto REG_TTC_CONFIG_CMD_TEST_SYNC_LSB) <= ttc_conf.cmd_test_sync;
+    regs_read_arr(12)(REG_TTC_STATUS_CLK_MMCM_LOCKED_BIT) <= ttc_clks_status_i.mmcm_locked;
+    regs_read_arr(12)(REG_TTC_STATUS_CLK_SYNC_DONE_BIT) <= ttc_clks_status_i.sync_done;
+    regs_read_arr(12)(REG_TTC_STATUS_CLK_PHASE_LOCKED_BIT) <= ttc_clks_status_i.phase_locked;
+    regs_read_arr(12)(REG_TTC_STATUS_CLK_PHASEMON_MMCM_LOCKED_BIT) <= ttc_clks_status_i.phasemon_mmcm_locked;
+    regs_read_arr(12)(REG_TTC_STATUS_CLK_TTC_CLK_PRESENT_BIT) <= ttc_clks_status_i.ttc_clk_present;
+    regs_read_arr(12)(REG_TTC_STATUS_CLK_MMCM_UNLOCK_CNT_MSB downto REG_TTC_STATUS_CLK_MMCM_UNLOCK_CNT_LSB) <= ttc_clks_status_i.mmcm_unlock_cnt;
+    regs_read_arr(13)(REG_TTC_STATUS_CLK_TTC_CLK_LOSS_CNT_MSB downto REG_TTC_STATUS_CLK_TTC_CLK_LOSS_CNT_LSB) <= ttc_clks_status_i.ttc_clk_loss_cnt;
+    regs_read_arr(13)(REG_TTC_STATUS_CLK_PHASE_UNLOCK_CNT_MSB downto REG_TTC_STATUS_CLK_PHASE_UNLOCK_CNT_LSB) <= ttc_clks_status_i.phase_unlock_cnt;
+    regs_read_arr(14)(REG_TTC_STATUS_CLK_SYNC_DONE_TIME_MSB downto REG_TTC_STATUS_CLK_SYNC_DONE_TIME_LSB) <= ttc_clks_status_i.sync_done_time;
+    regs_read_arr(14)(REG_TTC_STATUS_CLK_PHASE_UNLOCK_TIME_MSB downto REG_TTC_STATUS_CLK_PHASE_UNLOCK_TIME_LSB) <= ttc_clks_status_i.phase_unlock_time;
+    regs_read_arr(15)(REG_TTC_STATUS_CLK_TTC_CLK_LOSS_TIME_MSB downto REG_TTC_STATUS_CLK_TTC_CLK_LOSS_TIME_LSB) <= ttc_clks_status_i.ttc_clk_loss_time;
+    regs_read_arr(16)(REG_TTC_STATUS_CLK_PHASE_MONITOR_PHASE_MSB downto REG_TTC_STATUS_CLK_PHASE_MONITOR_PHASE_LSB) <= ttc_clks_status_i.phase_monitor.phase;
+    regs_read_arr(16)(REG_TTC_STATUS_CLK_PHASE_MONITOR_SAMPLE_COUNTER_MSB downto REG_TTC_STATUS_CLK_PHASE_MONITOR_SAMPLE_COUNTER_LSB) <= ttc_clks_status_i.phase_monitor.sample_counter;
+    regs_read_arr(17)(REG_TTC_STATUS_CLK_PHASE_MONITOR_PHASE_MIN_MSB downto REG_TTC_STATUS_CLK_PHASE_MONITOR_PHASE_MIN_LSB) <= ttc_clks_status_i.phase_monitor.phase_min;
+    regs_read_arr(17)(REG_TTC_STATUS_CLK_PHASE_MONITOR_PHASE_MAX_MSB downto REG_TTC_STATUS_CLK_PHASE_MONITOR_PHASE_MAX_LSB) <= ttc_clks_status_i.phase_monitor.phase_max;
+    regs_read_arr(18)(REG_TTC_STATUS_CLK_PHASE_MONITOR_PHASE_JUMP_CNT_MSB downto REG_TTC_STATUS_CLK_PHASE_MONITOR_PHASE_JUMP_CNT_LSB) <= ttc_clks_status_i.phase_monitor.phase_jump_cnt;
+    regs_read_arr(19)(REG_TTC_STATUS_TTC_SINGLE_ERROR_CNT_MSB downto REG_TTC_STATUS_TTC_SINGLE_ERROR_CNT_LSB) <= ttc_status.single_err;
+    regs_read_arr(19)(REG_TTC_STATUS_TTC_DOUBLE_ERROR_CNT_MSB downto REG_TTC_STATUS_TTC_DOUBLE_ERROR_CNT_LSB) <= ttc_status.double_err;
+    regs_read_arr(20)(REG_TTC_STATUS_BC0_LOCKED_BIT) <= ttc_status.bc0_status.locked;
+    regs_read_arr(21)(REG_TTC_STATUS_BC0_UNLOCK_CNT_MSB downto REG_TTC_STATUS_BC0_UNLOCK_CNT_LSB) <= ttc_status.bc0_status.unlocked_cnt;
+    regs_read_arr(22)(REG_TTC_STATUS_BC0_OVERFLOW_CNT_MSB downto REG_TTC_STATUS_BC0_OVERFLOW_CNT_LSB) <= ttc_status.bc0_status.ovf_cnt;
+    regs_read_arr(22)(REG_TTC_STATUS_BC0_UNDERFLOW_CNT_MSB downto REG_TTC_STATUS_BC0_UNDERFLOW_CNT_LSB) <= ttc_status.bc0_status.udf_cnt;
+    regs_read_arr(23)(REG_TTC_CMD_COUNTERS_L1A_MSB downto REG_TTC_CMD_COUNTERS_L1A_LSB) <= ttc_cmds_cnt_arr(0);
+    regs_read_arr(24)(REG_TTC_CMD_COUNTERS_BC0_MSB downto REG_TTC_CMD_COUNTERS_BC0_LSB) <= ttc_cmds_cnt_arr(1);
+    regs_read_arr(25)(REG_TTC_CMD_COUNTERS_EC0_MSB downto REG_TTC_CMD_COUNTERS_EC0_LSB) <= ttc_cmds_cnt_arr(2);
+    regs_read_arr(26)(REG_TTC_CMD_COUNTERS_RESYNC_MSB downto REG_TTC_CMD_COUNTERS_RESYNC_LSB) <= ttc_cmds_cnt_arr(3);
+    regs_read_arr(27)(REG_TTC_CMD_COUNTERS_OC0_MSB downto REG_TTC_CMD_COUNTERS_OC0_LSB) <= ttc_cmds_cnt_arr(4);
+    regs_read_arr(28)(REG_TTC_CMD_COUNTERS_HARD_RESET_MSB downto REG_TTC_CMD_COUNTERS_HARD_RESET_LSB) <= ttc_cmds_cnt_arr(5);
+    regs_read_arr(29)(REG_TTC_CMD_COUNTERS_CALPULSE_MSB downto REG_TTC_CMD_COUNTERS_CALPULSE_LSB) <= ttc_cmds_cnt_arr(6);
+    regs_read_arr(30)(REG_TTC_CMD_COUNTERS_START_MSB downto REG_TTC_CMD_COUNTERS_START_LSB) <= ttc_cmds_cnt_arr(7);
+    regs_read_arr(31)(REG_TTC_CMD_COUNTERS_STOP_MSB downto REG_TTC_CMD_COUNTERS_STOP_LSB) <= ttc_cmds_cnt_arr(8);
+    regs_read_arr(32)(REG_TTC_CMD_COUNTERS_TEST_SYNC_MSB downto REG_TTC_CMD_COUNTERS_TEST_SYNC_LSB) <= ttc_cmds_cnt_arr(9);
+    regs_read_arr(33)(REG_TTC_L1A_ID_MSB downto REG_TTC_L1A_ID_LSB) <= l1id_cnt;
+    regs_read_arr(34)(REG_TTC_L1A_RATE_MSB downto REG_TTC_L1A_RATE_LSB) <= l1a_rate;
+    regs_read_arr(35)(REG_TTC_TTC_SPY_BUFFER_MSB downto REG_TTC_TTC_SPY_BUFFER_LSB) <= ttc_spy_buffer;
+    regs_read_arr(37)(REG_TTC_GENERATOR_ENABLE_BIT) <= gen_enable;
+    regs_read_arr(37)(REG_TTC_GENERATOR_CYCLIC_RUNNING_BIT) <= gen_cyclic_l1a_running;
+    regs_read_arr(37)(REG_TTC_GENERATOR_ENABLE_CALPULSE_ONLY_BIT) <= gen_enable_cal_only;
+    regs_read_arr(37)(REG_TTC_GENERATOR_CYCLIC_L1A_GAP_MSB downto REG_TTC_GENERATOR_CYCLIC_L1A_GAP_LSB) <= gen_cyclic_l1a_gap;
+    regs_read_arr(37)(REG_TTC_GENERATOR_CYCLIC_CALPULSE_TO_L1A_GAP_MSB downto REG_TTC_GENERATOR_CYCLIC_CALPULSE_TO_L1A_GAP_LSB) <= gen_cyclic_cal_l1a_gap;
+    regs_read_arr(41)(REG_TTC_GENERATOR_CYCLIC_L1A_COUNT_MSB downto REG_TTC_GENERATOR_CYCLIC_L1A_COUNT_LSB) <= gen_cyclic_l1a_cnt;
+    regs_read_arr(43)(REG_TTC_GENERATOR_CYCLIC_CALPULSE_PRESCALE_MSB downto REG_TTC_GENERATOR_CYCLIC_CALPULSE_PRESCALE_LSB) <= gen_cyclic_cal_prescale;
 
     -- Connect write signals
     ttc_ctrl.l1a_enable <= regs_write_arr(4)(REG_TTC_CTRL_L1A_ENABLE_BIT);
     ttc_ctrl.calib_mode <= regs_write_arr(4)(REG_TTC_CTRL_CALIBRATION_MODE_BIT);
+    ttc_ctrl.clk_ctrl.phase_align_disable <= regs_write_arr(4)(REG_TTC_CTRL_DISABLE_PHASE_ALIGNMENT_BIT);
+    ttc_ctrl.clk_ctrl.pa_no_init_shift_out <= regs_write_arr(4)(REG_TTC_CTRL_PA_DISABLE_INIT_SHIFT_OUT_BIT);
+    ttc_ctrl.clk_ctrl.pa_manual_shift_ovrd <= regs_write_arr(4)(REG_TTC_CTRL_PA_MANUAL_OVERRIDE_BIT);
+    ttc_ctrl.clk_ctrl.pa_manual_shift_dir <= regs_write_arr(4)(REG_TTC_CTRL_PA_MANUAL_SHIFT_DIR_BIT);
+    ttc_ctrl.clk_ctrl.phase_mon_log2_navg <= regs_write_arr(4)(REG_TTC_CTRL_PHASEMON_LOG2_N_AVG_MSB downto REG_TTC_CTRL_PHASEMON_LOG2_N_AVG_LSB);
     ttc_ctrl.calib_l1a_delay <= regs_write_arr(4)(REG_TTC_CTRL_CALPULSE_L1A_DELAY_MSB downto REG_TTC_CTRL_CALPULSE_L1A_DELAY_LSB);
-    ttc_conf.cmd_bc0 <= regs_write_arr(5)(REG_TTC_CONFIG_CMD_BC0_MSB downto REG_TTC_CONFIG_CMD_BC0_LSB);
-    ttc_conf.cmd_ec0 <= regs_write_arr(5)(REG_TTC_CONFIG_CMD_EC0_MSB downto REG_TTC_CONFIG_CMD_EC0_LSB);
-    ttc_conf.cmd_resync <= regs_write_arr(5)(REG_TTC_CONFIG_CMD_RESYNC_MSB downto REG_TTC_CONFIG_CMD_RESYNC_LSB);
-    ttc_conf.cmd_oc0 <= regs_write_arr(5)(REG_TTC_CONFIG_CMD_OC0_MSB downto REG_TTC_CONFIG_CMD_OC0_LSB);
-    ttc_conf.cmd_hard_reset <= regs_write_arr(6)(REG_TTC_CONFIG_CMD_HARD_RESET_MSB downto REG_TTC_CONFIG_CMD_HARD_RESET_LSB);
-    ttc_conf.cmd_calpulse <= regs_write_arr(6)(REG_TTC_CONFIG_CMD_CALPULSE_MSB downto REG_TTC_CONFIG_CMD_CALPULSE_LSB);
-    ttc_conf.cmd_start <= regs_write_arr(6)(REG_TTC_CONFIG_CMD_START_MSB downto REG_TTC_CONFIG_CMD_START_LSB);
-    ttc_conf.cmd_stop <= regs_write_arr(6)(REG_TTC_CONFIG_CMD_STOP_MSB downto REG_TTC_CONFIG_CMD_STOP_LSB);
-    ttc_conf.cmd_test_sync <= regs_write_arr(7)(REG_TTC_CONFIG_CMD_TEST_SYNC_MSB downto REG_TTC_CONFIG_CMD_TEST_SYNC_LSB);
-    gen_enable <= regs_write_arr(27)(REG_TTC_GENERATOR_ENABLE_BIT);
-    gen_enable_cal_only <= regs_write_arr(27)(REG_TTC_GENERATOR_ENABLE_CALPULSE_ONLY_BIT);
-    gen_cyclic_l1a_gap <= regs_write_arr(27)(REG_TTC_GENERATOR_CYCLIC_L1A_GAP_MSB downto REG_TTC_GENERATOR_CYCLIC_L1A_GAP_LSB);
-    gen_cyclic_cal_l1a_gap <= regs_write_arr(27)(REG_TTC_GENERATOR_CYCLIC_CALPULSE_TO_L1A_GAP_MSB downto REG_TTC_GENERATOR_CYCLIC_CALPULSE_TO_L1A_GAP_LSB);
-    gen_cyclic_l1a_cnt <= regs_write_arr(31)(REG_TTC_GENERATOR_CYCLIC_L1A_COUNT_MSB downto REG_TTC_GENERATOR_CYCLIC_L1A_COUNT_LSB);
-    gen_cyclic_cal_prescale <= regs_write_arr(33)(REG_TTC_GENERATOR_CYCLIC_CALPULSE_PRESCALE_MSB downto REG_TTC_GENERATOR_CYCLIC_CALPULSE_PRESCALE_LSB);
+    ttc_ctrl.clk_ctrl.phase_mon_jump_thresh <= regs_write_arr(7)(REG_TTC_CTRL_PHASEMON_JUMP_THRESH_MSB downto REG_TTC_CTRL_PHASEMON_JUMP_THRESH_LSB);
+    ttc_ctrl.clk_ctrl.lock_mon_log2_navg <= regs_write_arr(7)(REG_TTC_CTRL_LOCKMON_LOG2_N_AVG_MSB downto REG_TTC_CTRL_LOCKMON_LOG2_N_AVG_LSB);
+    ttc_ctrl.clk_ctrl.lock_mon_target_phase <= regs_write_arr(8)(REG_TTC_CTRL_LOCKMON_TARGET_PHASE_MSB downto REG_TTC_CTRL_LOCKMON_TARGET_PHASE_LSB);
+    ttc_ctrl.clk_ctrl.lock_mon_tollerance <= regs_write_arr(8)(REG_TTC_CTRL_LOCKMON_TOLLERANCE_MSB downto REG_TTC_CTRL_LOCKMON_TOLLERANCE_LSB);
+    ttc_conf.cmd_bc0 <= regs_write_arr(9)(REG_TTC_CONFIG_CMD_BC0_MSB downto REG_TTC_CONFIG_CMD_BC0_LSB);
+    ttc_conf.cmd_ec0 <= regs_write_arr(9)(REG_TTC_CONFIG_CMD_EC0_MSB downto REG_TTC_CONFIG_CMD_EC0_LSB);
+    ttc_conf.cmd_resync <= regs_write_arr(9)(REG_TTC_CONFIG_CMD_RESYNC_MSB downto REG_TTC_CONFIG_CMD_RESYNC_LSB);
+    ttc_conf.cmd_oc0 <= regs_write_arr(9)(REG_TTC_CONFIG_CMD_OC0_MSB downto REG_TTC_CONFIG_CMD_OC0_LSB);
+    ttc_conf.cmd_hard_reset <= regs_write_arr(10)(REG_TTC_CONFIG_CMD_HARD_RESET_MSB downto REG_TTC_CONFIG_CMD_HARD_RESET_LSB);
+    ttc_conf.cmd_calpulse <= regs_write_arr(10)(REG_TTC_CONFIG_CMD_CALPULSE_MSB downto REG_TTC_CONFIG_CMD_CALPULSE_LSB);
+    ttc_conf.cmd_start <= regs_write_arr(10)(REG_TTC_CONFIG_CMD_START_MSB downto REG_TTC_CONFIG_CMD_START_LSB);
+    ttc_conf.cmd_stop <= regs_write_arr(10)(REG_TTC_CONFIG_CMD_STOP_MSB downto REG_TTC_CONFIG_CMD_STOP_LSB);
+    ttc_conf.cmd_test_sync <= regs_write_arr(11)(REG_TTC_CONFIG_CMD_TEST_SYNC_MSB downto REG_TTC_CONFIG_CMD_TEST_SYNC_LSB);
+    gen_enable <= regs_write_arr(37)(REG_TTC_GENERATOR_ENABLE_BIT);
+    gen_enable_cal_only <= regs_write_arr(37)(REG_TTC_GENERATOR_ENABLE_CALPULSE_ONLY_BIT);
+    gen_cyclic_l1a_gap <= regs_write_arr(37)(REG_TTC_GENERATOR_CYCLIC_L1A_GAP_MSB downto REG_TTC_GENERATOR_CYCLIC_L1A_GAP_LSB);
+    gen_cyclic_cal_l1a_gap <= regs_write_arr(37)(REG_TTC_GENERATOR_CYCLIC_CALPULSE_TO_L1A_GAP_MSB downto REG_TTC_GENERATOR_CYCLIC_CALPULSE_TO_L1A_GAP_LSB);
+    gen_cyclic_l1a_cnt <= regs_write_arr(41)(REG_TTC_GENERATOR_CYCLIC_L1A_COUNT_MSB downto REG_TTC_GENERATOR_CYCLIC_L1A_COUNT_LSB);
+    gen_cyclic_cal_prescale <= regs_write_arr(43)(REG_TTC_GENERATOR_CYCLIC_CALPULSE_PRESCALE_MSB downto REG_TTC_GENERATOR_CYCLIC_CALPULSE_PRESCALE_LSB);
 
     -- Connect write pulse signals
     ttc_ctrl.reset_local <= regs_write_pulse_arr(0);
-    ttc_ctrl.mmcm_reset <= regs_write_pulse_arr(1);
+    ttc_ctrl.clk_ctrl.reset_mmcm <= regs_write_pulse_arr(1);
     ttc_ctrl.cnt_reset <= regs_write_pulse_arr(2);
-    ttc_ctrl.mmcm_phase_shift <= regs_write_pulse_arr(3);
-    gen_reset <= regs_write_pulse_arr(26);
-    gen_single_hard_reset <= regs_write_pulse_arr(28);
-    gen_single_resync <= regs_write_pulse_arr(29);
-    gen_single_ec0 <= regs_write_pulse_arr(30);
-    gen_cyclic_l1a_start <= regs_write_pulse_arr(32);
+    ttc_ctrl.clk_ctrl.reset_sync_fsm <= regs_write_pulse_arr(3);
+    ttc_ctrl.clk_ctrl.pa_manual_shift_en <= regs_write_pulse_arr(5);
+    ttc_ctrl.clk_ctrl.reset_phase_mon_mmcm <= regs_write_pulse_arr(6);
+    gen_reset <= regs_write_pulse_arr(36);
+    gen_single_hard_reset <= regs_write_pulse_arr(38);
+    gen_single_resync <= regs_write_pulse_arr(39);
+    gen_single_ec0 <= regs_write_pulse_arr(40);
+    gen_cyclic_l1a_start <= regs_write_pulse_arr(42);
 
     -- Connect write done signals
 
     -- Connect read pulse signals
-    ttc_spy_reset <= regs_read_pulse_arr(25);
+    ttc_spy_reset <= regs_read_pulse_arr(35);
 
     -- Connect read ready signals
 
     -- Defaults
     regs_defaults(4)(REG_TTC_CTRL_L1A_ENABLE_BIT) <= REG_TTC_CTRL_L1A_ENABLE_DEFAULT;
     regs_defaults(4)(REG_TTC_CTRL_CALIBRATION_MODE_BIT) <= REG_TTC_CTRL_CALIBRATION_MODE_DEFAULT;
+    regs_defaults(4)(REG_TTC_CTRL_DISABLE_PHASE_ALIGNMENT_BIT) <= REG_TTC_CTRL_DISABLE_PHASE_ALIGNMENT_DEFAULT;
+    regs_defaults(4)(REG_TTC_CTRL_PA_DISABLE_INIT_SHIFT_OUT_BIT) <= REG_TTC_CTRL_PA_DISABLE_INIT_SHIFT_OUT_DEFAULT;
+    regs_defaults(4)(REG_TTC_CTRL_PA_MANUAL_OVERRIDE_BIT) <= REG_TTC_CTRL_PA_MANUAL_OVERRIDE_DEFAULT;
+    regs_defaults(4)(REG_TTC_CTRL_PA_MANUAL_SHIFT_DIR_BIT) <= REG_TTC_CTRL_PA_MANUAL_SHIFT_DIR_DEFAULT;
+    regs_defaults(4)(REG_TTC_CTRL_PHASEMON_LOG2_N_AVG_MSB downto REG_TTC_CTRL_PHASEMON_LOG2_N_AVG_LSB) <= REG_TTC_CTRL_PHASEMON_LOG2_N_AVG_DEFAULT;
     regs_defaults(4)(REG_TTC_CTRL_CALPULSE_L1A_DELAY_MSB downto REG_TTC_CTRL_CALPULSE_L1A_DELAY_LSB) <= REG_TTC_CTRL_CALPULSE_L1A_DELAY_DEFAULT;
-    regs_defaults(5)(REG_TTC_CONFIG_CMD_BC0_MSB downto REG_TTC_CONFIG_CMD_BC0_LSB) <= REG_TTC_CONFIG_CMD_BC0_DEFAULT;
-    regs_defaults(5)(REG_TTC_CONFIG_CMD_EC0_MSB downto REG_TTC_CONFIG_CMD_EC0_LSB) <= REG_TTC_CONFIG_CMD_EC0_DEFAULT;
-    regs_defaults(5)(REG_TTC_CONFIG_CMD_RESYNC_MSB downto REG_TTC_CONFIG_CMD_RESYNC_LSB) <= REG_TTC_CONFIG_CMD_RESYNC_DEFAULT;
-    regs_defaults(5)(REG_TTC_CONFIG_CMD_OC0_MSB downto REG_TTC_CONFIG_CMD_OC0_LSB) <= REG_TTC_CONFIG_CMD_OC0_DEFAULT;
-    regs_defaults(6)(REG_TTC_CONFIG_CMD_HARD_RESET_MSB downto REG_TTC_CONFIG_CMD_HARD_RESET_LSB) <= REG_TTC_CONFIG_CMD_HARD_RESET_DEFAULT;
-    regs_defaults(6)(REG_TTC_CONFIG_CMD_CALPULSE_MSB downto REG_TTC_CONFIG_CMD_CALPULSE_LSB) <= REG_TTC_CONFIG_CMD_CALPULSE_DEFAULT;
-    regs_defaults(6)(REG_TTC_CONFIG_CMD_START_MSB downto REG_TTC_CONFIG_CMD_START_LSB) <= REG_TTC_CONFIG_CMD_START_DEFAULT;
-    regs_defaults(6)(REG_TTC_CONFIG_CMD_STOP_MSB downto REG_TTC_CONFIG_CMD_STOP_LSB) <= REG_TTC_CONFIG_CMD_STOP_DEFAULT;
-    regs_defaults(7)(REG_TTC_CONFIG_CMD_TEST_SYNC_MSB downto REG_TTC_CONFIG_CMD_TEST_SYNC_LSB) <= REG_TTC_CONFIG_CMD_TEST_SYNC_DEFAULT;
-    regs_defaults(27)(REG_TTC_GENERATOR_ENABLE_BIT) <= REG_TTC_GENERATOR_ENABLE_DEFAULT;
-    regs_defaults(27)(REG_TTC_GENERATOR_ENABLE_CALPULSE_ONLY_BIT) <= REG_TTC_GENERATOR_ENABLE_CALPULSE_ONLY_DEFAULT;
-    regs_defaults(27)(REG_TTC_GENERATOR_CYCLIC_L1A_GAP_MSB downto REG_TTC_GENERATOR_CYCLIC_L1A_GAP_LSB) <= REG_TTC_GENERATOR_CYCLIC_L1A_GAP_DEFAULT;
-    regs_defaults(27)(REG_TTC_GENERATOR_CYCLIC_CALPULSE_TO_L1A_GAP_MSB downto REG_TTC_GENERATOR_CYCLIC_CALPULSE_TO_L1A_GAP_LSB) <= REG_TTC_GENERATOR_CYCLIC_CALPULSE_TO_L1A_GAP_DEFAULT;
-    regs_defaults(31)(REG_TTC_GENERATOR_CYCLIC_L1A_COUNT_MSB downto REG_TTC_GENERATOR_CYCLIC_L1A_COUNT_LSB) <= REG_TTC_GENERATOR_CYCLIC_L1A_COUNT_DEFAULT;
-    regs_defaults(33)(REG_TTC_GENERATOR_CYCLIC_CALPULSE_PRESCALE_MSB downto REG_TTC_GENERATOR_CYCLIC_CALPULSE_PRESCALE_LSB) <= REG_TTC_GENERATOR_CYCLIC_CALPULSE_PRESCALE_DEFAULT;
+    regs_defaults(7)(REG_TTC_CTRL_PHASEMON_JUMP_THRESH_MSB downto REG_TTC_CTRL_PHASEMON_JUMP_THRESH_LSB) <= REG_TTC_CTRL_PHASEMON_JUMP_THRESH_DEFAULT;
+    regs_defaults(7)(REG_TTC_CTRL_LOCKMON_LOG2_N_AVG_MSB downto REG_TTC_CTRL_LOCKMON_LOG2_N_AVG_LSB) <= REG_TTC_CTRL_LOCKMON_LOG2_N_AVG_DEFAULT;
+    regs_defaults(8)(REG_TTC_CTRL_LOCKMON_TARGET_PHASE_MSB downto REG_TTC_CTRL_LOCKMON_TARGET_PHASE_LSB) <= REG_TTC_CTRL_LOCKMON_TARGET_PHASE_DEFAULT;
+    regs_defaults(8)(REG_TTC_CTRL_LOCKMON_TOLLERANCE_MSB downto REG_TTC_CTRL_LOCKMON_TOLLERANCE_LSB) <= REG_TTC_CTRL_LOCKMON_TOLLERANCE_DEFAULT;
+    regs_defaults(9)(REG_TTC_CONFIG_CMD_BC0_MSB downto REG_TTC_CONFIG_CMD_BC0_LSB) <= REG_TTC_CONFIG_CMD_BC0_DEFAULT;
+    regs_defaults(9)(REG_TTC_CONFIG_CMD_EC0_MSB downto REG_TTC_CONFIG_CMD_EC0_LSB) <= REG_TTC_CONFIG_CMD_EC0_DEFAULT;
+    regs_defaults(9)(REG_TTC_CONFIG_CMD_RESYNC_MSB downto REG_TTC_CONFIG_CMD_RESYNC_LSB) <= REG_TTC_CONFIG_CMD_RESYNC_DEFAULT;
+    regs_defaults(9)(REG_TTC_CONFIG_CMD_OC0_MSB downto REG_TTC_CONFIG_CMD_OC0_LSB) <= REG_TTC_CONFIG_CMD_OC0_DEFAULT;
+    regs_defaults(10)(REG_TTC_CONFIG_CMD_HARD_RESET_MSB downto REG_TTC_CONFIG_CMD_HARD_RESET_LSB) <= REG_TTC_CONFIG_CMD_HARD_RESET_DEFAULT;
+    regs_defaults(10)(REG_TTC_CONFIG_CMD_CALPULSE_MSB downto REG_TTC_CONFIG_CMD_CALPULSE_LSB) <= REG_TTC_CONFIG_CMD_CALPULSE_DEFAULT;
+    regs_defaults(10)(REG_TTC_CONFIG_CMD_START_MSB downto REG_TTC_CONFIG_CMD_START_LSB) <= REG_TTC_CONFIG_CMD_START_DEFAULT;
+    regs_defaults(10)(REG_TTC_CONFIG_CMD_STOP_MSB downto REG_TTC_CONFIG_CMD_STOP_LSB) <= REG_TTC_CONFIG_CMD_STOP_DEFAULT;
+    regs_defaults(11)(REG_TTC_CONFIG_CMD_TEST_SYNC_MSB downto REG_TTC_CONFIG_CMD_TEST_SYNC_LSB) <= REG_TTC_CONFIG_CMD_TEST_SYNC_DEFAULT;
+    regs_defaults(37)(REG_TTC_GENERATOR_ENABLE_BIT) <= REG_TTC_GENERATOR_ENABLE_DEFAULT;
+    regs_defaults(37)(REG_TTC_GENERATOR_ENABLE_CALPULSE_ONLY_BIT) <= REG_TTC_GENERATOR_ENABLE_CALPULSE_ONLY_DEFAULT;
+    regs_defaults(37)(REG_TTC_GENERATOR_CYCLIC_L1A_GAP_MSB downto REG_TTC_GENERATOR_CYCLIC_L1A_GAP_LSB) <= REG_TTC_GENERATOR_CYCLIC_L1A_GAP_DEFAULT;
+    regs_defaults(37)(REG_TTC_GENERATOR_CYCLIC_CALPULSE_TO_L1A_GAP_MSB downto REG_TTC_GENERATOR_CYCLIC_CALPULSE_TO_L1A_GAP_LSB) <= REG_TTC_GENERATOR_CYCLIC_CALPULSE_TO_L1A_GAP_DEFAULT;
+    regs_defaults(41)(REG_TTC_GENERATOR_CYCLIC_L1A_COUNT_MSB downto REG_TTC_GENERATOR_CYCLIC_L1A_COUNT_LSB) <= REG_TTC_GENERATOR_CYCLIC_L1A_COUNT_DEFAULT;
+    regs_defaults(43)(REG_TTC_GENERATOR_CYCLIC_CALPULSE_PRESCALE_MSB downto REG_TTC_GENERATOR_CYCLIC_CALPULSE_PRESCALE_LSB) <= REG_TTC_GENERATOR_CYCLIC_CALPULSE_PRESCALE_DEFAULT;
 
     -- Define writable regs
     regs_writable_arr(4) <= '1';
-    regs_writable_arr(5) <= '1';
-    regs_writable_arr(6) <= '1';
     regs_writable_arr(7) <= '1';
-    regs_writable_arr(27) <= '1';
-    regs_writable_arr(31) <= '1';
-    regs_writable_arr(33) <= '1';
+    regs_writable_arr(8) <= '1';
+    regs_writable_arr(9) <= '1';
+    regs_writable_arr(10) <= '1';
+    regs_writable_arr(11) <= '1';
+    regs_writable_arr(37) <= '1';
+    regs_writable_arr(41) <= '1';
+    regs_writable_arr(43) <= '1';
 
     --==== Registers end ============================================================================
 

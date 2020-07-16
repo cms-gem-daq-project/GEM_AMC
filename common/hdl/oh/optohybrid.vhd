@@ -63,7 +63,7 @@ entity optohybrid is
         
         -- Trigger links
         gth_rx_trig_usrclk_i    : in std_logic_vector(1 downto 0);
-        gth_rx_trig_data_i      : in t_gt_8b10b_rx_data_arr(1 downto 0);
+        gth_rx_trig_data_i      : in t_mgt_16b_rx_data_arr(1 downto 0);
         sbit_clusters_o         : out t_oh_sbits;
         sbit_links_status_o     : out t_oh_sbit_links;
         
@@ -148,7 +148,7 @@ architecture optohybrid_arch of optohybrid is
 
     signal sync_trig_rx_din_arr     : t_std24_array(1 downto 0);
     signal sync_trig_rx_dout_arr    : t_std24_array(1 downto 0);
-    signal sync_trig_rx_gth_data_arr: t_gt_8b10b_rx_data_arr(1 downto 0);
+    signal sync_trig_rx_gth_data_arr: t_mgt_16b_rx_data_arr(1 downto 0);
     signal sync_trig_rx_ovf_arr     : std_logic_vector(1 downto 0);
     signal sync_trig_rx_unf_arr     : std_logic_vector(1 downto 0);
 

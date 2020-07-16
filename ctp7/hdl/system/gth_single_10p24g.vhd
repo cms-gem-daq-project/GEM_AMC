@@ -1,15 +1,17 @@
--------------------------------------------------------------------------------
---                                                                            
---       Unit Name: gth_single_10p24g                                            
---                                                                            
---     Description: 
---
---                                                                            
--------------------------------------------------------------------------------
---                                                                            
---           Notes: Requires 320MHz refclk                                                          
---                                                                            
--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Company: TAMU
+-- Engineer: Evaldas Juska (evaldas.juska@cern.ch, evka85@gmail.com)
+-- 
+-- Create Date: 05/05/2020
+-- Module Name: GTH_SINGLE_10p24g
+-- Project Name: GEM_AMC
+-- Description: raw 10.24Gb/s TX & 10.24Gb/s RX intended to be used with the LpGBT core. Both TX and RX elastic buffers are bypassed, and there is no encoding.
+--              the user bus width is selectable between 32 and 64 bits using the g_TX_BUS_WIDTH and g_RX_BUS_WIDTH generics.
+--              the usrclk has to be 320MHz, and usrclk2 has to be 320MHz when 32 bit bus is selected, and 160MHz when 64 bit bus is selected.
+--              the user can also choose between QPLL and CPLL using the g_USE_QPLL generic. In case of CPLL, the refclk is expected to be 320MHz. When QPLL is used, the refclk frequency depends on the QPLL settings.
+--              only one CPLL refclk is connected based on the g_REFCLK_01 generic (the tool then automagically configures the MGT to use the correct one, just make sure to set CPLLREFCLKSEL to "001").
+-- 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -31,7 +33,10 @@ entity gth_single_10p24g is
     (
       -- Simulation attributes
       g_GT_SIM_GTRESET_SPEEDUP : string := "TRUE";  -- Set to "TRUE" to speed up sim reset
-      g_REFCLK_01              : integer range 0 to 1 := 0
+      g_REFCLK_01              : integer range 0 to 1 := 0; -- when CPLL is used (g_USE_QPLL is set to FALSE) this selects which ref clock should be used
+      g_USE_QPLL               : boolean := FALSE; -- when set to true the QPLL is used for ref clock
+      g_TX_BUS_WIDTH           : integer range 0 to 64 := 32; -- select the TX bus width, valid options are 32 and 64. Note that when using 64 bit bus, the TXUSRCLK2 must be half the frequency of the TXUSRCLK, and both clocks have to come from the same MMCM on low skew buffer 
+      g_RX_BUS_WIDTH           : integer range 0 to 64 := 32 -- select the TX bus width, valid options are 32 and 64. Note that when using 64 bit bus, the RXUSRCLK2 must be half the frequency of the RXUSRCLK, and both clocks have to come from the same MMCM on low skew buffer
       );
   port
     (
@@ -62,8 +67,8 @@ entity gth_single_10p24g is
       gth_misc_ctrl_i   : in  t_gth_misc_ctrl;
       gth_misc_status_o : out t_gth_misc_status;
 
-      gth_tx_data_i : in  t_gt_8b10b_tx_data;
-      gth_rx_data_o : out t_gt_8b10b_rx_data
+      gth_tx_data_i : in  t_mgt_64b_tx_data;
+      gth_rx_data_o : out t_mgt_64b_rx_data
       );
 
 
@@ -78,15 +83,13 @@ architecture gth_single_10p24g_arch of gth_single_10p24g is
 --============================================================================
 --                                                         Signal declarations
 --============================================================================
-  -- dummy signals to surpress synth. warnings
-  signal s_rxdata_float        : std_logic_vector(31 downto 0);
-  signal s_rxchariscomma_float : std_logic_vector(3 downto 0);
-  signal s_rxcharisk_float     : std_logic_vector(3 downto 0);
-  signal s_rxdisperr_float     : std_logic_vector(3 downto 0);
-  signal s_rxnotintable_float  : std_logic_vector(3 downto 0);
-
-  constant s_txchardispmode_float : std_logic_vector(3 downto 0) := "0000";
-  constant s_txchardispval_float  : std_logic_vector(3 downto 0) := "0000";
+    
+  signal s_txdata             : std_logic_vector(63 downto 0);
+  signal s_rxdata             : std_logic_vector(63 downto 0);
+  signal s_rxchariscomma      : std_logic_vector(7 downto 0);
+  signal s_rxcharisk          : std_logic_vector(7 downto 0);
+  signal s_rxdisperr          : std_logic_vector(7 downto 0);
+  signal s_rxnotintable       : std_logic_vector(7 downto 0);
 
 --============================================================================
 
@@ -103,21 +106,51 @@ architecture gth_single_10p24g_arch of gth_single_10p24g is
   signal s_cpll_pd                                          : std_logic;
   signal s_cpllpd_sync                                      : std_logic;
 
-  signal refclks    : std_logic_vector(1 downto 0);
+  signal refclks        : std_logic_vector(1 downto 0);
+  signal rxsysclksel    : std_logic_vector(1 downto 0);
+  signal txsysclksel    : std_logic_vector(1 downto 0);
 
 --============================================================================
 --                                                          Architecture begin
 --============================================================================
 begin
 
-  g_ref_clk0: if g_REFCLK_01 = 0 generate
-    refclks(0) <= gth_gt_clk_i.GTREFCLK0;
+  -- CPLL is used
+  g_cpll : if not g_USE_QPLL generate
+    g_ref_clk0: if g_REFCLK_01 = 0 generate
+      refclks(0) <= gth_gt_clk_i.GTREFCLK0;
+    end generate;
+
+    g_ref_clk1: if g_REFCLK_01 = 1 generate
+      refclks(1) <= gth_gt_clk_i.GTREFCLK1;
+    end generate;
+
+    rxsysclksel <= "00";
+    txsysclksel <= "00";
+    s_cpll_pd <= '0';
+  
   end generate;
 
-  g_ref_clk1: if g_REFCLK_01 = 1 generate
-    refclks(1) <= gth_gt_clk_i.GTREFCLK1;
+  -- QPLL is used
+  g_qpll : if g_USE_QPLL generate
+    refclks <= "00";
+    rxsysclksel <= "11";
+    txsysclksel <= "11";
+    s_cpll_pd <= '1';
   end generate;
 
+  -- select the user bus width
+  g_64b_tx_bus : if g_TX_BUS_WIDTH = 64 generate
+      s_txdata <= gth_tx_data_i.txdata;
+  end generate;
+  
+  g_not_64b_tx_bus : if g_TX_BUS_WIDTH /= 64 generate
+      s_txdata(g_TX_BUS_WIDTH - 1 downto 0) <= gth_tx_data_i.txdata(g_TX_BUS_WIDTH - 1 downto 0);
+      s_txdata(63 downto g_TX_BUS_WIDTH) <= (others => '0');
+  end generate;
+
+  gth_rx_data_o.rxdata(g_RX_BUS_WIDTH - 1 downto 0) <= s_rxdata(g_RX_BUS_WIDTH - 1 downto 0);
+  
   ----------------------------- GTHE2 Instance  --------------------------   
 
   i_gthe2 : GTHE2_CHANNEL
@@ -204,7 +237,7 @@ begin
       ES_VERT_OFFSET => ("000000000"),
 
       -------------------------FPGA RX Interface Attributes-------------------------
-      RX_DATA_WIDTH => (32),
+      RX_DATA_WIDTH => (g_RX_BUS_WIDTH),
 
       ---------------------------PMA Attributes----------------------------
       OUTREFCLK_SEL_INV => ("11"),
@@ -328,7 +361,7 @@ begin
       TX_XCLK_SEL                => ("TXUSR"),
 
       -------------------------FPGA TX Interface Attributes-------------------------
-      TX_DATA_WIDTH => (32),
+      TX_DATA_WIDTH => (g_TX_BUS_WIDTH),
 
       -------------------------TX Configurable Driver Attributes-------------------------
       TX_DEEMPH0              => ("000000"),
@@ -519,8 +552,8 @@ begin
       GTREFCLKMONITOR            => open,
       QPLLCLK                    => gth_gt_clk_i.qpllclk,
       QPLLREFCLK                 => gth_gt_clk_i.qpllrefclk,
-      RXSYSCLKSEL                => gth_rx_ctrl_i.rxsysclksel,
-      TXSYSCLKSEL                => gth_tx_ctrl_i.txsysclksel,
+      RXSYSCLKSEL                => rxsysclksel, --gth_rx_ctrl_i.rxsysclksel,
+      TXSYSCLKSEL                => txsysclksel, --gth_tx_ctrl_i.txsysclksel,
       ----------------- FPGA TX Interface Datapath Configuration  ----------------
       TX8B10BEN                  => '0',
       ------------------------------- Loopback Ports -----------------------------
@@ -571,18 +604,15 @@ begin
       RXUSRCLK                   => gth_gt_clk_i.rxusrclk,
       RXUSRCLK2                  => gth_gt_clk_i.rxusrclk2,
       ------------------ Receive Ports - FPGA RX interface Ports -----------------
-      RXDATA(63 downto 32)       => s_rxdata_float,
-      RXDATA(31 downto 0)        => gth_rx_data_o.rxdata,
+      RXDATA                     => s_rxdata,
       ------------------- Receive Ports - Pattern Checker Ports ------------------
       RXPRBSERR                  => gth_rx_status_o.rxprbserr,
       RXPRBSSEL                  => gth_rx_ctrl_i.rxprbssel,
       ------------------- Receive Ports - Pattern Checker ports ------------------
       RXPRBSCNTRESET             => gth_rx_ctrl_i.rxprbscntreset,
       ------------------ Receive Ports - RX 8B/10B Decoder Ports -----------------
-      RXDISPERR(7 downto 4)      => s_rxdisperr_float,
-      RXDISPERR(3 downto 0)      => gth_rx_data_o.rxdisperr,
-      RXNOTINTABLE(7 downto 4)   => s_rxnotintable_float,
-      RXNOTINTABLE(3 downto 0)   => gth_rx_data_o.rxnotintable,
+      RXDISPERR                  => s_rxdisperr,
+      RXNOTINTABLE               => s_rxnotintable,
       ------------------------ Receive Ports - RX AFE Ports ----------------------
       GTHRXN                     => gth_rx_serial_i.gthrxn,
       ------------------- Receive Ports - RX Buffer Bypass Ports -----------------
@@ -719,10 +749,8 @@ begin
       ----------------- Receive Ports - RX Polarity Control Ports ----------------
       RXPOLARITY                 => gth_rx_ctrl_i.rxpolarity,
       ------------------- Receive Ports - RX8B/10B Decoder Ports -----------------
-      RXCHARISCOMMA(7 downto 4)  => s_rxchariscomma_float,
-      RXCHARISCOMMA(3 downto 0)  => gth_rx_data_o.rxchariscomma,
-      RXCHARISK(7 downto 4)      => s_rxcharisk_float,
-      RXCHARISK(3 downto 0)      => gth_rx_data_o.rxcharisk,
+      RXCHARISCOMMA              => s_rxchariscomma,
+      RXCHARISK                  => s_rxcharisk,
       ------------------ Receive Ports - Rx Channel Bonding Ports ----------------
       RXCHBONDI                  => "00000",
       ------------------------ Receive Ports -RX AFE Ports -----------------------
@@ -762,11 +790,8 @@ begin
       -------------- Transmit Ports - 64b66b and 64b67b Gearbox Ports ------------
       TXHEADER                   => "000",
       ---------------- Transmit Ports - 8b10b Encoder Control Ports --------------
-      TXCHARDISPMODE(7 downto 4) => s_txchardispmode_float,
-      TXCHARDISPMODE(3 downto 0) => gth_tx_data_i.txchardispmode,
-
-      TXCHARDISPVAL(7 downto 4) => s_txchardispval_float,
-      TXCHARDISPVAL(3 downto 0) => gth_tx_data_i.txchardispval,
+      TXCHARDISPMODE             => "00000000",
+      TXCHARDISPVAL              => "00000000",
       ------------------ Transmit Ports - FPGA TX Interface Ports ----------------
       TXUSRCLK                  => gth_gt_clk_i.txusrclk,
       TXUSRCLK2                 => gth_gt_clk_i.txusrclk2,
@@ -809,8 +834,7 @@ begin
       TXMAINCURSOR              => gth_tx_ctrl_i.txmaincursor,
       TXPISOPD                  => '0',
       ------------------ Transmit Ports - TX Data Path interface -----------------
-      TXDATA(63 downto 32)      => x"00000000",
-      TXDATA(31 downto 0)       => gth_tx_data_i.txdata,
+      TXDATA                    => s_txdata,
       ---------------- Transmit Ports - TX Driver and OOB signaling --------------
       GTHTXN                    => gth_tx_serial_o.gthtxn,
       GTHTXP                    => gth_tx_serial_o.gthtxp,
@@ -843,8 +867,7 @@ begin
       ------------------ Transmit Ports - pattern Generator Ports ----------------
       TXPRBSSEL                 => gth_tx_ctrl_i.txprbssel,
       ----------- Transmit Transmit Ports - 8b10b Encoder Control Ports ----------
-      TXCHARISK(7 downto 4)     => "0000",
-      TXCHARISK(3 downto 0)     => gth_tx_data_i.txcharisk,
+      TXCHARISK                 => "00000000",
       ----------------------- Tx Configurable Driver  Ports ----------------------
       TXQPISENN                 => open,
       TXQPISENP                 => open

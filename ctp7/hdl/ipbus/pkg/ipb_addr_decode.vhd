@@ -54,7 +54,7 @@ package body ipb_addr_decode is
     --   0x8: Trigger
 
     -- TTC
-    if    std_match(addr, "--------001100000000000000------") then sel := C_IPB_SLV.ttc;
+    if    std_match(addr, "--------0011000000000000--------") then sel := C_IPB_SLV.ttc;
 
 	  -- OH register access request forwarding (minimal change from GLIB, but limited to 16 OHs): [26:22] - OH number, [21:18] - OH module, [17:2] - address within module
 	  -- One exception is the VFAT 
