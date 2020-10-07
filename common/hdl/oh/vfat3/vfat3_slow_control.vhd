@@ -22,28 +22,31 @@ entity vfat3_slow_control is
     );
     port(
         -- reset
-        reset_i         : in  std_logic;
+        reset_i             : in  std_logic;
         
         -- clocks
-        ttc_clk_i       : in  t_ttc_clks;
-        ipb_clk_i       : in  std_logic;
+        ttc_clk_i           : in  t_ttc_clks;
+        ipb_clk_i           : in  std_logic;
         
         -- ipbus
-        ipb_mosi_i      : in  ipb_wbus;
-        ipb_miso_o      : out ipb_rbus;
+        ipb_mosi_i          : in  ipb_wbus;
+        ipb_miso_o          : out ipb_rbus;
         
         -- fifo I/O
-        tx_data_o       : out std_logic;
-        tx_rd_en_i      : in  std_logic;
-        tx_empty_o      : out std_logic;
-        tx_oh_idx_o     : out std_logic_vector(3 downto 0);
-        tx_vfat_idx_o   : out std_logic_vector(4 downto 0);
+        tx_data_o           : out std_logic;
+        tx_rd_en_i          : in  std_logic;
+        tx_empty_o          : out std_logic;
+        tx_oh_idx_o         : out std_logic_vector(3 downto 0);
+        tx_vfat_idx_o       : out std_logic_vector(4 downto 0);
         
-        rx_data_en_i    : in t_std24_array(g_NUM_OF_OHs - 1 downto 0);
-        rx_data_i       : in t_std24_array(g_NUM_OF_OHs - 1 downto 0);
+        rx_data_en_i        : in t_std24_array(g_NUM_OF_OHs - 1 downto 0);
+        rx_data_i           : in t_std24_array(g_NUM_OF_OHs - 1 downto 0);
         
         -- monitoring
-        status_o        : out t_vfat_slow_control_status
+        status_o            : out t_vfat_slow_control_status;
+        
+        -- config
+        use_addressing_i    : in  std_logic
         
     );
 end vfat3_slow_control;
@@ -113,6 +116,7 @@ architecture vfat3_slow_control_arch of vfat3_slow_control is
     end component;
 	
 	constant TRANSACTION_TIMEOUT	: unsigned(11 downto 0) := x"7ff";
+	constant DEFAULT_HDLC_ADDRESS   : std_logic_vector(7 downto 0) := x"00";
 	
     type state_t is (IDLE, RSPD, RSPD_CACHE, RST, WAIT_CACHE_UPDATE);
         
@@ -136,6 +140,7 @@ architecture vfat3_slow_control_arch of vfat3_slow_control is
     signal tx_command_en_sync   : std_logic := '0';
     signal tx_oh_idx            : std_logic_vector(3 downto 0);
     signal tx_vfat_idx          : std_logic_vector(4 downto 0);
+    signal hdlc_address         : std_logic_vector(7 downto 0) := (others => '0');
 
     signal rx_valid             : std_logic;
     signal rx_valid_sync        : std_logic;
@@ -241,6 +246,12 @@ begin
                                 
                                 tx_oh_idx   <= ipb_mosi_i.ipb_addr(19 downto 16);
                                 tx_vfat_idx <= ipb_mosi_i.ipb_addr(15 downto 11);
+                                
+                                if (use_addressing_i = '1') then
+                                    hdlc_address <= "000" & std_logic_vector(unsigned(ipb_mosi_i.ipb_addr(15 downto 11)) + 1);
+                                else
+                                    hdlc_address <= DEFAULT_HDLC_ADDRESS;
+                                end if;
                                                             
                                 tx_reset <= '0';
                                 rx_reset <= '1';
@@ -446,6 +457,7 @@ begin
             clk_40_i          => ttc_clk_i.clk_40,
             data_o            => tx_din,
             data_en_o         => tx_en,
+            hdlc_address_i    => hdlc_address,
             transaction_id_i  => std_logic_vector(transaction_id(7 downto 0)),
             is_write_i        => tx_is_write,
             reg_addr_i        => tx_reg_addr,
@@ -475,6 +487,7 @@ begin
             clk_40_i           => ttc_clk_i.clk_40,
             data_i             => rx_data,
             data_en_i          => rx_data_en,
+            hdlc_address_i     => hdlc_address,
             transaction_id_i   => std_logic_vector(transaction_id(7 downto 0)),
             is_write_i         => tx_is_write,
             error_o            => rx_error,

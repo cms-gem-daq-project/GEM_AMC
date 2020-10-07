@@ -33,7 +33,7 @@ package gem_board_config_package is
     constant CFG_GBT_WIDEBUS        : integer := get_gbt_widebus(CFG_GEM_STATION, CFG_OH_VERSION);
     
     constant CFG_USE_TRIG_TX_LINKS  : boolean := true; -- if true, then trigger transmitters will be instantiated (used to connect to EMTF)
-    constant CFG_NUM_TRIG_TX        : integer := 12; -- number of trigger transmitters used to connect to EMTF
+    constant CFG_NUM_TRIG_TX        : integer := 8; -- number of trigger transmitters used to connect to EMTF
 
     constant CFG_GBT_DEBUG          : boolean := true; -- if set to true, an ILA will be instantiated which allows probing any GBT link
     constant CFG_BOARD_TYPE         : std_logic_vector(3 downto 0) := x"1"; -- 0 = GLIB; 1 = CTP7
@@ -42,7 +42,7 @@ package gem_board_config_package is
     constant CFG_LPGBT_2P56G_LOOPBACK_TEST  : boolean := false; -- setting this to true will result in a test firmware with 2.56Gbps transceivers only usable for PRBS loopback tests with LpGBT chip, note that none of the GEM logic will be included (also no LpGBT core will be instantiated)
     constant CFG_LPGBT_EMTF_LOOP_TEST       : boolean := false;  -- setting this to true will instantiate an LpGBT RX core on the CFG_LPGBT_EMTF_RX_GTH, and an ILA 
     constant CFG_LPGBT_EMTF_LOOP_RX_GTH     : integer := 66;
-    constant CFG_LPGBT_EMTF_LOOP_TX_LINK    : integer := 11;
+    constant CFG_LPGBT_EMTF_LOOP_TX_LINK    : integer := 7;
     constant CFG_ILA_GBT0_MGT_EN            : boolean := false; -- setting this to 1 enables the instantiation of ILA on GBT link 0 MGT
 
     --========================--
@@ -114,7 +114,8 @@ package gem_board_config_package is
 
     type t_trig_tx_link_config_arr is array (0 to CFG_NUM_TRIG_TX - 1) of integer range 0 to 79;
     
-    constant CFG_TRIG_TX_LINK_CONFIG_ARR : t_trig_tx_link_config_arr := (48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59);
+--    constant CFG_TRIG_TX_LINK_CONFIG_ARR : t_trig_tx_link_config_arr := (48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59);
+    constant CFG_TRIG_TX_LINK_CONFIG_ARR : t_trig_tx_link_config_arr := (48, 49, 50, 51, 52, 53, 54, 59);
 
 
     -- this record is used in CXP fiber to GTH map (holding tx and rx GTH index)

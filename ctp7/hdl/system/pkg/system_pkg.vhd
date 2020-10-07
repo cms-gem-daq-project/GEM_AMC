@@ -21,10 +21,8 @@ use work.gem_board_config_package.CFG_LPGBT_2P56G_LOOPBACK_TEST;
 --============================================================================
 package system_package is
 
-  function get_num_gt(gem_station : integer) return integer;
-
   constant g_NUM_OF_GTH_COMMONs : integer := 17;
-  constant g_NUM_OF_GTH_GTs     : integer := get_num_gt(CFG_GEM_STATION);
+  constant g_NUM_OF_GTH_GTs     : integer := 68;
 
   type t_gth_link_type is (gth_null, gth_4p8g, gth_3p2g, gth_10p24g, gth_tx_10p24g_rx_3p2g, gth_9p6g, gth_2p56g); -- the 3.2Gbps and 9.6Gbps are 8b10b, while 4.8, 10.24, and 2.56Gbps are raw (used with GBT core)
   type t_gth_txusrclk is (GTH_USRCLK_40, GTH_USRCLK_80, GTH_USRCLK_120, GTH_USRCLK_160, GTH_USRCLK_320, GTH_USRCLK_NULL);
@@ -295,15 +293,6 @@ end package system_package;
 
 package body system_package is
 
-    function get_num_gt(gem_station : integer) return integer is
-    begin
-        if gem_station = 0 then
-            return 68; --36;
-        else
-            return 68;
-        end if;
-    end function get_num_gt;
-    
     function get_gth_config_arr(gem_station: integer; lpgbt_loopback: boolean; ge11_gth_config, ge21_gth_config, me0_gth_config, lpgbt_loopback_config : t_gth_config_arr) return t_gth_config_arr is
     begin
         if lpgbt_loopback then

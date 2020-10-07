@@ -10,10 +10,10 @@ package gem_pkg is
     --==  Firmware version  ==--
     --========================-- 
 
-    constant C_FIRMWARE_DATE    : std_logic_vector(31 downto 0) := x"20200505";
+    constant C_FIRMWARE_DATE    : std_logic_vector(31 downto 0) := x"20201006";
     constant C_FIRMWARE_MAJOR   : integer range 0 to 255        := 3;
     constant C_FIRMWARE_MINOR   : integer range 0 to 255        := 11;
-    constant C_FIRMWARE_BUILD   : integer range 0 to 255        := 0;
+    constant C_FIRMWARE_BUILD   : integer range 0 to 255        := 4;
     
     ------ Change log ------
     -- 1.8.6 no gbt sync procedure with oh
@@ -122,7 +122,11 @@ package gem_pkg is
     -- 3.10.0 Reworked TTC clocking, added manual shifting possibility and phase monitoring (DMTD method used in TCDS), also bypassing the delay aligner in the GBT MGTs
     -- 3.10.1 Reworked the phase alignment FSM to use the DMTD phase measurement instead of the PLL lock signal, this also allows for a configurable lock target phase and tollerance
     -- 3.10.2 Trigger output links to EMTF added, using LpGBT ASIC TX encoding at 10.24Gb/s, and the protocol agreed with EMTF (note the RX side of these MGTs is still running at 3.2Gb/s to receive trigger data from OHs)
-    -- 3.11.0 Restructured MGTs to allow for easier configuration between different bus widths and usrclks. Now all MGT interfaces at the top level use 64 bit bus, and are remapped to appropriate bus sizes before connecting to gem_amc. The trigger TX MGT now uses 64 bit bus and 160MHz txusrclk2 to ease the timing  
+    -- 3.11.0 Restructured MGTs to allow for easier configuration between different bus widths and usrclks. Now all MGT interfaces at the top level use 64 bit bus, and are remapped to appropriate bus sizes before connecting to gem_amc. The trigger TX MGT now uses 64 bit bus and 160MHz txusrclk2 to ease the timing
+    -- 3.11.1 Added an option to use HDLC VFAT addressing  
+    -- 3.11.2 Added a GEM global reset register (recycled the unused GEM_SYSTEM.CNT_RESET address)
+    -- 3.11.3 Fixed a lockup problem when resetting the MMCM
+    -- 3.11.4 Introduced a CPLL reset control: bit 2 in the MGT reset reg
 
     --======================--
     --==      General     ==--

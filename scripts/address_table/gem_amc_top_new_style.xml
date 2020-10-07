@@ -458,10 +458,10 @@
           fw_reg_addr_lsb="0">
 
       <node id="CTRL" address="0x100">
-        <node id="CNT_RESET" address="0x0" permission="w"
-              description="GEM system counters reset"
-              fw_write_pulse_signal="reset_cnt"
-              sw_ctrl_configure_set="0x1" sw_ctrl_start_set="0x1"/>
+        <node id="GLOBAL_RESET" address="0x0" permission="w"
+              description="Global reset of the GEM logic, including the reset of all registers to the default value"
+              fw_write_pulse_signal="global_reset_trig"
+              sw_ctrl_configure_set="0x1"/>
         <node id="LINK_RESET" address="0x1" permission="w"
               description="Reset the links to and from OHs and redo VFAT3 sync procedure"
               fw_write_pulse_signal="manual_link_reset_o"
@@ -506,6 +506,9 @@
         <node id="USE_OH_V3B_MAPPING" address="0x1" mask="0x00000004" permission="rw"
               description="If set high, then will use the v3b elink assignments for the OH FPGA communication, otherwise v3a"
               fw_signal="use_v3b_elink_mapping" fw_default="0b1"/>
+        <node id="USE_VFAT_ADRESSING" address="0x1" mask="0x00000008" permission="rw"
+              description="If set high, then HDLC address will be set to the same number as the slot number when sending slow control packets to VFATs -- note this requires that the HDLC address is set accordingly on the GEB. If this is 0, then an HDLC address of 0 is always used for all slots (default VFAT address when HDLC address pins are left unconnected)"
+              fw_signal="use_vfat_addressing" fw_default="0b0"/>
       </node>
 
       <node id="TESTS" address="0x200">
@@ -1637,9 +1640,6 @@
           fw_is_module="true"
           fw_is_module_external="true">
 
-      <node id="DISABLE_TTC_PHASE_ALIGN" address="0x11000" mask="0x00000001" permission="rw"
-            description="Disables TTC phase alignment when set to 1 (default is 0). In setups that don't have AMC13 and are running on local oscillator clock, this should be set to 1 immediately after programming the CTP7 FPGA, which will allow the optical links to initialize. Otherwise this register should not be touched, except perhaps it could be toggled in case there has been a TTC clock interruption, which should realign the fabric clocks to it (note that GTH reset is required after such action)"/>
-
       <node id="MGT_CHANNEL_${MGT}" address="0x0"
             description="MGT channel ${MGT} control and status. Note: these are MGT channles, which do not correspond 1-to-1 with the fiber numbering. Please refer here for MGT channel to fiber mapping: https://docs.google.com/spreadsheets/d/1-AE7GeeU10GfLB-9FYOMN4k0-Z7bVkiQpLfXC4G2irI"
             generate="true" generate_size="64" generate_address_step="0x00000040" generate_idx_var="MGT">
@@ -1650,6 +1650,8 @@
                 description="Writing 1 to this reg will trigger MGT TX channel reset"/>
           <node id="RX_RESET" address="0x0" mask="0x00000002" permission="rw"
                 description="Writing 1 to this reg will trigger MGT RX channel reset"/>
+          <node id="CPLL_RESET" address="0x0" mask="0x00000004" permission="rw"
+                description="Writing 1 to this reg will trigger MGT CPLL reset"/>
         </node>
 
         <node id="CTRL" address="0x2" permission="rw"

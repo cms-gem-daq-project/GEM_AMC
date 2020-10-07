@@ -676,6 +676,10 @@ set_clock_groups -asynchronous -group [get_clocks clk_out2_v7_bd_clk_wiz_0_0] -g
 set_clock_groups -asynchronous -group [get_clocks clk_out3_v7_bd_clk_wiz_0_0] -group [get_clocks clkout0]
 set_clock_groups -asynchronous -group [get_clocks clk_out4_v7_bd_clk_wiz_0_0] -group [get_clocks clkout0]
 
+set_clock_groups -asynchronous -group [get_clocks clk_out1_v7_bd_clk_wiz_0_0] -group [get_clocks clk_out4_v7_bd_clk_wiz_0_0]
+set_clock_groups -asynchronous -group [get_clocks clk_out2_v7_bd_clk_wiz_0_0] -group [get_clocks clk_out4_v7_bd_clk_wiz_0_0]
+set_clock_groups -asynchronous -group [get_clocks clk_out3_v7_bd_clk_wiz_0_0] -group [get_clocks clk_out4_v7_bd_clk_wiz_0_0]
+
 set_clock_groups -asynchronous -group [get_clocks {i_system/i_daqlink/gth_amc13_support_i/gth_amc13_init_i/U0/gth_amc13_1_i/gt0_gth_amc13_1_i/gthe2_i/?XOUTCLK}] -group [get_clocks {i_system/i_gth_wrapper/gen_gth_single[*].*/i_gthe2/?XOUTCLK}]
 #set_clock_groups -asynchronous -group [get_clocks {i_system/i_daqlink/gth_amc13_support_i/gth_amc13_init_i/U0/gth_amc13_1_i/gt0_gth_amc13_1_i/gthe2_i/?XOUTCLK}] -group [get_clocks clk_160] 
 set_clock_groups -asynchronous -group [get_clocks {i_system/i_daqlink/gth_amc13_support_i/gth_amc13_init_i/U0/gth_amc13_1_i/gt0_gth_amc13_1_i/gthe2_i/?XOUTCLK}] -group [get_clocks clk_40] 

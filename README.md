@@ -6,6 +6,50 @@ Note that this repository excludes ISE / Vivado project directories entirely to 
 
 In scripts directory you'll find a python application which takes an address_table (provided) and inserts the necessary VHDL code to expose those registers in the firmware as well as uHAL address table, documentation and some bash scripts for quick CTP7 testing.
 
+# CTP7 Optical Interface
+
+CTP7 has 3 CXP transceivers (the ones that stick out of the board), and 3 MiniPOD receivers, and 1 MiniPOD transmitter, but all 4 MiniPODs are connected to a single MTP48 interface where each of them have a row of 12 fibers.
+
+The CXP transceivers are numbered top to bottom starting at 0, so CXP0 is the top transceiver, and CXP2 is the bottom one. 
+
+For the miniPOD channels we'll refer to them as MTP48 row 1-4 channel 1-12. Usually an MTP48-to-4xMTP12 cable is used on this interface, which breaks out each row into a separate MTP12 connector, and normally they are labeled 1-4, referring to the rows as counted from top to bottom, which should match our row numbering here.
+
+Below are the connection tables for the different GEM stations:
+
+**GE1/1 map:**
+
+| OH   | GBT0       | GBT1       | GBT2       | Trig0             | Trig1             |
+| ---- | ---------- | ---------- | ---------- | ----------------- | ----------------- |
+| OH0  | CXP0 ch 1  | CXP0 ch 2  | CXP0 ch 3  | MTP48 row 3 ch 5  | MTP48 row 3 ch 6  |
+| OH1  | CXP0 ch 4  | CXP0 ch 5  | CXP0 ch 6  | MTP48 row 3 ch 7  | MTP48 row 3 ch 8  |
+| OH2  | CXP0 ch 7  | CXP0 ch 8  | CXP0 ch 9  | MTP48 row 3 ch 9  | MTP48 row 3 ch 10 |
+| OH3  | CXP0 ch 10 | CXP0 ch 11 | CXP0 ch 12 | MTP48 row 3 ch 11 | MTP48 row 3 ch 12 |
+| OH4  | CXP1 ch 1  | CXP1 ch 2  | CXP1 ch 3  | MTP48 row 2 ch 1  | MTP48 row 2 ch 2  |
+| OH5  | CXP1 ch 4  | CXP1 ch 5  | CXP1 ch 6  | MTP48 row 2 ch 3  | MTP48 row 2 ch 4  |
+| OH6  | CXP1 ch 7  | CXP1 ch 8  | CXP1 ch 9  | MTP48 row 2 ch 5  | MTP48 row 2 ch 6  |
+| OH7  | CXP1 ch 10 | CXP1 ch 11 | CXP1 ch 12 | MTP48 row 2 ch 7  | MTP48 row 2 ch 8  |
+| OH8  | CXP2 ch 1  | CXP2 ch 2  | CXP2 ch 3  | MTP48 row 2 ch 9  | MTP48 row 2 ch 10 |
+| OH9  | CXP2 ch 4  | CXP2 ch 5  | CXP2 ch 6  | MTP48 row 2 ch 11 | MTP48 row 2 ch 12 |
+| OH10 | CXP2 ch 7  | CXP2 ch 8  | CXP2 ch 9  | MTP48 row 1 ch 9  | MTP48 row 1 ch 10 |
+| OH11 | CXP2 ch 10 | CXP2 ch 11 | CXP2 ch 12 | MTP48 row 1 ch 11 | MTP48 row 1 ch 12 |
+
+**GE2/1 map (note that the trigger links are only used on the legacy v1 electronics):**
+
+| OH   | GBT0       | GBT1       | Trig0             | Trig1             |
+| ---- | ---------- | ---------- | ----------------- | ----------------- |
+| OH0  | CXP0 ch 1  | CXP0 ch 2  | MTP48 row 3 ch 5  | MTP48 row 3 ch 6  |
+| OH1  | CXP0 ch 3  | CXP0 ch 4  | MTP48 row 3 ch 7  | MTP48 row 3 ch 8  |
+| OH2  | CXP0 ch 5  | CXP0 ch 6  | MTP48 row 3 ch 9  | MTP48 row 3 ch 10 |
+| OH3  | CXP0 ch 7  | CXP0 ch 8  | MTP48 row 3 ch 11 | MTP48 row 3 ch 12 |
+| OH4  | CXP0 ch 9  | CXP0 ch 10 | MTP48 row 2 ch 1  | MTP48 row 2 ch 2  |
+| OH5  | CXP0 ch 11 | CXP0 ch 12 | MTP48 row 2 ch 3  | MTP48 row 2 ch 4  |
+| OH6  | CXP1 ch 1  | CXP1 ch 2  | MTP48 row 2 ch 5  | MTP48 row 2 ch 6  |
+| OH7  | CXP1 ch 3  | CXP1 ch 4  | MTP48 row 2 ch 7  | MTP48 row 2 ch 8  |
+| OH8  | CXP1 ch 5  | CXP1 ch 6  | MTP48 row 2 ch 9  | MTP48 row 2 ch 10 |
+| OH9  | CXP1 ch 7  | CXP1 ch 8  | MTP48 row 2 ch 11 | MTP48 row 2 ch 12 |
+| OH10 | CXP1 ch 9  | CXP1 ch 10 | MTP48 row 1 ch 9  | MTP48 row 1 ch 10 |
+| OH11 | CXP1 ch 11 | CXP1 ch 12 | MTP48 row 1 ch 11 | MTP48 row 1 ch 12 |
+
 CTP7 Notes
 ==========
 
