@@ -503,7 +503,7 @@
     </node>
     <node id="GEM_SYSTEM" address="0x900000" >
       <node id="CTRL" address="0x100" >
-        <node id="CNT_RESET" address="0x0" permission="w" />
+        <node id="GLOBAL_RESET" address="0x0" permission="w" />
         <node id="LINK_RESET" address="0x1" permission="w" />
       </node>
       <node id="BOARD_ID" address="0x2" permission="rw" mask="0xffff" />
@@ -521,6 +521,7 @@
       <node id="VFAT3" address="0x10" >
         <node id="SC_ONLY_MODE" address="0x1" permission="rw" mask="0x2" />
         <node id="USE_OH_V3B_MAPPING" address="0x1" permission="rw" mask="0x4" />
+        <node id="USE_VFAT_ADRESSING" address="0x1" permission="rw" mask="0x8" />
       </node>
       <node id="TESTS" address="0x200" >
         <node id="GBT_LOOPBACK_EN" address="0x0" permission="rw" mask="0x1" />

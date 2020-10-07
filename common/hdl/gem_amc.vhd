@@ -155,6 +155,7 @@ architecture gem_amc_arch of gem_amc is
     signal ipb_reset            : std_logic;
     signal link_reset           : std_logic;
     signal manual_link_reset    : std_logic;
+    signal manual_global_reset  : std_logic;
 
     --== TTC signals ==--
     signal ttc_cmd              : t_ttc_cmds;
@@ -222,6 +223,7 @@ architecture gem_amc_arch of gem_amc is
     signal vfat_mask_arr                : t_std24_array(g_NUM_OF_OHs - 1 downto 0);
     
     signal use_v3b_elink_mapping        : std_logic;
+    signal use_vfat_addressing          : std_logic;
 
     -- test module links
     signal test_gbt_wide_rx_data_arr    : t_gbt_wide_frame_array((g_NUM_OF_OHs * g_NUM_GBTS_PER_OH) - 1 downto 0);
@@ -260,8 +262,8 @@ begin
     --================================--
     
     reset_pwrup_o <= reset_pwrup;
-    reset <= reset_i or reset_pwrup; -- TODO: Add a global reset from IPbus
-    ipb_reset <= ipb_reset_i or reset_pwrup;
+    reset <= reset_i or reset_pwrup or manual_global_reset;
+    ipb_reset <= ipb_reset_i or reset;
     ipb_miso_arr_o <= ipb_miso_arr;
     link_reset <= manual_link_reset or ttc_cmd.hard_reset;
 
@@ -340,23 +342,24 @@ begin
     --================================--
     
     i_vfat3_slow_control : entity work.vfat3_slow_control
-        generic map (
+        generic map(
             g_NUM_OF_OHs => g_NUM_OF_OHs
         )
         port map(
-            reset_i       => reset or link_reset,
-            ttc_clk_i     => ttc_clocks_i,
-            ipb_clk_i     => ipb_clk_i,
-            ipb_mosi_i    => ipb_mosi_arr_i(C_IPB_SLV.vfat3),
-            ipb_miso_o    => ipb_miso_arr(C_IPB_SLV.vfat3),
-            tx_data_o     => vfat3_sc_tx_data,
-            tx_rd_en_i    => vfat3_sc_tx_rd_en,
-            tx_empty_o    => vfat3_sc_tx_empty,
-            tx_oh_idx_o   => vfat3_sc_tx_oh_idx,
-            tx_vfat_idx_o => vfat3_sc_tx_vfat_idx,
-            rx_data_en_i  => vfat3_sc_rx_data_en,
-            rx_data_i     => vfat3_sc_rx_data,
-            status_o      => vfat3_sc_status
+            reset_i          => reset or link_reset,
+            ttc_clk_i        => ttc_clocks_i,
+            ipb_clk_i        => ipb_clk_i,
+            ipb_mosi_i       => ipb_mosi_arr_i(C_IPB_SLV.vfat3),
+            ipb_miso_o       => ipb_miso_arr(C_IPB_SLV.vfat3),
+            tx_data_o        => vfat3_sc_tx_data,
+            tx_rd_en_i       => vfat3_sc_tx_rd_en,
+            tx_empty_o       => vfat3_sc_tx_empty,
+            tx_oh_idx_o      => vfat3_sc_tx_oh_idx,
+            tx_vfat_idx_o    => vfat3_sc_tx_vfat_idx,
+            rx_data_en_i     => vfat3_sc_rx_data_en,
+            rx_data_i        => vfat3_sc_rx_data,
+            status_o         => vfat3_sc_status,
+            use_addressing_i => use_vfat_addressing
         );
 
     --================================--
@@ -552,7 +555,9 @@ begin
             loopback_gbt_test_en_o      => loopback_gbt_test_en,
             vfat3_sc_only_mode_o        => vfat3_sc_only_mode,
             use_v3b_elink_mapping_o     => use_v3b_elink_mapping,
+            use_vfat_addressing_o       => use_vfat_addressing,
             manual_link_reset_o         => manual_link_reset,
+            global_reset_o              => manual_global_reset,
             gemloader_stats_i           => gemloader_stats
         );
 

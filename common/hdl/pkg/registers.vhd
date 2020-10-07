@@ -1895,9 +1895,13 @@ package registers is
     constant REG_GEM_SYSTEM_VFAT3_USE_OH_V3B_MAPPING_BIT    : integer := 2;
     constant REG_GEM_SYSTEM_VFAT3_USE_OH_V3B_MAPPING_DEFAULT : std_logic := '1';
 
-    constant REG_GEM_SYSTEM_CTRL_CNT_RESET_ADDR    : std_logic_vector(16 downto 0) := '0' & x"0100";
-    constant REG_GEM_SYSTEM_CTRL_CNT_RESET_MSB    : integer := 31;
-    constant REG_GEM_SYSTEM_CTRL_CNT_RESET_LSB     : integer := 0;
+    constant REG_GEM_SYSTEM_VFAT3_USE_VFAT_ADRESSING_ADDR    : std_logic_vector(16 downto 0) := '0' & x"0011";
+    constant REG_GEM_SYSTEM_VFAT3_USE_VFAT_ADRESSING_BIT    : integer := 3;
+    constant REG_GEM_SYSTEM_VFAT3_USE_VFAT_ADRESSING_DEFAULT : std_logic := '0';
+
+    constant REG_GEM_SYSTEM_CTRL_GLOBAL_RESET_ADDR    : std_logic_vector(16 downto 0) := '0' & x"0100";
+    constant REG_GEM_SYSTEM_CTRL_GLOBAL_RESET_MSB    : integer := 31;
+    constant REG_GEM_SYSTEM_CTRL_GLOBAL_RESET_LSB     : integer := 0;
 
     constant REG_GEM_SYSTEM_CTRL_LINK_RESET_ADDR    : std_logic_vector(16 downto 0) := '0' & x"0101";
     constant REG_GEM_SYSTEM_CTRL_LINK_RESET_MSB    : integer := 31;

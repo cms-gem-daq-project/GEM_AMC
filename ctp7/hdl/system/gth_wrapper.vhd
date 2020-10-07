@@ -62,6 +62,7 @@ entity gth_wrapper is
     
     ------------------------
 
+    gth_cpll_reset_arr_i  : in  std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
     gth_cpll_status_arr_o : out t_gth_cpll_status_arr(g_NUM_OF_GTH_GTs-1 downto 0);
 
     ------------------------
@@ -681,7 +682,7 @@ begin
   gth_cpll_status_arr_o   <= s_gth_cpll_status_arr;
 
 
-  gen_gth_common : for n in 0 to (g_NUM_OF_GTH_COMMONs-1) generate
+  gen_gth_common : for n in 0 to (g_NUM_OF_GTH_GTs/4-1) generate
   begin
 
     s_gth_common_ctrl_arr(n).QPLLRESET <= gth_common_reset_i(n);
@@ -787,7 +788,7 @@ begin
           GTRXRESET                => s_gth_rx_init_arr(i*4+j).gtrxreset,
           MMCM_RESET               => open,
           QPLL_RESET               => open,
-          CPLL_RESET               => s_gth_cpll_init_arr(i*4+j).cpllreset,
+          CPLL_RESET               => open,
           RX_FSM_RESET_DONE        => gth_gt_rxreset_done_o(i*4+j),
           RXUSERRDY                => s_gth_rx_init_arr(i*4+j).rxuserrdy,
           RUN_PHALIGNMENT          => s_gth_rx_run_phalignment(i*4+j),
@@ -805,6 +806,8 @@ begin
       s_gth_rx_init_arr(i*4+j).rxlpmlfklovrden <= '0';
       s_gth_rx_init_arr(i*4+j).RXDFELFOVRDEN   <= '0';
       s_gth_rx_init_arr(i*4+j).RXLPMHFOVRDEN   <= '0';
+
+      s_gth_cpll_init_arr(i*4+j).cpllreset <= gth_cpll_reset_arr_i(i*4+j);
 
       --------------------------------------------------------------------------
       gt_cdrlock_timeout : process(clk_stable_i)

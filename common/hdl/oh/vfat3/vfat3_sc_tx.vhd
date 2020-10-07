@@ -27,6 +27,7 @@ entity vfat3_sc_tx is
         data_en_o               : out std_logic;
         
         -- command data
+        hdlc_address_i          : in  std_logic_vector(7 downto 0);
         transaction_id_i        : in  std_logic_vector(7 downto 0);
         is_write_i              : in  std_logic;
         reg_addr_i              : in  std_logic_vector(31 downto 0);
@@ -44,7 +45,6 @@ end vfat3_sc_tx;
 architecture vfat3_sc_tx_arch of vfat3_sc_tx is
 
     constant HDLC_CONTROL   : std_logic_vector(7 downto 0) := x"03";
-    constant HDLC_ADDRESS   : std_logic_vector(7 downto 0) := x"00";
     constant IPBUS_VERSION  : std_logic_vector(3 downto 0) := x"2";
 
     type state_t is (IDLE, SOF, SHIFT_FRAME, CRC, EOF);
@@ -107,7 +107,7 @@ begin
                                           transaction_id_i &
                                           "000" & is_write_i & x"f" &
                                           HDLC_CONTROL &
-                                          HDLC_ADDRESS;
+                                          hdlc_address_i;
                             state <= SOF;
                         end if;
 

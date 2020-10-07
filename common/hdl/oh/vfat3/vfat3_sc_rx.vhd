@@ -29,6 +29,7 @@ entity vfat3_sc_rx is
         data_en_i               : in  std_logic;
 
         -- control
+        hdlc_address_i          : in  std_logic_vector(7 downto 0);
         transaction_id_i        : in  std_logic_vector(7 downto 0);
         is_write_i              : in  std_logic;
         
@@ -50,7 +51,6 @@ end vfat3_sc_rx;
 
 architecture vfat3_sc_rx_arch of vfat3_sc_rx is
 
-    constant HDLC_ADDRESS   : std_logic_vector(7 downto 0) := x"00";
     constant HDLC_CONTROL   : std_logic_vector(7 downto 0) := x"03";
     constant IPBUS_VERSION  : std_logic_vector(3 downto 0) := x"2";
     
@@ -186,7 +186,7 @@ begin
                                     state <= RECEIVING;
 
                                 -- if the packet is of expected length and various fields look as expected then great, otherwise shoot a packet error    
-                                elsif ((packet(7 downto 0) = HDLC_ADDRESS) and  -- HDLC address field check
+                                elsif ((packet(7 downto 0) = hdlc_address_i) and  -- HDLC address field check
                                        (packet(15 downto 8) = HDLC_CONTROL) and -- HDLC control field check
                                        (packet(47 downto 16) = IPBUS_VERSION & x"001" & transaction_id_i & "000" & is_write_i & x"0") -- IPbus header check
                                 ) then

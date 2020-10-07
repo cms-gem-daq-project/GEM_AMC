@@ -156,6 +156,7 @@ END COMPONENT  ;
     signal mmcm_locked              : std_logic;
     signal mmcm_locked_clk40        : std_logic;
     signal mmcm_unlock_p_clk40      : std_logic;
+    signal mmcm_reset_psclk_tmp     : std_logic;
 
     signal fsm_reset                : std_logic := '0';
     signal sync_done_flag           : std_logic;
@@ -218,7 +219,7 @@ begin
     -- CDC of the control signals to mmcm_ps_clk domain
     g_sync_reset_cnt :      entity work.synchronizer generic map(N_STAGES => 2) port map(async_i => ctrl_i.reset_cnt, clk_i   => mmcm_ps_clk, sync_o  => ctrl_psclk.reset_cnt);
     g_sync_reset_sync_fsm : entity work.synchronizer generic map(N_STAGES => 2) port map(async_i => ctrl_i.reset_sync_fsm, clk_i   => mmcm_ps_clk, sync_o  => ctrl_psclk.reset_sync_fsm);
-    g_sync_reset_mmcm :     entity work.synchronizer generic map(N_STAGES => 2) port map(async_i => ctrl_i.reset_mmcm, clk_i   => mmcm_ps_clk, sync_o  => ctrl_psclk.reset_mmcm);
+    g_sync_reset_mmcm :     entity work.synchronizer generic map(N_STAGES => 2) port map(async_i => ctrl_i.reset_mmcm, clk_i   => mmcm_ps_clk, sync_o  => mmcm_reset_psclk_tmp);
     g_sync_pa_disable :     entity work.synchronizer generic map(N_STAGES => 2) port map(async_i => ctrl_i.phase_align_disable, clk_i   => mmcm_ps_clk, sync_o  => ctrl_psclk.phase_align_disable);
     g_sync_no_init_shift_o: entity work.synchronizer generic map(N_STAGES => 2) port map(async_i => ctrl_i.pa_no_init_shift_out, clk_i   => mmcm_ps_clk, sync_o  => ctrl_psclk.pa_no_init_shift_out);
     g_sync_man_shift_dir :  entity work.synchronizer generic map(N_STAGES => 2) port map(async_i => ctrl_i.pa_manual_shift_dir, clk_i   => mmcm_ps_clk, sync_o  => ctrl_psclk.pa_manual_shift_dir);
@@ -234,6 +235,14 @@ begin
         );
 
     fsm_reset <= ctrl_psclk.reset_sync_fsm or ctrl_psclk.phase_align_disable;
+
+    i_mmcm_reset_oneshot : entity work.oneshot
+        port map(
+            reset_i   => '0',
+            clk_i     => mmcm_ps_clk,
+            input_i   => mmcm_reset_psclk_tmp,
+            oneshot_o => ctrl_psclk.reset_mmcm
+        );
 
     -- Input buffering
     --------------------------------------
