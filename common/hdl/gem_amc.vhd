@@ -156,6 +156,7 @@ architecture gem_amc_arch of gem_amc is
     signal link_reset           : std_logic;
     signal manual_link_reset    : std_logic;
     signal manual_global_reset  : std_logic;
+    signal manual_ipbus_reset   : std_logic;
 
     --== TTC signals ==--
     signal ttc_cmd              : t_ttc_cmds;
@@ -263,7 +264,7 @@ begin
     
     reset_pwrup_o <= reset_pwrup;
     reset <= reset_i or reset_pwrup or manual_global_reset;
-    ipb_reset <= ipb_reset_i or reset;
+    ipb_reset <= ipb_reset_i or reset_pwrup or manual_ipbus_reset;
     ipb_miso_arr_o <= ipb_miso_arr;
     link_reset <= manual_link_reset or ttc_cmd.hard_reset;
 
@@ -527,7 +528,7 @@ begin
             ttc_status_i            => ttc_status,
             vfat3_daq_clk_i         => ttc_clocks_i.clk_40,
             vfat3_daq_links_arr_i   => vfat3_daq_link_arr,
-            ipb_reset_i             => ipb_reset_i,
+            ipb_reset_i             => ipb_reset,
             ipb_clk_i               => ipb_clk_i,
             ipb_mosi_i              => ipb_mosi_arr_i(C_IPB_SLV.daq),
             ipb_miso_o              => ipb_miso_arr(C_IPB_SLV.daq),
@@ -548,7 +549,7 @@ begin
             ttc_clks_i                  => ttc_clocks_i,            
             reset_i                     => reset,
             ipb_clk_i                   => ipb_clk_i,
-            ipb_reset_i                 => ipb_reset_i,
+            ipb_reset_i                 => ipb_reset,
             ipb_mosi_i                  => ipb_mosi_arr_i(C_IPB_SLV.system),
             ipb_miso_o                  => ipb_miso_arr(C_IPB_SLV.system),
             board_id_o                  => open,
@@ -558,6 +559,7 @@ begin
             use_vfat_addressing_o       => use_vfat_addressing,
             manual_link_reset_o         => manual_link_reset,
             global_reset_o              => manual_global_reset,
+            manual_ipbus_reset_o        => manual_ipbus_reset,
             gemloader_stats_i           => gemloader_stats
         );
 
@@ -579,7 +581,7 @@ begin
 
             vfat_mask_arr_o         => vfat_mask_arr,
 
-            ipb_reset_i             => ipb_reset_i,
+            ipb_reset_i             => ipb_reset,
             ipb_clk_i               => ipb_clk_i,
             ipb_miso_o              => ipb_miso_arr(C_IPB_SLV.oh_links),
             ipb_mosi_i              => ipb_mosi_arr_i(C_IPB_SLV.oh_links)
@@ -605,7 +607,7 @@ begin
             gbt_rx_ic_elinks_i  => gbt_ic_rx_data_arr,
             gbt_tx_ic_elinks_o  => gbt_ic_tx_data_arr,
             vfat3_sc_status_i   => vfat3_sc_status,
-            ipb_reset_i         => ipb_reset_i,
+            ipb_reset_i         => ipb_reset,
             ipb_clk_i           => ipb_clk_i,
             ipb_miso_o          => ipb_miso_arr(C_IPB_SLV.slow_control),
             ipb_mosi_i          => ipb_mosi_arr_i(C_IPB_SLV.slow_control)
