@@ -98,6 +98,7 @@
         <node id="MODULE_RESET" address="0x0" permission="w" />
         <node id="CNT_RESET" address="0x1" permission="w" />
         <node id="OH_KILL_MASK" address="0x2" permission="rw" mask="0xffffff" />
+        <node id="SECTOR_ID" address="0x2" permission="rw" mask="0xf000000" />
       </node>
       <node id="STATUS" address="0x10" >
         <node id="OR_TRIGGER_RATE" address="0x0" permission="r" />
@@ -505,6 +506,7 @@
       <node id="CTRL" address="0x100" >
         <node id="GLOBAL_RESET" address="0x0" permission="w" />
         <node id="LINK_RESET" address="0x1" permission="w" />
+        <node id="IPBUS_RESET" address="0x2" permission="w" />
       </node>
       <node id="BOARD_ID" address="0x2" permission="rw" mask="0xffff" />
       <node id="BOARD_TYPE" address="0x2" permission="r" mask="0xf0000" />
@@ -532,11 +534,6 @@
         <node id="LOAD_FAIL_CNT" address="0x1" permission="r" mask="0xffff" />
         <node id="STREAM_GAP_CNT" address="0x1" permission="r" mask="0xffff0000" />
         <node id="LOADER_OVF_UNF_CNT" address="0x2" permission="r" mask="0xffff" />
-      </node>
-      <node id="LEGACY_SYSTEM" address="0x10000" >
-        <node id="BOARD_ID" address="0x0" permission="r" />
-        <node id="SYSTEM_ID" address="0x1" permission="r" />
-        <node id="FIRMWARE_VERSION" address="0x2" permission="r" />
       </node>
     </node>
     <node id="GEM_TESTS" address="0xa00000" >
@@ -3530,6 +3527,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -3559,6 +3557,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -3588,6 +3587,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -3617,6 +3617,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -3646,6 +3647,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -3675,6 +3677,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -3704,6 +3707,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -3733,6 +3737,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -3762,6 +3767,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -3791,6 +3797,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -3820,6 +3827,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -3849,6 +3857,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -3878,6 +3887,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -3907,6 +3917,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -3936,6 +3947,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -3965,6 +3977,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -3994,6 +4007,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4023,6 +4037,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4052,6 +4067,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4081,6 +4097,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4110,6 +4127,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4139,6 +4157,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4168,6 +4187,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4197,6 +4217,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4226,6 +4247,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4255,6 +4277,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4284,6 +4307,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4313,6 +4337,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4342,6 +4367,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4371,6 +4397,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4400,6 +4427,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4429,6 +4457,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4458,6 +4487,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4487,6 +4517,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4516,6 +4547,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4545,6 +4577,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4574,6 +4607,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4603,6 +4637,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4632,6 +4667,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4661,6 +4697,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4690,6 +4727,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4719,6 +4757,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4748,6 +4787,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4777,6 +4817,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4806,6 +4847,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4835,6 +4877,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4864,6 +4907,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4893,6 +4937,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4922,6 +4967,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4951,6 +4997,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4980,6 +5027,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -5009,6 +5057,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -5038,6 +5087,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -5067,6 +5117,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -5096,6 +5147,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -5125,6 +5177,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -5154,6 +5207,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -5183,6 +5237,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -5212,6 +5267,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -5241,6 +5297,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -5270,6 +5327,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -5299,6 +5357,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -5328,6 +5387,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -5357,6 +5417,7 @@
         <node id="RESET" address="0x1" permission="rw" >
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
+          <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -5382,366 +5443,6 @@
           <node id="RX_DISPERR_CNT" address="0x6" permission="r" />
         </node>
       </node>
-    </node>
-    <node id="GLIB_SYSTEM" address="0x910000" >
-      <node id="SYSTEM" address="0x0" permission="r" >
-        <node id="BOARD_ID" address="0x0" >
-          <node id="CHAR1" address="0x0" permission="r" mask="0xff000000" />
-          <node id="CHAR2" address="0x0" permission="r" mask="0xff0000" />
-          <node id="CHAR3" address="0x0" permission="r" mask="0xff00" />
-          <node id="CHAR4" address="0x0" permission="r" mask="0xff" />
-        </node>
-        <node id="SYSTEM_ID" address="0x1" permission="r" >
-          <node id="CHAR1" address="0x0" permission="r" mask="0xff000000" />
-          <node id="CHAR2" address="0x0" permission="r" mask="0xff0000" />
-          <node id="CHAR3" address="0x0" permission="r" mask="0xff00" />
-          <node id="CHAR4" address="0x0" permission="r" mask="0xff" />
-        </node>
-        <node id="FIRMWARE" address="0x2" permission="r" >
-          <node id="ID" address="0x0" permission="r" mask="0xffff0000" />
-          <node id="MAJOR" address="0x0" permission="r" mask="0xf0000000" />
-          <node id="MINOR" address="0x0" permission="r" mask="0xf000000" />
-          <node id="BUILD" address="0x0" permission="r" mask="0xff0000" />
-          <node id="DATE" address="0x0" permission="r" mask="0xffff" />
-          <node id="YY" address="0x0" permission="r" mask="0xfe00" />
-          <node id="MM" address="0x0" permission="r" mask="0x1e0" />
-          <node id="DD" address="0x0" permission="r" mask="0x1f" />
-        </node>
-        <node id="TEST" address="0x0" permission="r" />
-        <node id="CLK_CTRL" address="0x0" >
-          <node id="PCIE_CLK_FSEL" address="0x0" permission="r" mask="0x1" />
-          <node id="PCIE_CLK_MR" address="0x0" permission="r" mask="0x2" />
-          <node id="PCIE_CLK_OE" address="0x0" permission="r" mask="0x4" />
-          <node id="CDCE_POWERUP" address="0x0" permission="r" mask="0x10" />
-          <node id="CDCE_REFSEL" address="0x0" permission="r" mask="0x20" />
-          <node id="CDCE_SYNC" address="0x0" permission="r" mask="0x40" />
-          <node id="CDCE_CTRLSEL" address="0x0" permission="r" mask="0x80" />
-          <node id="TCLKB_DR_EN" address="0x0" permission="r" mask="0x200" />
-          <node id="XPOINT2" address="0x0" permission="r" >
-            <node id="S10" address="0x0" permission="r" mask="0x1000" />
-            <node id="S11" address="0x0" permission="r" mask="0x2000" />
-          </node>
-          <node id="XPOINT1" address="0x0" permission="r" >
-            <node id="S10" address="0x0" permission="r" mask="0x10000" />
-            <node id="S11" address="0x0" permission="r" mask="0x20000" />
-            <node id="S20" address="0x0" permission="r" mask="0x40000" />
-            <node id="S21" address="0x0" permission="r" mask="0x80000" />
-            <node id="S30" address="0x0" permission="r" mask="0x100000" />
-            <node id="S31" address="0x0" permission="r" mask="0x200000" />
-            <node id="S40" address="0x0" permission="r" mask="0x400000" />
-            <node id="S41" address="0x0" permission="r" mask="0x800000" />
-          </node>
-          <node id="GBT_PHASE_MON_RESET" address="0x0" permission="r" mask="0x4000000" />
-          <node id="FPGA_PROGRAM_B_TRST" address="0x0" permission="r" mask="0x10000000" />
-        </node>
-        <node id="FLASH_CTRL" address="0x0" permission="r" >
-          <node id="ICAP_PAGE" address="0x0" permission="r" mask="0x3" />
-          <node id="ICAP_TRIGG" address="0x0" permission="r" mask="0x10" />
-        </node>
-        <node id="STATUS" address="0x0" >
-          <node id="SFP1" address="0x0" >
-            <node id="STATUS" address="0x0" permission="r" mask="0x7" />
-            <node id="Mod_abs" address="0x0" permission="r" mask="0x1" />
-            <node id="RxLOS" address="0x0" permission="r" mask="0x2" />
-            <node id="TxFault" address="0x0" permission="r" mask="0x4" />
-          </node>
-          <node id="SFP2" address="0x0" >
-            <node id="STATUS" address="0x0" permission="r" mask="0x70" />
-            <node id="Mod_abs" address="0x0" permission="r" mask="0x10" />
-            <node id="RxLOS" address="0x0" permission="r" mask="0x20" />
-            <node id="TxFault" address="0x0" permission="r" mask="0x40" />
-          </node>
-          <node id="SFP3" address="0x0" >
-            <node id="STATUS" address="0x0" permission="r" mask="0x700" />
-            <node id="Mod_abs" address="0x0" permission="r" mask="0x100" />
-            <node id="RxLOS" address="0x0" permission="r" mask="0x200" />
-            <node id="TxFault" address="0x0" permission="r" mask="0x400" />
-          </node>
-          <node id="SFP4" address="0x0" >
-            <node id="STATUS" address="0x0" permission="r" mask="0x7000" />
-            <node id="Mod_abs" address="0x0" permission="r" mask="0x1000" />
-            <node id="RxLOS" address="0x0" permission="r" mask="0x2000" />
-            <node id="TxFault" address="0x0" permission="r" mask="0x4000" />
-          </node>
-          <node id="GBE_INT" address="0x0" permission="r" mask="0x10000" />
-          <node id="FMC1_PRESENT" address="0x0" permission="r" mask="0x20000" />
-          <node id="FMC2_PRESENT" address="0x0" permission="r" mask="0x40000" />
-          <node id="FPGA_RESET" address="0x0" permission="r" mask="0x80000" />
-          <node id="V6_CPLD" address="0x0" permission="r" mask="0x3f00000" />
-          <node id="CDCE_LOCK" address="0x0" permission="r" mask="0x8000000" />
-          <node id="SFP_PHASE_MON" address="0x0" >
-            <node id="DONE" address="0x0" permission="r" mask="0x10000000" />
-            <node id="OK" address="0x0" permission="r" mask="0x20000000" />
-          </node>
-          <node id="FMC1_PHASE_MON" address="0x0" >
-            <node id="DONE" address="0x0" permission="r" mask="0x40000000" />
-            <node id="OK" address="0x0" permission="r" mask="0x80000000" />
-          </node>
-        </node>
-        <node id="STATUS_2" address="0x0" permission="r" />
-        <node id="SRAM" address="0x0" >
-          <node id="CTRL" address="0x0" permission="r" >
-            <node id="SRAM1_USER_LOGIC" address="0x0" permission="r" mask="0x1" />
-            <node id="SRAM1_BIST_RUN" address="0x0" permission="r" mask="0x2" />
-            <node id="SRAM2_USER_LOGIC" address="0x0" permission="r" mask="0x10000" />
-            <node id="SRAM2_BIST_RUN" address="0x0" permission="r" mask="0x20000" />
-            <node id="FLASH_SELECT" address="0x0" permission="r" mask="0x100000" />
-          </node>
-          <node id="STATUS" address="0x0" permission="r" >
-            <node id="SRAM1_BIST_DONE" address="0x0" permission="r" mask="0x1" />
-            <node id="SRAM1_BIST_OK" address="0x0" permission="r" mask="0x2" />
-            <node id="SRAM1_BIST_ERRORS" address="0x0" permission="r" mask="0xff0" />
-            <node id="SRAM2_BIST_DONE" address="0x0" permission="r" mask="0x10000" />
-            <node id="SRAM2_BIST_OK" address="0x0" permission="r" mask="0x20000" />
-            <node id="SRAM2_BIST_ERRORS" address="0x0" permission="r" mask="0xff00000" />
-          </node>
-        </node>
-        <node id="SPI" address="0x0" >
-          <node id="TxDATA" address="0x0" permission="r" />
-          <node id="COM" address="0x0" permission="r" >
-            <node id="Autoclear" address="0x0" permission="r" mask="0xf0000000" />
-            <node id="Reserved" address="0x0" permission="r" mask="0xffff000" />
-            <node id="Prescale" address="0x0" permission="r" mask="0xfff" />
-            <node id="Strobe" address="0x0" permission="r" mask="0x80000000" />
-          </node>
-          <node id="RxDATA" address="0x0" permission="r" />
-        </node>
-        <node id="I2C" address="0x0" >
-          <node id="SETTINGS" address="0x0" permission="r" >
-            <node id="ENABLE" address="0x0" permission="r" mask="0x800" />
-            <node id="Reserved" address="0x0" permission="r" mask="0x1000" />
-            <node id="BUS_SELECT" address="0x0" permission="r" mask="0x400" />
-            <node id="PRESCALER" address="0x0" permission="r" mask="0x3ff" />
-          </node>
-          <node id="COM" address="0x0" permission="r" >
-            <node id="Autoclear" address="0x0" permission="r" mask="0xf0000000" />
-            <node id="Strobe" address="0x0" permission="r" mask="0x80000000" />
-            <node id="MODE16" address="0x0" permission="r" mask="0x2000000" />
-            <node id="Res2" address="0x0" permission="r" mask="0x1000000" />
-            <node id="WRITE" address="0x0" permission="r" mask="0x800000" />
-            <node id="SLV_ADDR" address="0x0" permission="r" mask="0x7f0000" />
-            <node id="Res" address="0x0" permission="r" mask="0xff00" />
-            <node id="WRDATA" address="0x0" permission="r" mask="0xff" />
-          </node>
-          <node id="REPLY" address="0x0" permission="r" >
-            <node id="STATUS" address="0x0" permission="r" mask="0xc000000" />
-            <node id="DATA_LO" address="0x0" permission="r" mask="0xff" />
-            <node id="DATA_HI" address="0x0" permission="r" mask="0xff00" />
-            <node id="8b" address="0x0" permission="r" mask="0xff" />
-            <node id="16b" address="0x0" permission="r" mask="0xffff" />
-          </node>
-        </node>
-        <node id="SFP_PHASE_MON" address="0x0" >
-          <node id="CTRL" address="0x0" permission="r" >
-            <node id="LOWER" address="0x0" permission="r" mask="0xff" />
-            <node id="UPPER" address="0x0" permission="r" mask="0xff00" />
-          </node>
-          <node id="STATS" address="0x0" permission="r" />
-        </node>
-        <node id="FMC1_PHASE_MON" address="0x0" >
-          <node id="CTRL" address="0x0" permission="r" >
-            <node id="LOWER" address="0x0" permission="r" mask="0xff" />
-            <node id="UPPER" address="0x0" permission="r" mask="0xff00" />
-          </node>
-          <node id="STATS" address="0x0" permission="r" />
-        </node>
-        <node id="MAC" address="0x0" permission="r" >
-          <node id="IP_SOURCE" address="0x0" permission="r" mask="0xfff0000" />
-          <node id="UPPER" address="0x0" permission="r" mask="0xffff" />
-          <node id="B5" address="0x0" permission="r" mask="0xff00" />
-          <node id="B4" address="0x0" permission="r" mask="0xff" />
-          <node id="LOWER" address="0x0" permission="r" />
-          <node id="B3" address="0x0" permission="r" mask="0xff000000" />
-          <node id="B2" address="0x0" permission="r" mask="0xff0000" />
-          <node id="B1" address="0x0" permission="r" mask="0xff00" />
-          <node id="B0" address="0x0" permission="r" mask="0xff" />
-        </node>
-        <node id="IP_INFO" address="0x0" >
-          <node id="B3" address="0x0" permission="r" mask="0xff000000" />
-          <node id="B2" address="0x0" permission="r" mask="0xff0000" />
-          <node id="B1" address="0x0" permission="r" mask="0xff00" />
-          <node id="B0" address="0x0" permission="r" mask="0xff" />
-        </node>
-        <node id="HW_ID" address="0x0" >
-          <node id="B1" address="0x0" permission="r" mask="0xff00" />
-          <node id="B2" address="0x0" permission="r" mask="0xff" />
-          <node id="B3" address="0x0" permission="r" mask="0xff000000" />
-          <node id="B4" address="0x0" permission="r" mask="0xff0000" />
-          <node id="B5" address="0x0" permission="r" mask="0xff00" />
-          <node id="B6" address="0x0" permission="r" mask="0xff" />
-        </node>
-      </node>
-      <node id="SRAM1" address="0x0" permission="r" />
-      <node id="SRAM2" address="0x0" permission="r" />
-      <node id="ICAP" address="0x0" permission="r" mode="non-incremental" />
-      <node id="FLASH" address="0x0" >
-        <node id="BANK_15" address="0x0" >
-          <node id="BLOCK_130" address="0x0" permission="r" />
-          <node id="BLOCK_129" address="0x0" permission="r" />
-          <node id="BLOCK_128" address="0x0" permission="r" />
-          <node id="BLOCK_127" address="0x0" permission="r" />
-          <node id="BLOCK_126" address="0x0" permission="r" />
-          <node id="BLOCK_125" address="0x0" permission="r" />
-          <node id="BLOCK_124" address="0x0" permission="r" />
-          <node id="BLOCK_123" address="0x0" permission="r" />
-        </node>
-        <node id="BANK_14" address="0x0" >
-          <node id="BLOCK_122" address="0x0" permission="r" />
-          <node id="BLOCK_121" address="0x0" permission="r" />
-          <node id="BLOCK_120" address="0x0" permission="r" />
-          <node id="BLOCK_119" address="0x0" permission="r" />
-          <node id="BLOCK_118" address="0x0" permission="r" />
-          <node id="BLOCK_117" address="0x0" permission="r" />
-          <node id="BLOCK_116" address="0x0" permission="r" />
-          <node id="BLOCK_115" address="0x0" permission="r" />
-        </node>
-        <node id="BANK_13" address="0x0" >
-          <node id="BLOCK_114" address="0x0" permission="r" />
-          <node id="BLOCK_113" address="0x0" permission="r" />
-          <node id="BLOCK_112" address="0x0" permission="r" />
-          <node id="BLOCK_111" address="0x0" permission="r" />
-          <node id="BLOCK_110" address="0x0" permission="r" />
-          <node id="BLOCK_109" address="0x0" permission="r" />
-          <node id="BLOCK_108" address="0x0" permission="r" />
-          <node id="BLOCK_107" address="0x0" permission="r" />
-        </node>
-        <node id="BANK_12" address="0x0" >
-          <node id="BLOCK_106" address="0x0" permission="r" />
-          <node id="BLOCK_105" address="0x0" permission="r" />
-          <node id="BLOCK_104" address="0x0" permission="r" />
-          <node id="BLOCK_103" address="0x0" permission="r" />
-          <node id="BLOCK_102" address="0x0" permission="r" />
-          <node id="BLOCK_101" address="0x0" permission="r" />
-          <node id="BLOCK_100" address="0x0" permission="r" />
-          <node id="BLOCK_99" address="0x0" permission="r" />
-        </node>
-        <node id="BANK_11" address="0x0" >
-          <node id="BLOCK_98" address="0x0" permission="r" />
-          <node id="BLOCK_97" address="0x0" permission="r" />
-          <node id="BLOCK_96" address="0x0" permission="r" />
-          <node id="BLOCK_95" address="0x0" permission="r" />
-          <node id="BLOCK_94" address="0x0" permission="r" />
-          <node id="BLOCK_93" address="0x0" permission="r" />
-          <node id="BLOCK_92" address="0x0" permission="r" />
-          <node id="BLOCK_91" address="0x0" permission="r" />
-        </node>
-        <node id="BANK_10" address="0x0" >
-          <node id="BLOCK_90" address="0x0" permission="r" />
-          <node id="BLOCK_89" address="0x0" permission="r" />
-          <node id="BLOCK_88" address="0x0" permission="r" />
-          <node id="BLOCK_87" address="0x0" permission="r" />
-          <node id="BLOCK_86" address="0x0" permission="r" />
-          <node id="BLOCK_85" address="0x0" permission="r" />
-          <node id="BLOCK_84" address="0x0" permission="r" />
-          <node id="BLOCK_83" address="0x0" permission="r" />
-        </node>
-        <node id="BANK_9" address="0x0" >
-          <node id="BLOCK_82" address="0x0" permission="r" />
-          <node id="BLOCK_81" address="0x0" permission="r" />
-          <node id="BLOCK_80" address="0x0" permission="r" />
-          <node id="BLOCK_79" address="0x0" permission="r" />
-          <node id="BLOCK_78" address="0x0" permission="r" />
-          <node id="BLOCK_77" address="0x0" permission="r" />
-          <node id="BLOCK_76" address="0x0" permission="r" />
-          <node id="BLOCK_75" address="0x0" permission="r" />
-        </node>
-        <node id="BANK_8" address="0x0" >
-          <node id="BLOCK_74" address="0x0" permission="r" />
-          <node id="BLOCK_73" address="0x0" permission="r" />
-          <node id="BLOCK_72" address="0x0" permission="r" />
-          <node id="BLOCK_71" address="0x0" permission="r" />
-          <node id="BLOCK_70" address="0x0" permission="r" />
-          <node id="BLOCK_69" address="0x0" permission="r" />
-          <node id="BLOCK_68" address="0x0" permission="r" />
-          <node id="BLOCK_67" address="0x0" permission="r" />
-        </node>
-        <node id="BANK_7" address="0x0" >
-          <node id="BLOCK_66" address="0x0" permission="r" />
-          <node id="BLOCK_65" address="0x0" permission="r" />
-          <node id="BLOCK_64" address="0x0" permission="r" />
-          <node id="BLOCK_63" address="0x0" permission="r" />
-          <node id="BLOCK_62" address="0x0" permission="r" />
-          <node id="BLOCK_61" address="0x0" permission="r" />
-          <node id="BLOCK_60" address="0x0" permission="r" />
-          <node id="BLOCK_59" address="0x0" permission="r" />
-        </node>
-        <node id="BANK_6" address="0x0" >
-          <node id="BLOCK_58" address="0x0" permission="r" />
-          <node id="BLOCK_57" address="0x0" permission="r" />
-          <node id="BLOCK_56" address="0x0" permission="r" />
-          <node id="BLOCK_55" address="0x0" permission="r" />
-          <node id="BLOCK_54" address="0x0" permission="r" />
-          <node id="BLOCK_53" address="0x0" permission="r" />
-          <node id="BLOCK_52" address="0x0" permission="r" />
-          <node id="BLOCK_51" address="0x0" permission="r" />
-        </node>
-        <node id="BANK_5" address="0x0" >
-          <node id="BLOCK_50" address="0x0" permission="r" />
-          <node id="BLOCK_49" address="0x0" permission="r" />
-          <node id="BLOCK_48" address="0x0" permission="r" />
-          <node id="BLOCK_47" address="0x0" permission="r" />
-          <node id="BLOCK_46" address="0x0" permission="r" />
-          <node id="BLOCK_45" address="0x0" permission="r" />
-          <node id="BLOCK_44" address="0x0" permission="r" />
-          <node id="BLOCK_43" address="0x0" permission="r" />
-        </node>
-        <node id="BANK_4" address="0x0" >
-          <node id="BLOCK_42" address="0x0" permission="r" />
-          <node id="BLOCK_41" address="0x0" permission="r" />
-          <node id="BLOCK_40" address="0x0" permission="r" />
-          <node id="BLOCK_39" address="0x0" permission="r" />
-          <node id="BLOCK_38" address="0x0" permission="r" />
-          <node id="BLOCK_37" address="0x0" permission="r" />
-          <node id="BLOCK_36" address="0x0" permission="r" />
-          <node id="BLOCK_35" address="0x0" permission="r" />
-        </node>
-        <node id="BANK_3" address="0x0" >
-          <node id="BLOCK_34" address="0x0" permission="r" />
-          <node id="BLOCK_33" address="0x0" permission="r" />
-          <node id="BLOCK_32" address="0x0" permission="r" />
-          <node id="BLOCK_31" address="0x0" permission="r" />
-          <node id="BLOCK_30" address="0x0" permission="r" />
-          <node id="BLOCK_29" address="0x0" permission="r" />
-          <node id="BLOCK_28" address="0x0" permission="r" />
-          <node id="BLOCK_27" address="0x0" permission="r" />
-        </node>
-        <node id="BANK_2" address="0x0" >
-          <node id="BLOCK_26" address="0x0" permission="r" />
-          <node id="BLOCK_25" address="0x0" permission="r" />
-          <node id="BLOCK_24" address="0x0" permission="r" />
-          <node id="BLOCK_23" address="0x0" permission="r" />
-          <node id="BLOCK_22" address="0x0" permission="r" />
-          <node id="BLOCK_21" address="0x0" permission="r" />
-          <node id="BLOCK_20" address="0x0" permission="r" />
-          <node id="BLOCK_19" address="0x0" permission="r" />
-        </node>
-        <node id="BANK_1" address="0x0" >
-          <node id="BLOCK_18" address="0x0" permission="r" />
-          <node id="BLOCK_17" address="0x0" permission="r" />
-          <node id="BLOCK_16" address="0x0" permission="r" />
-          <node id="BLOCK_15" address="0x0" permission="r" />
-          <node id="BLOCK_14" address="0x0" permission="r" />
-          <node id="BLOCK_13" address="0x0" permission="r" />
-          <node id="BLOCK_12" address="0x0" permission="r" />
-          <node id="BLOCK_11" address="0x0" permission="r" />
-        </node>
-        <node id="PARAM_BANK" address="0x0" >
-          <node id="BLOCK_10" address="0x0" permission="r" />
-          <node id="BLOCK_9" address="0x0" permission="r" />
-          <node id="BLOCK_8" address="0x0" permission="r" />
-          <node id="BLOCK_7" address="0x0" permission="r" />
-          <node id="BLOCK_6" address="0x0" permission="r" />
-          <node id="BLOCK_5" address="0x0" permission="r" />
-          <node id="BLOCK_4" address="0x0" permission="r" />
-          <node id="BLOCK_3" address="0x0" permission="r" />
-          <node id="BLOCK_2" address="0x0" permission="r" />
-          <node id="BLOCK_1" address="0x0" permission="r" />
-          <node id="BLOCK_0" address="0x0" permission="r" />
-        </node>
-      </node>
-      <node id="BOARD_ID" address="0x0" permission="r" />
-      <node id="SYSTEM_ID" address="0x1" permission="r" />
-      <node id="FIRMWARE_VERSION" address="0x2" permission="r" />
     </node>
   </node>
 </node>

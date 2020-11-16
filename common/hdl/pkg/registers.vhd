@@ -351,6 +351,11 @@ package registers is
     constant REG_TRIGGER_CTRL_OH_KILL_MASK_LSB     : integer := 0;
     constant REG_TRIGGER_CTRL_OH_KILL_MASK_DEFAULT : std_logic_vector(23 downto 0) := x"000000";
 
+    constant REG_TRIGGER_CTRL_SECTOR_ID_ADDR    : std_logic_vector(12 downto 0) := '0' & x"002";
+    constant REG_TRIGGER_CTRL_SECTOR_ID_MSB    : integer := 27;
+    constant REG_TRIGGER_CTRL_SECTOR_ID_LSB     : integer := 24;
+    constant REG_TRIGGER_CTRL_SECTOR_ID_DEFAULT : std_logic_vector(27 downto 24) := x"0";
+
     constant REG_TRIGGER_STATUS_OR_TRIGGER_RATE_ADDR    : std_logic_vector(12 downto 0) := '0' & x"010";
     constant REG_TRIGGER_STATUS_OR_TRIGGER_RATE_MSB    : integer := 31;
     constant REG_TRIGGER_STATUS_OR_TRIGGER_RATE_LSB     : integer := 0;
@@ -1851,7 +1856,7 @@ package registers is
     -- This module is controlling GEM AMC System wide settings
     --============================================================================
 
-    constant REG_GEM_SYSTEM_NUM_REGS : integer := 14;
+    constant REG_GEM_SYSTEM_NUM_REGS : integer := 12;
     constant REG_GEM_SYSTEM_ADDRESS_MSB : integer := 16;
     constant REG_GEM_SYSTEM_ADDRESS_LSB : integer := 0;
     constant REG_GEM_SYSTEM_BOARD_ID_ADDR    : std_logic_vector(16 downto 0) := '0' & x"0002";
@@ -1907,6 +1912,10 @@ package registers is
     constant REG_GEM_SYSTEM_CTRL_LINK_RESET_MSB    : integer := 31;
     constant REG_GEM_SYSTEM_CTRL_LINK_RESET_LSB     : integer := 0;
 
+    constant REG_GEM_SYSTEM_CTRL_IPBUS_RESET_ADDR    : std_logic_vector(16 downto 0) := '0' & x"0102";
+    constant REG_GEM_SYSTEM_CTRL_IPBUS_RESET_MSB    : integer := 31;
+    constant REG_GEM_SYSTEM_CTRL_IPBUS_RESET_LSB     : integer := 0;
+
     constant REG_GEM_SYSTEM_TESTS_GBT_LOOPBACK_EN_ADDR    : std_logic_vector(16 downto 0) := '0' & x"0200";
     constant REG_GEM_SYSTEM_TESTS_GBT_LOOPBACK_EN_BIT    : integer := 0;
     constant REG_GEM_SYSTEM_TESTS_GBT_LOOPBACK_EN_DEFAULT : std_logic := '0';
@@ -1930,18 +1939,6 @@ package registers is
     constant REG_GEM_SYSTEM_GEM_LOADER_LOADER_OVF_UNF_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"0402";
     constant REG_GEM_SYSTEM_GEM_LOADER_LOADER_OVF_UNF_CNT_MSB    : integer := 15;
     constant REG_GEM_SYSTEM_GEM_LOADER_LOADER_OVF_UNF_CNT_LSB     : integer := 0;
-
-    constant REG_GEM_SYSTEM_LEGACY_SYSTEM_BOARD_ID_ADDR    : std_logic_vector(16 downto 0) := '1' & x"0000";
-    constant REG_GEM_SYSTEM_LEGACY_SYSTEM_BOARD_ID_MSB    : integer := 31;
-    constant REG_GEM_SYSTEM_LEGACY_SYSTEM_BOARD_ID_LSB     : integer := 0;
-
-    constant REG_GEM_SYSTEM_LEGACY_SYSTEM_SYSTEM_ID_ADDR    : std_logic_vector(16 downto 0) := '1' & x"0001";
-    constant REG_GEM_SYSTEM_LEGACY_SYSTEM_SYSTEM_ID_MSB    : integer := 31;
-    constant REG_GEM_SYSTEM_LEGACY_SYSTEM_SYSTEM_ID_LSB     : integer := 0;
-
-    constant REG_GEM_SYSTEM_LEGACY_SYSTEM_FIRMWARE_VERSION_ADDR    : std_logic_vector(16 downto 0) := '1' & x"0002";
-    constant REG_GEM_SYSTEM_LEGACY_SYSTEM_FIRMWARE_VERSION_MSB    : integer := 31;
-    constant REG_GEM_SYSTEM_LEGACY_SYSTEM_FIRMWARE_VERSION_LSB     : integer := 0;
 
 
     --============================================================================
