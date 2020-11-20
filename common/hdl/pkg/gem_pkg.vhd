@@ -13,7 +13,7 @@ package gem_pkg is
     constant C_FIRMWARE_DATE    : std_logic_vector(31 downto 0) := x"20201120";
     constant C_FIRMWARE_MAJOR   : integer range 0 to 255        := 3;
     constant C_FIRMWARE_MINOR   : integer range 0 to 255        := 12;
-    constant C_FIRMWARE_BUILD   : integer range 0 to 255        := 2;
+    constant C_FIRMWARE_BUILD   : integer range 0 to 255        := 3;
     
     ------ Change log ------
     -- 1.8.6 no gbt sync procedure with oh
@@ -130,6 +130,7 @@ package gem_pkg is
     -- 3.12.0 Changed the order of VFATs in GE2/1 to correspond to the silkscreen of the newest GEBs instead of the J number
     -- 3.12.1 Sector ID register added that is used in the trigger TX to EMTF, also OH mask is now used in trigger TX; ipbus reset has been fixed and separated from the global reset register; legacy GLIB registers removed
     -- 3.12.2 L1A delay setting added. TTC module calibration mode is simplified - enabling calibration mode simply triggers the calpulse on L1A, and then the L1A can be delayed using the new delay setting
+    -- 3.12.3 CPLL power-down control added to the GTH control register (bit 7) - this should be used before resetting the CPLL
 
     --======================--
     --==      General     ==--
