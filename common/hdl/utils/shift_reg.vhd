@@ -25,7 +25,7 @@ entity shift_reg is
         clk_i       : in  std_logic;
         reset_i     : in  std_logic := '0'; -- (optional)
         tap_delay_i : in  std_logic_vector(TAP_DELAY_WIDTH - 1 downto 0);
-        data_i      : out std_logic;
+        data_i      : in  std_logic;
         data_o      : out std_logic
     );
 end shift_reg;
