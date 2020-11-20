@@ -125,9 +125,6 @@ architecture ttc_arch of ttc is
     signal ttc_status               : t_ttc_status;
     signal ttc_conf                 : t_ttc_conf; 
     
-    -- calibration signals
-    signal calib_l1a_countdown      : unsigned(11 downto 0) := (others => '0');
-
     -- stats
     constant C_NUM_OF_DECODED_TTC_CMDS : integer := 10;
     signal ttc_cmds_arr             : std_logic_vector(C_NUM_OF_DECODED_TTC_CMDS - 1 downto 0);
@@ -223,7 +220,6 @@ begin
                 hard_reset_cmd_real <= '0';
                 calpulse_cmd_real   <= '0';
                 l1a_cmd_real        <= '0';
-                calib_l1a_countdown <= (others => '0');
             else
                 if (ttc_cmd = ttc_conf.cmd_bc0) then
                     bc0_cmd_real <= '1';
@@ -267,40 +263,37 @@ begin
                 end if;
 
                 if (ttc_ctrl.calib_mode = '0') then
-                    l1a_cmd_real <= ttc_l1a and ttc_ctrl.l1a_enable;
                     if (ttc_cmd = ttc_conf.cmd_calpulse) then
                         calpulse_cmd_real <= '1';
                     else
                         calpulse_cmd_real <= '0';
                     end if;
-                    calib_l1a_countdown <= x"000";
                 else
-                    if (calib_l1a_countdown = x"001") then
-                        l1a_cmd_real <= '1';
-                    else
-                        l1a_cmd_real <= '0';
-                    end if;
-                    
                     if (ttc_l1a = '1' and ttc_ctrl.l1a_enable = '1') then  
                         calpulse_cmd_real <= '1';
-                        calib_l1a_countdown <= unsigned(ttc_ctrl.calib_l1a_delay);
                     else
                         calpulse_cmd_real <= '0';
-                        
-                        if (calib_l1a_countdown /= x"000") then
-                            calib_l1a_countdown <= calib_l1a_countdown - 1;
-                        else
-                            calib_l1a_countdown <= x"000";
-                        end if;
-                        
-                    end if;
-                    
+                    end if;                    
                 end if;
 
             end if;
 
         end if;
     end process p_cmd;
+
+    i_l1a_delay : entity work.shift_reg
+        generic map(
+            DEPTH           => 1024,
+            TAP_DELAY_WIDTH => 10,
+            OUTPUT_REG      => false,
+            SUPPORT_RESET   => false
+        )
+        port map(
+            clk_i       => ttc_clks_i.clk_40,
+            tap_delay_i => ttc_ctrl.l1a_delay,
+            data_i      => ttc_l1a and ttc_ctrl.l1a_enable,
+            data_o      => l1a_cmd_real
+        );
 
     ------------- TTC generator -------------
 
@@ -572,7 +565,7 @@ begin
     regs_read_arr(4)(REG_TTC_CTRL_PA_MANUAL_OVERRIDE_BIT) <= ttc_ctrl.clk_ctrl.pa_manual_shift_ovrd;
     regs_read_arr(4)(REG_TTC_CTRL_PA_MANUAL_SHIFT_DIR_BIT) <= ttc_ctrl.clk_ctrl.pa_manual_shift_dir;
     regs_read_arr(4)(REG_TTC_CTRL_PHASEMON_LOG2_N_AVG_MSB downto REG_TTC_CTRL_PHASEMON_LOG2_N_AVG_LSB) <= ttc_ctrl.clk_ctrl.phase_mon_log2_navg;
-    regs_read_arr(4)(REG_TTC_CTRL_CALPULSE_L1A_DELAY_MSB downto REG_TTC_CTRL_CALPULSE_L1A_DELAY_LSB) <= ttc_ctrl.calib_l1a_delay;
+    regs_read_arr(4)(REG_TTC_CTRL_L1A_DELAY_MSB downto REG_TTC_CTRL_L1A_DELAY_LSB) <= ttc_ctrl.l1a_delay;
     regs_read_arr(7)(REG_TTC_CTRL_PHASEMON_JUMP_THRESH_MSB downto REG_TTC_CTRL_PHASEMON_JUMP_THRESH_LSB) <= ttc_ctrl.clk_ctrl.phase_mon_jump_thresh;
     regs_read_arr(7)(REG_TTC_CTRL_LOCKMON_LOG2_N_AVG_MSB downto REG_TTC_CTRL_LOCKMON_LOG2_N_AVG_LSB) <= ttc_ctrl.clk_ctrl.lock_mon_log2_navg;
     regs_read_arr(8)(REG_TTC_CTRL_LOCKMON_TARGET_PHASE_MSB downto REG_TTC_CTRL_LOCKMON_TARGET_PHASE_LSB) <= ttc_ctrl.clk_ctrl.lock_mon_target_phase;
@@ -637,7 +630,7 @@ begin
     ttc_ctrl.clk_ctrl.pa_manual_shift_ovrd <= regs_write_arr(4)(REG_TTC_CTRL_PA_MANUAL_OVERRIDE_BIT);
     ttc_ctrl.clk_ctrl.pa_manual_shift_dir <= regs_write_arr(4)(REG_TTC_CTRL_PA_MANUAL_SHIFT_DIR_BIT);
     ttc_ctrl.clk_ctrl.phase_mon_log2_navg <= regs_write_arr(4)(REG_TTC_CTRL_PHASEMON_LOG2_N_AVG_MSB downto REG_TTC_CTRL_PHASEMON_LOG2_N_AVG_LSB);
-    ttc_ctrl.calib_l1a_delay <= regs_write_arr(4)(REG_TTC_CTRL_CALPULSE_L1A_DELAY_MSB downto REG_TTC_CTRL_CALPULSE_L1A_DELAY_LSB);
+    ttc_ctrl.l1a_delay <= regs_write_arr(4)(REG_TTC_CTRL_L1A_DELAY_MSB downto REG_TTC_CTRL_L1A_DELAY_LSB);
     ttc_ctrl.clk_ctrl.phase_mon_jump_thresh <= regs_write_arr(7)(REG_TTC_CTRL_PHASEMON_JUMP_THRESH_MSB downto REG_TTC_CTRL_PHASEMON_JUMP_THRESH_LSB);
     ttc_ctrl.clk_ctrl.lock_mon_log2_navg <= regs_write_arr(7)(REG_TTC_CTRL_LOCKMON_LOG2_N_AVG_MSB downto REG_TTC_CTRL_LOCKMON_LOG2_N_AVG_LSB);
     ttc_ctrl.clk_ctrl.lock_mon_target_phase <= regs_write_arr(8)(REG_TTC_CTRL_LOCKMON_TARGET_PHASE_MSB downto REG_TTC_CTRL_LOCKMON_TARGET_PHASE_LSB);
@@ -686,7 +679,7 @@ begin
     regs_defaults(4)(REG_TTC_CTRL_PA_MANUAL_OVERRIDE_BIT) <= REG_TTC_CTRL_PA_MANUAL_OVERRIDE_DEFAULT;
     regs_defaults(4)(REG_TTC_CTRL_PA_MANUAL_SHIFT_DIR_BIT) <= REG_TTC_CTRL_PA_MANUAL_SHIFT_DIR_DEFAULT;
     regs_defaults(4)(REG_TTC_CTRL_PHASEMON_LOG2_N_AVG_MSB downto REG_TTC_CTRL_PHASEMON_LOG2_N_AVG_LSB) <= REG_TTC_CTRL_PHASEMON_LOG2_N_AVG_DEFAULT;
-    regs_defaults(4)(REG_TTC_CTRL_CALPULSE_L1A_DELAY_MSB downto REG_TTC_CTRL_CALPULSE_L1A_DELAY_LSB) <= REG_TTC_CTRL_CALPULSE_L1A_DELAY_DEFAULT;
+    regs_defaults(4)(REG_TTC_CTRL_L1A_DELAY_MSB downto REG_TTC_CTRL_L1A_DELAY_LSB) <= REG_TTC_CTRL_L1A_DELAY_DEFAULT;
     regs_defaults(7)(REG_TTC_CTRL_PHASEMON_JUMP_THRESH_MSB downto REG_TTC_CTRL_PHASEMON_JUMP_THRESH_LSB) <= REG_TTC_CTRL_PHASEMON_JUMP_THRESH_DEFAULT;
     regs_defaults(7)(REG_TTC_CTRL_LOCKMON_LOG2_N_AVG_MSB downto REG_TTC_CTRL_LOCKMON_LOG2_N_AVG_LSB) <= REG_TTC_CTRL_LOCKMON_LOG2_N_AVG_DEFAULT;
     regs_defaults(8)(REG_TTC_CTRL_LOCKMON_TARGET_PHASE_MSB downto REG_TTC_CTRL_LOCKMON_TARGET_PHASE_LSB) <= REG_TTC_CTRL_LOCKMON_TARGET_PHASE_DEFAULT;

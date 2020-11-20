@@ -373,7 +373,7 @@ begin
             generic map(
                 g_GEM_STATION   => g_GEM_STATION,
                 g_OH_IDX        => std_logic_vector(to_unsigned(i, 4)),
-                g_DEBUG         => i = 0
+                g_DEBUG         => CFG_DEBUG_OH and (i = 0)
             )
             port map(
                 reset_i                 => reset or link_reset,
@@ -430,7 +430,8 @@ begin
         generic map(
             g_NUM_OF_OHs => g_NUM_OF_OHs,
             g_NUM_TRIG_TX_LINKS => g_NUM_TRIG_TX_LINKS,
-            g_USE_TRIG_TX_LINKS => g_USE_TRIG_TX_LINKS
+            g_USE_TRIG_TX_LINKS => g_USE_TRIG_TX_LINKS,
+            g_DEBUG => CFG_DEBUG_TRIGGER
         )
         port map(
             reset_i            => reset or link_reset,
@@ -514,7 +515,7 @@ begin
             g_NUM_OF_OHs => g_NUM_OF_OHs,
             g_DAQ_CLK_FREQ => g_DAQ_CLK_FREQ,
             g_INCLUDE_SPY_FIFO => false,
-            g_DEBUG => true
+            g_DEBUG => CFG_DEBUG_DAQ
         )
         port map(
             reset_i                 => reset,
@@ -594,8 +595,7 @@ begin
     i_slow_control : entity work.slow_control
         generic map(
             g_NUM_OF_OHs        => g_NUM_OF_OHs,
-            g_NUM_GBTS_PER_OH   => g_NUM_GBTS_PER_OH,
-            g_DEBUG             => false
+            g_NUM_GBTS_PER_OH   => g_NUM_GBTS_PER_OH
         )
         port map(
             reset_i             => reset,
@@ -837,8 +837,7 @@ begin
     
     i_config_blaster : entity work.config_blaster
         generic map(
-            g_NUM_OF_OHs => g_NUM_OF_OHs,
-            g_DEBUG      => false
+            g_NUM_OF_OHs => g_NUM_OF_OHs
         )
         port map(
             reset_i     => reset,
@@ -863,7 +862,7 @@ begin
             probe_out3 => lpgbt_reset_rx
         );
 
-    g_gbt_debug : if CFG_GBT_DEBUG generate
+    g_gbt_debug : if CFG_DEBUG_GBT generate
         g_gbtx_ila : if (g_GEM_STATION = 1) or (g_GEM_STATION = 2) generate
             i_ila_gbt : component ila_gbt
                 port map(
