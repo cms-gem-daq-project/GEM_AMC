@@ -49,7 +49,8 @@ entity gth_register_file is
 
     gth_gt_txreset_o    : out std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
     gth_gt_rxreset_o    : out std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
-    gth_gt_cpllreset_o  : out std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
+    
+    gth_cpll_init_arr_o : out t_gth_cpll_init_arr(g_NUM_OF_GTH_GTs-1 downto 0);
 
     gth_gt_txreset_done_i : in std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
     gth_gt_rxreset_done_i : in std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
@@ -93,6 +94,7 @@ architecture gth_register_file_arch of gth_register_file is
   signal s_tx_polarity  : std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
   signal s_tx_inhibit   : std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
   signal s_rx_lpmen     : std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
+  signal s_cpll_pd      : std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
 
   signal s_reg_cplllock       : std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
   signal s_reg_cpllrefclklost : std_logic_vector(g_NUM_OF_GTH_GTs-1 downto 0);
@@ -1120,7 +1122,8 @@ begin
     gth_rx_ctrl_arr_o(i).rxlpmen    <= s_rx_lpmen(i);
     gth_misc_ctrl_arr_o(i).loopback <= "000" when s_gth_loopback(i) = '0' else "010";
 
-    gth_gt_cpllreset_o(i)           <= s_cpll_reset(i);
+    gth_cpll_init_arr_o(i).cpllreset <= s_cpll_reset(i);
+    gth_cpll_init_arr_o(i).cpllpd    <= s_cpll_pd(i);
 
     gth_tx_ctrl_arr_o(i).txpd <= "00" when s_tx_pd(i) = '0' else "11";
     gth_rx_ctrl_arr_o(i).rxpd <= "00" when s_rx_pd(i) = '0' else "11";
@@ -1153,6 +1156,7 @@ begin
     s_gth_loopback(i) <= s_gth_ctrl_reg(i)(4);
     s_tx_inhibit(i)   <= s_gth_ctrl_reg(i)(5);
     s_rx_lpmen(i)     <= s_gth_ctrl_reg(i)(6);
+    s_cpll_pd(i)      <= s_gth_ctrl_reg(i)(7);
 
   end generate;
 
