@@ -9,7 +9,7 @@
         <node id="PHASE_ALIGNMENT_RESET" address="0x3" permission="w" />
         <node id="L1A_ENABLE" address="0x4" permission="rw" mask="0x1" />
         <node id="CALIBRATION_MODE" address="0x4" permission="rw" mask="0x2" />
-        <node id="CALPULSE_L1A_DELAY" address="0x4" permission="rw" mask="0xfff00000" />
+        <node id="L1A_DELAY" address="0x4" permission="rw" mask="0x3ff00000" />
         <node id="DISABLE_PHASE_ALIGNMENT" address="0x4" permission="rw" mask="0x10" />
         <node id="PA_DISABLE_INIT_SHIFT_OUT" address="0x4" permission="rw" mask="0x20" />
         <node id="PA_MANUAL_OVERRIDE" address="0x4" permission="rw" mask="0x40" />

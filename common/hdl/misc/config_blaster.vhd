@@ -22,8 +22,7 @@ use work.ipbus.all;
 
 entity config_blaster is
     generic(
-        g_NUM_OF_OHs            : integer := 12;
-        g_DEBUG                 : boolean := false -- if this is set to true, some chipscope cores will be inserted
+        g_NUM_OF_OHs            : integer := 12
     );
     port (
         reset_i             : in  std_logic;

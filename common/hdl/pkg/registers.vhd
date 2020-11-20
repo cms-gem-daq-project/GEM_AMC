@@ -63,10 +63,10 @@ package registers is
     constant REG_TTC_CTRL_PHASEMON_LOG2_N_AVG_LSB     : integer := 8;
     constant REG_TTC_CTRL_PHASEMON_LOG2_N_AVG_DEFAULT : std_logic_vector(11 downto 8) := x"5";
 
-    constant REG_TTC_CTRL_CALPULSE_L1A_DELAY_ADDR    : std_logic_vector(7 downto 0) := x"04";
-    constant REG_TTC_CTRL_CALPULSE_L1A_DELAY_MSB    : integer := 31;
-    constant REG_TTC_CTRL_CALPULSE_L1A_DELAY_LSB     : integer := 20;
-    constant REG_TTC_CTRL_CALPULSE_L1A_DELAY_DEFAULT : std_logic_vector(31 downto 20) := x"064";
+    constant REG_TTC_CTRL_L1A_DELAY_ADDR    : std_logic_vector(7 downto 0) := x"04";
+    constant REG_TTC_CTRL_L1A_DELAY_MSB    : integer := 29;
+    constant REG_TTC_CTRL_L1A_DELAY_LSB     : integer := 20;
+    constant REG_TTC_CTRL_L1A_DELAY_DEFAULT : std_logic_vector(29 downto 20) := "00" & x"00";
 
     constant REG_TTC_CTRL_PA_MANUAL_SHIFT_EN_ADDR    : std_logic_vector(7 downto 0) := x"05";
     constant REG_TTC_CTRL_PA_MANUAL_SHIFT_EN_MSB    : integer := 31;
