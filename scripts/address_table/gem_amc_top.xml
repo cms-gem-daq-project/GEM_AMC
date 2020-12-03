@@ -40,6 +40,10 @@
               description="Enable L1As (L1As are blocked if this is 0)"
               fw_signal="ttc_ctrl.l1a_enable" fw_default="0b1"
               sw_ctrl_configure_set="0x0" sw_ctrl_start_set="0x1" sw_ctrl_stop_set="0x0"/>
+        <node id="CMD_ENABLE" address="0x4" mask="0x00000004" permission="rw"
+              description="Enable TTC commands (all backplane TTC commands are blocked if this is set to 0)"
+              fw_signal="ttc_ctrl.cmd_enable" fw_default="0b0"
+              sw_ctrl_configure_set="0x0" sw_ctrl_start_set="0x1" sw_ctrl_stop_set="0x0"/>
         <node id="CALIBRATION_MODE" address="0x4" mask="0x00000002" permission="rw"
               description="Enables calibration mode when set to 1. In calibration mode the incoming L1A commands will trigger a calpulse signal to the frontend in addition to the L1A.
                            Note: the L1A delay below does not affect the calpulse timing, but it does shift the L1A that is sent to the frontend (typically the delay will be needed when using calibration mode)."
@@ -524,6 +528,9 @@
       </node>
 
       <node id="GEM_LOADER" address="0x400">
+        <node id="FIRMWARE_SIZE" address="0x10" mask="0xffffffff" permission="rw"
+              description="Number of bytes in the OH firmware"
+              fw_signal="gemloader_fw_size" fw_default="0x005363f2"/>
         <node id="LOAD_REQUEST_CNT" address="0x0" mask="0x0000ffff" permission="r"
               description="Number of OH programming requests (note, the counter is 16bit rolling)"
               fw_signal="gemloader_stats_i.load_request_cnt"/>
@@ -1642,6 +1649,8 @@
                 description="Writing 1 to this reg will trigger MGT RX channel reset"/>
           <node id="CPLL_RESET" address="0x0" mask="0x00000004" permission="rw"
                 description="Writing 1 to this reg will trigger MGT CPLL reset"/>
+          <node id="QPLL_RESET" address="0x0" mask="0x00000008" permission="rw"
+                description="Writing 1 to this reg will trigger the QPLL reset of the whole quad"/>
         </node>
 
         <node id="CTRL" address="0x2" permission="rw"

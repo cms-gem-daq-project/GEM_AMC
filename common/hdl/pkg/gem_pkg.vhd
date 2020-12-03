@@ -10,10 +10,10 @@ package gem_pkg is
     --==  Firmware version  ==--
     --========================-- 
 
-    constant C_FIRMWARE_DATE    : std_logic_vector(31 downto 0) := x"20201120";
+    constant C_FIRMWARE_DATE    : std_logic_vector(31 downto 0) := x"20201202";
     constant C_FIRMWARE_MAJOR   : integer range 0 to 255        := 3;
     constant C_FIRMWARE_MINOR   : integer range 0 to 255        := 12;
-    constant C_FIRMWARE_BUILD   : integer range 0 to 255        := 3;
+    constant C_FIRMWARE_BUILD   : integer range 0 to 255        := 4;
     
     ------ Change log ------
     -- 1.8.6 no gbt sync procedure with oh
@@ -131,6 +131,7 @@ package gem_pkg is
     -- 3.12.1 Sector ID register added that is used in the trigger TX to EMTF, also OH mask is now used in trigger TX; ipbus reset has been fixed and separated from the global reset register; legacy GLIB registers removed
     -- 3.12.2 L1A delay setting added. TTC module calibration mode is simplified - enabling calibration mode simply triggers the calpulse on L1A, and then the L1A can be delayed using the new delay setting
     -- 3.12.3 CPLL power-down control added to the GTH control register (bit 7) - this should be used before resetting the CPLL
+    -- 3.12.4 Fixed EMTF overlap link mapping, QPLL reset register added, TTC command enable register added, GEMLoader firmware size register added (it is now disconnected from the UW GEMloader IP firmware size reg)
 
     --======================--
     --==      General     ==--
@@ -550,7 +551,11 @@ package gem_pkg is
         gap_detect_cnt      : std_logic_vector(15 downto 0);
         loader_ovf_unf_cnt  : std_logic_vector(15 downto 0);
     end record;
-        	
+            
+    type t_gem_loader_cfg is record
+        firmware_size       : std_logic_vector(31 downto 0);
+    end record;
+            
 end gem_pkg;
    
 package body gem_pkg is

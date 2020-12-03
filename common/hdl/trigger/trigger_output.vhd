@@ -99,10 +99,10 @@ begin
 
     end generate;
     
-    -- if there are more TX links than g_NUM_OF_OHs / 2, then fill them with data from the last link (typically you'll have at least one of those for overlap)
+    -- if there are more TX links than g_NUM_OF_OHs / 2, then fill them with data from the 2nd link, which will be used for EMTF overlap
     g_extra_links_exist : if g_NUM_TRIG_TX_LINKS > g_NUM_OF_OHs / 2 generate
         g_extra_links : for i in g_NUM_OF_OHs / 2 to g_NUM_TRIG_TX_LINKS - 1 generate
-            trig_tx_data_arr(i) <= trig_tx_data_arr((g_NUM_OF_OHs / 2) - 1);
+            trig_tx_data_arr(i) <= trig_tx_data_arr(1);
         end generate; 
     end generate;
     

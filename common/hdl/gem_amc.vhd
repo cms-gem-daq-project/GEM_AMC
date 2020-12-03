@@ -236,6 +236,7 @@ architecture gem_amc_arch of gem_amc is
     
     --== Other ==--
     signal gemloader_stats              : t_gem_loader_stats;
+    signal gemloader_cfg                : t_gem_loader_cfg;
     signal ipb_miso_arr                 : ipb_rbus_array(g_NUM_IPB_SLAVES - 1 downto 0) := (others => (ipb_rdata => (others => '0'), ipb_ack => '0', ipb_err => '0'));
     
     --== Debug ==--
@@ -561,7 +562,8 @@ begin
             manual_link_reset_o         => manual_link_reset,
             global_reset_o              => manual_global_reset,
             manual_ipbus_reset_o        => manual_ipbus_reset,
-            gemloader_stats_i           => gemloader_stats
+            gemloader_stats_i           => gemloader_stats,
+            gemloader_cfg_o             => gemloader_cfg
         );
 
     --===============================--
@@ -827,7 +829,8 @@ begin
                 from_gem_loader_i  => from_gem_loader_i,
                 elink_data_o       => promless_tx_data,
                 hard_reset_i       => ttc_cmd.hard_reset,
-                gem_loader_stats_o => gemloader_stats
+                gem_loader_stats_o => gemloader_stats,
+                gem_loader_cfg_i   => gemloader_cfg
             );
     end generate;
         

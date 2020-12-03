@@ -209,7 +209,7 @@ begin
     process(ttc_clks_i.clk_40) is
     begin
         if (rising_edge(ttc_clks_i.clk_40)) then
-            if (reset = '1') then
+            if (reset = '1') or (ttc_ctrl.cmd_enable = '0') then
                 bc0_cmd_real        <= '0';
                 ec0_cmd_real        <= '0';
                 resync_cmd_real     <= '0';
@@ -560,6 +560,7 @@ begin
     -- Connect read signals
     regs_read_arr(4)(REG_TTC_CTRL_L1A_ENABLE_BIT) <= ttc_ctrl.l1a_enable;
     regs_read_arr(4)(REG_TTC_CTRL_CALIBRATION_MODE_BIT) <= ttc_ctrl.calib_mode;
+    regs_read_arr(4)(REG_TTC_CTRL_CMD_ENABLE_BIT) <= ttc_ctrl.cmd_enable;
     regs_read_arr(4)(REG_TTC_CTRL_DISABLE_PHASE_ALIGNMENT_BIT) <= ttc_ctrl.clk_ctrl.phase_align_disable;
     regs_read_arr(4)(REG_TTC_CTRL_PA_DISABLE_INIT_SHIFT_OUT_BIT) <= ttc_ctrl.clk_ctrl.pa_no_init_shift_out;
     regs_read_arr(4)(REG_TTC_CTRL_PA_MANUAL_OVERRIDE_BIT) <= ttc_ctrl.clk_ctrl.pa_manual_shift_ovrd;
@@ -625,6 +626,7 @@ begin
     -- Connect write signals
     ttc_ctrl.l1a_enable <= regs_write_arr(4)(REG_TTC_CTRL_L1A_ENABLE_BIT);
     ttc_ctrl.calib_mode <= regs_write_arr(4)(REG_TTC_CTRL_CALIBRATION_MODE_BIT);
+    ttc_ctrl.cmd_enable <= regs_write_arr(4)(REG_TTC_CTRL_CMD_ENABLE_BIT);
     ttc_ctrl.clk_ctrl.phase_align_disable <= regs_write_arr(4)(REG_TTC_CTRL_DISABLE_PHASE_ALIGNMENT_BIT);
     ttc_ctrl.clk_ctrl.pa_no_init_shift_out <= regs_write_arr(4)(REG_TTC_CTRL_PA_DISABLE_INIT_SHIFT_OUT_BIT);
     ttc_ctrl.clk_ctrl.pa_manual_shift_ovrd <= regs_write_arr(4)(REG_TTC_CTRL_PA_MANUAL_OVERRIDE_BIT);
@@ -674,6 +676,7 @@ begin
     -- Defaults
     regs_defaults(4)(REG_TTC_CTRL_L1A_ENABLE_BIT) <= REG_TTC_CTRL_L1A_ENABLE_DEFAULT;
     regs_defaults(4)(REG_TTC_CTRL_CALIBRATION_MODE_BIT) <= REG_TTC_CTRL_CALIBRATION_MODE_DEFAULT;
+    regs_defaults(4)(REG_TTC_CTRL_CMD_ENABLE_BIT) <= REG_TTC_CTRL_CMD_ENABLE_DEFAULT;
     regs_defaults(4)(REG_TTC_CTRL_DISABLE_PHASE_ALIGNMENT_BIT) <= REG_TTC_CTRL_DISABLE_PHASE_ALIGNMENT_DEFAULT;
     regs_defaults(4)(REG_TTC_CTRL_PA_DISABLE_INIT_SHIFT_OUT_BIT) <= REG_TTC_CTRL_PA_DISABLE_INIT_SHIFT_OUT_DEFAULT;
     regs_defaults(4)(REG_TTC_CTRL_PA_MANUAL_OVERRIDE_BIT) <= REG_TTC_CTRL_PA_MANUAL_OVERRIDE_DEFAULT;
