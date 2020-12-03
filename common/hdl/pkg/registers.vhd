@@ -42,6 +42,10 @@ package registers is
     constant REG_TTC_CTRL_CALIBRATION_MODE_BIT    : integer := 1;
     constant REG_TTC_CTRL_CALIBRATION_MODE_DEFAULT : std_logic := '0';
 
+    constant REG_TTC_CTRL_CMD_ENABLE_ADDR    : std_logic_vector(7 downto 0) := x"04";
+    constant REG_TTC_CTRL_CMD_ENABLE_BIT    : integer := 2;
+    constant REG_TTC_CTRL_CMD_ENABLE_DEFAULT : std_logic := '0';
+
     constant REG_TTC_CTRL_DISABLE_PHASE_ALIGNMENT_ADDR    : std_logic_vector(7 downto 0) := x"04";
     constant REG_TTC_CTRL_DISABLE_PHASE_ALIGNMENT_BIT    : integer := 4;
     constant REG_TTC_CTRL_DISABLE_PHASE_ALIGNMENT_DEFAULT : std_logic := '0';
@@ -1856,7 +1860,7 @@ package registers is
     -- This module is controlling GEM AMC System wide settings
     --============================================================================
 
-    constant REG_GEM_SYSTEM_NUM_REGS : integer := 12;
+    constant REG_GEM_SYSTEM_NUM_REGS : integer := 13;
     constant REG_GEM_SYSTEM_ADDRESS_MSB : integer := 16;
     constant REG_GEM_SYSTEM_ADDRESS_LSB : integer := 0;
     constant REG_GEM_SYSTEM_BOARD_ID_ADDR    : std_logic_vector(16 downto 0) := '0' & x"0002";
@@ -1939,6 +1943,11 @@ package registers is
     constant REG_GEM_SYSTEM_GEM_LOADER_LOADER_OVF_UNF_CNT_ADDR    : std_logic_vector(16 downto 0) := '0' & x"0402";
     constant REG_GEM_SYSTEM_GEM_LOADER_LOADER_OVF_UNF_CNT_MSB    : integer := 15;
     constant REG_GEM_SYSTEM_GEM_LOADER_LOADER_OVF_UNF_CNT_LSB     : integer := 0;
+
+    constant REG_GEM_SYSTEM_GEM_LOADER_FIRMWARE_SIZE_ADDR    : std_logic_vector(16 downto 0) := '0' & x"0410";
+    constant REG_GEM_SYSTEM_GEM_LOADER_FIRMWARE_SIZE_MSB    : integer := 31;
+    constant REG_GEM_SYSTEM_GEM_LOADER_FIRMWARE_SIZE_LSB     : integer := 0;
+    constant REG_GEM_SYSTEM_GEM_LOADER_FIRMWARE_SIZE_DEFAULT : std_logic_vector(31 downto 0) := x"005363f2";
 
 
     --============================================================================

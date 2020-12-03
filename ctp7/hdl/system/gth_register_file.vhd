@@ -182,18 +182,20 @@ begin
   gen_gth_rx_usrclk_cnt : for i in 0 to g_NUM_OF_GTH_GTs-1 generate
 
     -- PRBS error counters
-    process(clk_gth_rx_usrclk_arr_i(i))is
-    begin
-      if (rising_edge(clk_gth_rx_usrclk_arr_i(i))) then
-        s_prbs_err(i) <= gth_rx_status_arr_i(i).rxprbserr;
+    g_linu_not_null : if c_gth_config_arr(i).gth_link_type /= gth_null generate
+      process(clk_gth_rx_usrclk_arr_i(i))is
+      begin
+        if (rising_edge(clk_gth_rx_usrclk_arr_i(i))) then
+          s_prbs_err(i) <= gth_rx_status_arr_i(i).rxprbserr;
       
-        if (s_gth_prbs_cnt_rst_reg(i)(0) = '1') then
-          s_gth_prbs_cnt_reg(i) <= (others => '0');
-        elsif (s_prbs_err(i) = '1' and s_gth_prbs_cnt_reg(i) /= x"FFFFFFFF") then
-          s_gth_prbs_cnt_reg(i) <= std_logic_vector(unsigned(s_gth_prbs_cnt_reg(i)) + 1);
+          if (s_gth_prbs_cnt_rst_reg(i)(0) = '1') then
+            s_gth_prbs_cnt_reg(i) <= (others => '0');
+          elsif (s_prbs_err(i) = '1' and s_gth_prbs_cnt_reg(i) /= x"FFFFFFFF") then
+            s_gth_prbs_cnt_reg(i) <= std_logic_vector(unsigned(s_gth_prbs_cnt_reg(i)) + 1);
+          end if;
         end if;
-      end if;
-    end process;
+      end process;
+    end generate;
   
     -- 8b10b error counters
     g_8b10b_gth : if (c_gth_config_arr(i).gth_link_type = gth_3p2g) or (c_gth_config_arr(i).gth_link_type = gth_tx_10p24g_rx_3p2g) or (c_gth_config_arr(i).gth_link_type = gth_9p6g) generate
@@ -1162,9 +1164,7 @@ begin
 
   gen_gth_common_qpll : for i in 0 to g_NUM_OF_GTH_COMMONs-1 generate
 
-    gth_common_reset_o(i) <= s_qpll_rst_reg(i)(0);
-    s_qpll_stat_reg(i)(0) <= gth_common_status_arr_i(i).QPLLLOCK;
-    s_qpll_stat_reg(i)(1) <= gth_common_status_arr_i(i).QPLLREFCLKLOST;
+    gth_common_reset_o(i) <= s_gth_rst_reg(i*4+0)(3) or s_gth_rst_reg(i*4+1)(3) or s_gth_rst_reg(i*4+2)(3) or s_gth_rst_reg(i*4+3)(3);
     
     gen_gth_common_channel : for j in 0 to 3 generate
     

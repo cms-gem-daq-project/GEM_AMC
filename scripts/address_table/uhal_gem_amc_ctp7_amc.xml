@@ -8,6 +8,7 @@
         <node id="CNT_RESET" address="0x2" permission="w" />
         <node id="PHASE_ALIGNMENT_RESET" address="0x3" permission="w" />
         <node id="L1A_ENABLE" address="0x4" permission="rw" mask="0x1" />
+        <node id="CMD_ENABLE" address="0x4" permission="rw" mask="0x4" />
         <node id="CALIBRATION_MODE" address="0x4" permission="rw" mask="0x2" />
         <node id="L1A_DELAY" address="0x4" permission="rw" mask="0x3ff00000" />
         <node id="DISABLE_PHASE_ALIGNMENT" address="0x4" permission="rw" mask="0x10" />
@@ -529,6 +530,7 @@
         <node id="GBT_LOOPBACK_EN" address="0x0" permission="rw" mask="0x1" />
       </node>
       <node id="GEM_LOADER" address="0x400" >
+        <node id="FIRMWARE_SIZE" address="0x10" permission="rw" mask="0xffffffff" />
         <node id="LOAD_REQUEST_CNT" address="0x0" permission="r" mask="0xffff" />
         <node id="LOAD_SUCCESS_CNT" address="0x0" permission="r" mask="0xffff0000" />
         <node id="LOAD_FAIL_CNT" address="0x1" permission="r" mask="0xffff" />
@@ -3528,6 +3530,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -3537,6 +3540,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -3558,6 +3562,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -3567,6 +3572,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -3588,6 +3594,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -3597,6 +3604,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -3618,6 +3626,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -3627,6 +3636,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -3648,6 +3658,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -3657,6 +3668,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -3678,6 +3690,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -3687,6 +3700,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -3708,6 +3722,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -3717,6 +3732,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -3738,6 +3754,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -3747,6 +3764,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -3768,6 +3786,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -3777,6 +3796,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -3798,6 +3818,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -3807,6 +3828,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -3828,6 +3850,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -3837,6 +3860,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -3858,6 +3882,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -3867,6 +3892,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -3888,6 +3914,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -3897,6 +3924,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -3918,6 +3946,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -3927,6 +3956,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -3948,6 +3978,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -3957,6 +3988,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -3978,6 +4010,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -3987,6 +4020,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -4008,6 +4042,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4017,6 +4052,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -4038,6 +4074,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4047,6 +4084,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -4068,6 +4106,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4077,6 +4116,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -4098,6 +4138,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4107,6 +4148,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -4128,6 +4170,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4137,6 +4180,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -4158,6 +4202,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4167,6 +4212,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -4188,6 +4234,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4197,6 +4244,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -4218,6 +4266,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4227,6 +4276,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -4248,6 +4298,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4257,6 +4308,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -4278,6 +4330,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4287,6 +4340,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -4308,6 +4362,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4317,6 +4372,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -4338,6 +4394,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4347,6 +4404,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -4368,6 +4426,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4377,6 +4436,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -4398,6 +4458,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4407,6 +4468,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -4428,6 +4490,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4437,6 +4500,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -4458,6 +4522,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4467,6 +4532,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -4488,6 +4554,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4497,6 +4564,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -4518,6 +4586,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4527,6 +4596,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -4548,6 +4618,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4557,6 +4628,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -4578,6 +4650,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4587,6 +4660,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -4608,6 +4682,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4617,6 +4692,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -4638,6 +4714,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4647,6 +4724,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -4668,6 +4746,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4677,6 +4756,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -4698,6 +4778,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4707,6 +4788,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -4728,6 +4810,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4737,6 +4820,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -4758,6 +4842,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4767,6 +4852,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -4788,6 +4874,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4797,6 +4884,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -4818,6 +4906,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4827,6 +4916,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -4848,6 +4938,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4857,6 +4948,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -4878,6 +4970,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4887,6 +4980,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -4908,6 +5002,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4917,6 +5012,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -4938,6 +5034,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4947,6 +5044,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -4968,6 +5066,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -4977,6 +5076,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -4998,6 +5098,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -5007,6 +5108,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -5028,6 +5130,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -5037,6 +5140,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -5058,6 +5162,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -5067,6 +5172,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -5088,6 +5194,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -5097,6 +5204,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -5118,6 +5226,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -5127,6 +5236,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -5148,6 +5258,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -5157,6 +5268,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -5178,6 +5290,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -5187,6 +5300,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -5208,6 +5322,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -5217,6 +5332,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -5238,6 +5354,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -5247,6 +5364,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -5268,6 +5386,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -5277,6 +5396,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -5298,6 +5418,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -5307,6 +5428,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -5328,6 +5450,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -5337,6 +5460,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -5358,6 +5482,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -5367,6 +5492,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -5388,6 +5514,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -5397,6 +5524,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
@@ -5418,6 +5546,7 @@
           <node id="TX_RESET" address="0x0" permission="rw" mask="0x1" />
           <node id="RX_RESET" address="0x0" permission="rw" mask="0x2" />
           <node id="CPLL_RESET" address="0x0" permission="rw" mask="0x4" />
+          <node id="QPLL_RESET" address="0x0" permission="rw" mask="0x8" />
         </node>
         <node id="CTRL" address="0x2" permission="rw" >
           <node id="TX_POWERDOWN" address="0x0" permission="rw" mask="0x1" />
@@ -5427,6 +5556,7 @@
           <node id="LOOPBACK" address="0x0" permission="rw" mask="0x10" />
           <node id="TX_INHIBIT" address="0x0" permission="rw" mask="0x20" />
           <node id="RX_LOW_POWER_MODE" address="0x0" permission="rw" mask="0x40" />
+          <node id="CPLL_POWERDOWN" address="0x0" permission="rw" mask="0x80" />
           <node id="RX_PRBS_SEL" address="0x1" permission="rw" mask="0x7" />
           <node id="TX_PRBS_SEL" address="0x1" permission="rw" mask="0x70" />
           <node id="PRBS_CNT_RESET" address="0x2" permission="w" mask="0x1" />
