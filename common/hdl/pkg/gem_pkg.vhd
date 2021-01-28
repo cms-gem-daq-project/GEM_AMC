@@ -10,10 +10,10 @@ package gem_pkg is
     --==  Firmware version  ==--
     --========================-- 
 
-    constant C_FIRMWARE_DATE    : std_logic_vector(31 downto 0) := x"20201202";
+    constant C_FIRMWARE_DATE    : std_logic_vector(31 downto 0) := x"20210126";
     constant C_FIRMWARE_MAJOR   : integer range 0 to 255        := 3;
     constant C_FIRMWARE_MINOR   : integer range 0 to 255        := 12;
-    constant C_FIRMWARE_BUILD   : integer range 0 to 255        := 4;
+    constant C_FIRMWARE_BUILD   : integer range 0 to 255        := 7;
     
     ------ Change log ------
     -- 1.8.6 no gbt sync procedure with oh
@@ -132,6 +132,9 @@ package gem_pkg is
     -- 3.12.2 L1A delay setting added. TTC module calibration mode is simplified - enabling calibration mode simply triggers the calpulse on L1A, and then the L1A can be delayed using the new delay setting
     -- 3.12.3 CPLL power-down control added to the GTH control register (bit 7) - this should be used before resetting the CPLL
     -- 3.12.4 Fixed EMTF overlap link mapping, QPLL reset register added, TTC command enable register added, GEMLoader firmware size register added (it is now disconnected from the UW GEMloader IP firmware size reg)
+    -- 3.12.5 Changed AXI Chip2Chip signal pins as per UW recommendation, and removed the requirement the RX startup FSM for CPLL lock to go down, because now the QPLL/CPLL reset outputs are driven by the user software instead
+    -- 3.12.6 Stop GBT loopback counters when loopback is disabled
+    -- 3.12.7 Trying to fix an issue with L1A propagation (removed double driver)
 
     --======================--
     --==      General     ==--
